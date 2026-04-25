@@ -26,7 +26,7 @@
 <section class="panel detail"><div class="head"><b>Selected Rule</b><span class="small muted">IF → THEN → NEVER</span></div><div class="body" id="detail"><div class="empty">Select a pattern. The full decision rule will appear here.</div></div></section>
 </main>
 <script>
-const DATA='data/sap_c02_knowledge_graph.json';let KG,N,E,byId,domains=[],selectedDomain='',selectedPattern='',view='patterns';
+const DATA='../data/sap_c02_knowledge_graph.json';let KG,N,E,byId,domains=[],selectedDomain='',selectedPattern='',view='patterns';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const color=t=>({Domain:'#ff9500',DecisionPattern:'#007aff',Concept:'#34c759',AntiPattern:'#ff3b30'}[t]||'#8e8e93');
 async function init(){try{KG=await fetch(DATA).then(r=>{if(!r.ok)throw Error(r.status);return r.json()})}catch(e){$('detail').innerHTML=`<h2>Could not load JSON</h2><p class="muted">If opening locally, run <code>python3 -m http.server 8000</code>. On GitHub Pages this works automatically.</p>`;return}N=KG.nodes;E=KG.edges;byId=Object.fromEntries(N.map(n=>[n.id,n]));domains=N.filter(n=>n.type==='Domain').sort((a,b)=>(a.order||0)-(b.order||0));renderAll();bind()}
