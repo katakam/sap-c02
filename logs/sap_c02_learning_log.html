@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SAP-C02 Log</title>
+<style>
+:root {
+  --bg:#000;--card:#1c1c1e;--card2:#2c2c2e;--card3:#3a3a3c;
+  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);
+  --label:rgba(255,255,255,0.92);--label2:rgba(255,255,255,0.5);--label3:rgba(255,255,255,0.22);
+  --blue:#0A84FF;--green:#30D158;--orange:#FF9F0A;--red:#FF453A;--indigo:#5E5CE6;--teal:#5AC8FA;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  --safe-bottom:env(safe-area-inset-bottom,16px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--label);min-height:100dvh;-webkit-font-smoothing:antialiased;}
+
+/* HEADER */
+.hdr{padding:52px 16px 12px;position:sticky;top:0;z-index:10;background:rgba(0,0,0,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;}
+.hdr-title{font-size:17px;font-weight:700;letter-spacing:-0.3px;}
+.hdr-sub{font-size:12px;color:var(--label2);margin-top:2px;}
+.hdr-back{font-size:13px;color:var(--blue);font-weight:500;text-decoration:none;}
+.hdr-actions{display:flex;gap:8px;}
+.hbtn{font-family:var(--font);font-size:12px;font-weight:500;padding:5px 12px;border:1px solid var(--border2);border-radius:100px;background:var(--card2);color:var(--label2);cursor:pointer;}
+.hbtn.blue{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:12px;font-weight:600;padding:6px 12px;border-radius:100px;border:1px solid var(--border);background:var(--card2);color:var(--label2);cursor:pointer;white-space:nowrap;}
+.chip.on{color:#fff;border-color:transparent;}
+.chip[data-f="all"].on{background:var(--label2);color:var(--bg);}
+.chip[data-f="mistake"].on{background:var(--red);}
+.chip[data-f="trap"].on{background:var(--orange);}
+.chip[data-f="pattern"].on{background:var(--green);}
+.chip[data-f="learning"].on{background:var(--blue);}
+.chip[data-f="question"].on{background:var(--indigo);}
+.chip[data-f="D1"].on,.chip[data-f="D2"].on,.chip[data-f="D3"].on,.chip[data-f="D4"].on,.chip[data-f="D5"].on{background:var(--card3);color:var(--label);}
+
+/* SEARCH */
+.search-wrap{padding:0 16px 10px;position:relative;}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px 10px 36px;color:var(--label);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none;}
+.search-wrap input:focus{border-color:var(--blue);}
+.search-wrap input::placeholder{color:var(--label3);}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--label3);font-size:14px;pointer-events:none;}
+
+/* FEED */
+.feed{padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-bottom:calc(100px + var(--safe-bottom));}
+.empty{text-align:center;padding:60px 20px;color:var(--label2);font-size:14px;}
+
+/* ENTRY CARD */
+.ec{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;}
+.ec-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.badge{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:3px 9px;border-radius:100px;}
+.badge.mistake{background:rgba(255,69,58,0.15);color:var(--red);}
+.badge.trap{background:rgba(255,159,10,0.15);color:var(--orange);}
+.badge.pattern{background:rgba(48,209,88,0.15);color:var(--green);}
+.badge.learning{background:rgba(10,132,255,0.15);color:var(--blue);}
+.badge.question{background:rgba(94,92,230,0.15);color:var(--indigo);}
+.ec-domain{font-size:11px;color:var(--label3);}
+.ec-del{margin-left:auto;font-size:18px;color:var(--label3);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;}
+.ec-title{font-size:14px;font-weight:600;color:var(--label);letter-spacing:-0.2px;line-height:1.35;}
+.ec-body{font-size:13px;color:var(--label2);margin-top:6px;line-height:1.55;}
+.ec-correct{margin-top:8px;padding:8px 10px;background:rgba(48,209,88,0.07);border-left:3px solid var(--green);border-radius:0 8px 8px 0;font-size:12px;color:var(--label2);}
+.ec-correct-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--green);margin-bottom:3px;}
+.ec-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.ec-tag{font-size:11px;padding:2px 8px;border-radius:100px;background:rgba(10,132,255,0.1);color:var(--blue);}
+.ec-meta{font-size:11px;color:var(--label3);margin-top:6px;}
+
+/* CONFIDENCE DOT */
+.conf{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
+.conf.low{background:var(--red);}
+.conf.medium{background:var(--orange);}
+.conf.high{background:var(--green);}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(20px + var(--safe-bottom));right:20px;width:56px;height:56px;border-radius:50%;background:var(--blue);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(10,132,255,0.4);z-index:50;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;}
+.fab:active{transform:scale(0.92);}
+.fab.open{transform:rotate(45deg);}
+
+/* SHEET OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:60;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px);}
+.overlay.show{opacity:1;pointer-events:all;}
+
+/* BOTTOM SHEET */
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:70;background:var(--card);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:0 0 calc(12px + var(--safe-bottom));transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 16px;}
+.sheet-title{font-size:16px;font-weight:700;letter-spacing:-0.3px;padding:0 16px 14px;border-bottom:1px solid var(--border);}
+.sheet-body{padding:14px 16px;}
+.sheet-types{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+.sheet-types::-webkit-scrollbar{display:none;}
+.stype{flex-shrink:0;font-size:13px;font-weight:600;padding:8px 14px;border-radius:100px;border:1px solid var(--border);background:var(--card2);color:var(--label2);cursor:pointer;}
+.stype.sel{color:#fff;border-color:transparent;}
+.stype[data-t="mistake"].sel{background:var(--red);}
+.stype[data-t="trap"].sel{background:var(--orange);}
+.stype[data-t="pattern"].sel{background:var(--green);}
+.stype[data-t="learning"].sel{background:var(--blue);}
+.stype[data-t="question"].sel{background:var(--indigo);}
+
+.field-label{font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--label2);margin-bottom:6px;}
+textarea,input[type=text]{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--label);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none;resize:none;}
+textarea:focus,input[type=text]:focus{border-color:var(--blue);}
+textarea::placeholder,input::placeholder{color:var(--label3);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--label);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none;appearance:none;}
+.conf-row{display:flex;gap:6px;margin-top:10px;}
+.cbtn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--label2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;text-align:center;}
+.cbtn.sel.low{background:rgba(255,69,58,0.2);border-color:var(--red);color:var(--red);}
+.cbtn.sel.medium{background:rgba(255,159,10,0.2);border-color:var(--orange);color:var(--orange);}
+.cbtn.sel.high{background:rgba(48,209,88,0.2);border-color:var(--green);color:var(--green);}
+.sheet-submit{width:100%;margin-top:14px;padding:14px;background:var(--blue);border:none;border-radius:14px;color:#fff;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;}
+.sheet-submit:active{opacity:0.85;}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.95);border:1px solid var(--border);color:var(--label);font-size:13px;font-weight:500;padding:10px 18px;border-radius:100px;backdrop-filter:blur(20px);opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-title">SAP-C02 Log</div>
+      <div class="hdr-sub" id="hdr-sub">Loading…</div>
+    </div>
+    <div class="hdr-actions">
+      <a href="../index.html" class="hbtn">← Hub</a>
+      <button class="hbtn blue" onclick="doExport()">Export</button>
+    </div>
+  </div>
+</div>
+
+<div class="filters" id="type-chips">
+  <span class="chip on" data-f="all">All</span>
+  <span class="chip" data-f="mistake">❌ Mistake</span>
+  <span class="chip" data-f="trap">⚠️ Trap</span>
+  <span class="chip" data-f="pattern">✅ Pattern</span>
+  <span class="chip" data-f="learning">📘 Learning</span>
+  <span class="chip" data-f="question">❓ Question</span>
+</div>
+<div class="filters" id="domain-chips">
+  <span class="chip on" data-d="all">All Domains</span>
+  <span class="chip" data-d="D1">D1 Org</span>
+  <span class="chip" data-d="D2">D2 New Sol</span>
+  <span class="chip" data-d="D3">D3 Migration</span>
+  <span class="chip" data-d="D4">D4 Cost</span>
+  <span class="chip" data-d="D5">D5 Improve</span>
+</div>
+<div class="search-wrap">
+  <span class="search-icon">⌕</span>
+  <input id="q" type="search" placeholder="Search entries…" autocomplete="off">
+</div>
+
+<div class="feed" id="feed"></div>
+
+<button class="fab" id="fab" onclick="toggleSheet()">+</button>
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+
+<!-- BOTTOM SHEET -->
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">New Entry</div>
+  <div class="sheet-body">
+    <div class="sheet-types">
+      <span class="stype sel" data-t="mistake">❌ Mistake</span>
+      <span class="stype" data-t="trap">⚠️ Trap</span>
+      <span class="stype" data-t="pattern">✅ Pattern</span>
+      <span class="stype" data-t="learning">📘 Learning</span>
+      <span class="stype" data-t="question">❓ Question</span>
+    </div>
+
+    <div class="field-label">What happened / What I learned</div>
+    <textarea id="s-text" rows="3" placeholder="e.g. Chose Express Workflow for 90-day order — WRONG. Standard = up to 1 year. Express = 5 min max."></textarea>
+
+    <div id="correct-wrap" style="margin-top:10px;">
+      <div class="field-label">Correct rule (THEN)</div>
+      <textarea id="s-correct" rows="2" placeholder="e.g. Step Functions Standard for any workflow >5min. Catch → compensation states for Saga."></textarea>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <div class="field-label">Domain</div>
+        <select id="s-domain">
+          <option value="D1">D1 Org</option>
+          <option value="D2">D2 New Sol</option>
+          <option value="D3">D3 Migration</option>
+          <option value="D4">D4 Cost</option>
+          <option value="D5">D5 Improve</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Services / Tags</div>
+        <input type="text" id="s-tags" placeholder="e.g. Step Functions">
+      </div>
+    </div>
+
+    <div class="field-label" style="margin-top:10px;">Confidence After</div>
+    <div class="conf-row">
+      <button class="cbtn low" data-c="low">🔴 Low</button>
+      <button class="cbtn sel medium" data-c="medium">🟡 Getting it</button>
+      <button class="cbtn high" data-c="high">🟢 Locked in</button>
+    </div>
+
+    <button class="sheet-submit" onclick="addEntry()">Add Entry →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+const KEY = 'sap_c02_log_v1';
+const EXAM_START = new Date('2025-04-07');
+let entries = [];
+let activeType = 'mistake';
+let activeConf = 'medium';
+let filterType = 'all';
+let filterDomain = 'all';
+
+function load() {
+  try { entries = JSON.parse(localStorage.getItem(KEY)) || []; }
+  catch(e) { entries = []; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(entries)); }
+function genId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+function currentDay() {
+  return Math.max(1, Math.min(21, Math.floor((Date.now()-EXAM_START)/86400000)+1));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function toggleSheet() {
+  const open = document.getElementById('sheet').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show', open);
+  document.getElementById('fab').classList.toggle('open', open);
+  if (open) setTimeout(()=>document.getElementById('s-text').focus(), 350);
+}
+function closeSheet() {
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('fab').classList.remove('open');
+}
+
+function addEntry() {
+  const text = document.getElementById('s-text').value.trim();
+  if (!text) { toast('Write something first'); return; }
+  const tags = document.getElementById('s-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const entry = {
+    id: genId(),
+    type: activeType,
+    title: text.split('\n')[0].slice(0,100),
+    text,
+    correct: document.getElementById('s-correct').value.trim(),
+    domain: document.getElementById('s-domain').value,
+    tags,
+    confidence: activeConf,
+    day: currentDay(),
+    ds: new Date().toISOString().slice(0,10),
+    ts: new Date().toISOString()
+  };
+  entries.unshift(entry);
+  save();
+  // reset form
+  ['s-text','s-correct','s-tags'].forEach(id=>document.getElementById(id).value='');
+  closeSheet();
+  renderAll();
+  toast('✓ Entry logged');
+}
+
+function del(id) {
+  entries = entries.filter(e=>e.id!==id);
+  save(); renderAll();
+  toast('Deleted');
+}
+
+function filtered() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  return entries.filter(e => {
+    const tok = filterType==='all' || e.type===filterType;
+    const dok = filterDomain==='all' || e.domain===filterDomain;
+    const qok = !q || [e.title,e.text,e.correct,(e.tags||[]).join(' ')].join(' ').toLowerCase().includes(q);
+    return tok && dok && qok;
+  });
+}
+
+function renderFeed() {
+  const feed = document.getElementById('feed');
+  const list = filtered();
+  if (!list.length) {
+    feed.innerHTML = '<div class="empty">No entries. Tap + to add your first.</div>';
+    return;
+  }
+  feed.innerHTML = list.map(e=>{
+    const tags = (e.tags||[]).map(t=>`<span class="ec-tag">${esc(t)}</span>`).join('');
+    const correct = e.correct ? `<div class="ec-correct"><div class="ec-correct-label">✅ Rule</div>${esc(e.correct)}</div>` : '';
+    const confClass = e.confidence||'medium';
+    return `<div class="ec">
+      <div class="ec-top">
+        <span class="badge ${e.type}">${e.type}</span>
+        <span class="ec-domain">${e.domain||''} · Day ${e.day||'?'}</span>
+        <button class="ec-del" onclick="del('${e.id}')">×</button>
+      </div>
+      <div class="ec-title">${esc(e.title||e.text||'').slice(0,120)}</div>
+      ${e.text && e.title && e.text!==e.title ? `<div class="ec-body">${esc(e.text).slice(0,200)}</div>` : ''}
+      ${correct}
+      ${tags ? `<div class="ec-tags">${tags}</div>` : ''}
+      <div class="ec-meta"><span class="conf ${confClass}"></span>${new Date(e.ts||e.ds).toLocaleDateString('en-SG',{day:'2-digit',month:'short'})}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHeader() {
+  const total = entries.length;
+  const mis = entries.filter(e=>e.type==='mistake').length;
+  const pat = entries.filter(e=>e.type==='pattern').length;
+  document.getElementById('hdr-sub').textContent = `${total} entries · ${mis} mistakes · ${pat} patterns`;
+}
+
+function renderAll() { renderHeader(); renderFeed(); }
+
+// Type filter chips
+document.querySelectorAll('#type-chips .chip').forEach(c=>c.onclick=()=>{
+  filterType=c.dataset.f;
+  document.querySelectorAll('#type-chips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  renderFeed();
+});
+document.querySelectorAll('#domain-chips .chip').forEach(c=>c.onclick=()=>{
+  filterDomain=c.dataset.d;
+  document.querySelectorAll('#domain-chips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  renderFeed();
+});
+document.getElementById('q').addEventListener('input', renderFeed);
+
+// Sheet type buttons
+document.querySelectorAll('.stype').forEach(b=>b.onclick=()=>{
+  activeType=b.dataset.t;
+  document.querySelectorAll('.stype').forEach(x=>x.classList.toggle('sel',x===b));
+  const showCorrect = activeType==='mistake'||activeType==='trap'||activeType==='pattern';
+  document.getElementById('correct-wrap').style.display=showCorrect?'':'none';
+});
+
+// Confidence buttons
+document.querySelectorAll('.cbtn').forEach(b=>b.onclick=()=>{
+  activeConf=b.dataset.c;
+  document.querySelectorAll('.cbtn').forEach(x=>{
+    x.classList.remove('sel','low','medium','high');
+  });
+  b.classList.add('sel',b.dataset.c);
+});
+
+// Export
+function doExport() {
+  const out = JSON.stringify({meta:{exported:new Date().toISOString(),count:entries.length},entries},null,2);
+  const blob = new Blob([out],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`sap_c02_log_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  navigator.clipboard.writeText(out).catch(()=>{});
+  toast('✓ Exported — copy to data/learning_log.json');
+}
+
+function handleImport(e) {
+  const file=e.target.files[0];
+  if (!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try {
+      const data=JSON.parse(ev.target.result);
+      const imp=data.entries||data;
+      if (!Array.isArray(imp)) throw new Error('bad format');
+      const seen=new Set(entries.map(e=>e.id));
+      const added=imp.filter(e=>!seen.has(e.id));
+      entries=[...added,...entries];
+      save(); renderAll();
+      toast(`Imported ${added.length} entries`);
+    } catch(err){toast('Import failed: '+err.message);}
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+// Swipe down to close sheet
+let touchStart=0;
+document.getElementById('sheet').addEventListener('touchstart',e=>touchStart=e.touches[0].clientY,{passive:true});
+document.getElementById('sheet').addEventListener('touchmove',e=>{
+  if (e.touches[0].clientY-touchStart>60) closeSheet();
+},{passive:true});
+
+load(); renderAll();
+</script>
+</body>
+</html>
