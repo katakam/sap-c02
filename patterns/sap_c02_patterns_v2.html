@@ -522,10 +522,10 @@ em { color: var(--label2); }
 <details class="pattern-card">
 <summary><span class="chevron">›</span><span class="summary-text">SCP Deny-List + Acquired Account Carve-Out</span><span class="counter">Scenarios 1 · 6</span></summary>
 <div class="pattern-body">
-<div class="if-block"><div class="block-label">IF / WHEN</div>Root SCP blocks a resource type AND a new/acquired account needs temporary access to that blocked resource</div>
-<div class="then-block"><div class="block-label">THEN</div>Create a <strong>temporary OU</strong> (e.g. <code>Onboarding</code>). Attach an <strong>Allow SCP</strong> for the carve-out to that OU. Move the account into it. After freeze period, move to Production OU — root SCP re-applies automatically.</div>
-<div class="not-block"><div class="block-label">NEVER</div>• IAM permission boundaries — <em>cannot override SCPs</em><br>• Adding a second Deny SCP to child OU — deny lists stack, they do not cancel<br>• Condition keys on root SCP (e.g. <code>aws:PrincipalAccount</code>) — per-account carve-outs must use OU structure</div>
-<div class="why-block"><div class="block-label">WHY IT WORKS</div>Effective permissions = intersection of ALL SCPs in the OU hierarchy. A child-OU Allow SCP carves out the exception while the root SCP remains unchanged. Authorization order: Organization SCPs → Resource-based policies → IAM policies → Permission boundaries → Session policies.</div>
+<div class="if-block"><div class="block-label">IF / WHEN</div>An account is limited by an SCP allow-list and needs temporary access during onboarding or acquisition</div>
+<div class="then-block"><div class="block-label">THEN</div>Create a <strong>temporary OU</strong> (for example, <code>Onboarding</code>). Attach the required <strong>Allow SCP</strong> at that OU and move the account there. After onboarding, move it to the Production OU so normal SCP limits apply again.</div>
+<div class="not-block"><div class="block-label">NEVER</div>• IAM permission boundaries — they <em>cannot override SCPs</em><br>• Child OU Allow SCP to bypass a parent <strong>explicit Deny</strong> — explicit Deny always wins<br>• Extra Deny SCPs to “cancel” another Deny — Deny statements stack</div>
+<div class="why-block"><div class="block-label">WHY IT WORKS</div>SCPs set the maximum available permissions for member accounts. An action needs IAM/resource-policy permission and must be allowed by every applicable SCP. An explicit Deny in any applicable policy is final.</div>
 <div class="tags"><span class="tag">SCPs</span><span class="tag">Organizations</span><span class="tag">OU</span></div>
 </div>
 </details>
@@ -534,17 +534,16 @@ em { color: var(--label2); }
 <summary><span class="chevron">›</span><span class="summary-text">SCP Evaluation Logic — Full Authorization Chain</span><span class="counter">General — High Frequency</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>Question asks whether an action will be allowed or denied given a combination of SCPs, IAM policies, and resource policies</div>
-<div class="then-block"><div class="block-label">THEN — EVALUATION ORDER</div>
+<div class="then-block"><div class="block-label">THEN — EVALUATION LOGIC</div>
 <table><thead><tr><th>Step</th><th>Check</th><th>Result if Deny</th></tr></thead><tbody>
 <tr><td>1</td><td><strong>Explicit Deny anywhere</strong> (SCP, IAM, resource policy)</td><td>DENY — final</td></tr>
-<tr><td>2</td><td><strong>Organization SCP</strong> — does it allow the action?</td><td>DENY if not allowed</td></tr>
-<tr><td>3</td><td><strong>Resource-based policy</strong> (if cross-account) — explicit Allow?</td><td>DENY if absent</td></tr>
-<tr><td>4</td><td><strong>IAM identity policy</strong> — explicit Allow?</td><td>DENY if absent</td></tr>
-<tr><td>5</td><td><strong>Permission boundary</strong> (if exists) — within boundary?</td><td>DENY if outside</td></tr>
-<tr><td>6</td><td><strong>Session policy</strong> (if AssumeRole) — within session scope?</td><td>DENY if outside</td></tr>
+<tr><td>2</td><td><strong>SCP/RCP maximum permissions</strong> — is the action allowed by org guardrails?</td><td>DENY if not allowed</td></tr>
+<tr><td>3</td><td><strong>Identity + resource policies</strong> — does at least one applicable policy allow it?</td><td>DENY if no Allow</td></tr>
+<tr><td>4</td><td><strong>Permission boundary</strong> (if present) — is the action within the boundary?</td><td>DENY if outside</td></tr>
+<tr><td>5</td><td><strong>Session policy</strong> (if present) — is the action within the session scope?</td><td>DENY if outside</td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">CRITICAL TRAPS</div>• Management account is <strong>exempt from SCPs</strong> — SCPs never apply to the management account<br>• SCPs do not grant permissions — they only restrict what IAM policies CAN grant<br>• <code>NotAction</code> in SCP = allow everything except listed actions (deny-list pattern)<br>• <code>Action</code> in SCP with Allow = allow-list pattern — everything else is implicitly denied</div>
+<div class="not-block"><div class="block-label">CRITICAL TRAPS</div>• SCPs <strong>do not apply to the management account</strong><br>• SCPs do not grant permissions — they only set maximum permissions<br>• Deny-list SCP: use <code>Deny</code> with <code>Action</code> or <code>NotAction</code><br>• Allow-list SCP: only explicitly allowed services/actions remain available; everything else is implicitly unavailable</div>
 <div class="tags"><span class="tag">SCPs</span><span class="tag">IAM</span><span class="tag">Authorization</span></div>
 </div>
 </details>
@@ -657,7 +656,7 @@ em { color: var(--label2); }
 <summary><span class="chevron">›</span><span class="summary-text">S3 Data Classification + Access Control — Macie + SCPs + Object Lock</span><span class="counter">Scenario 51</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>Auto-classify S3 objects (PII, PHI, CONFIDENTIAL) on upload, restrict access by classification, enforce via SCP (account admins cannot override), immutable audit logs, scan existing objects</div>
-<div class="then-block"><div class="block-label">THEN</div><strong>Amazon Macie</strong> (delegated admin from Security account) auto-detects PII/PHI → EventBridge rule → Lambda applies S3 Object Tags (<code>classification=PII</code>). <strong>SCP with <code>s3:ExistingObjectTag</code> condition</strong>: Deny <code>s3:GetObject</code> where tag=PII unless principal matches approved role ARN. <strong>S3 Object Lock COMPLIANCE</strong> on audit bucket (even root cannot delete). <strong>Macie scheduled discovery jobs</strong> for existing objects.</div>
+<div class="then-block"><div class="block-label">THEN</div>Use <strong>Amazon Macie</strong> with a delegated administrator to discover sensitive data in S3. Run scheduled or targeted discovery jobs, publish findings to EventBridge, and use Lambda to apply S3 object tags such as <code>classification=PII</code>. Use an <strong>SCP with <code>s3:ExistingObjectTag</code></strong> to deny <code>s3:GetObject</code> for tagged sensitive objects unless the principal is an approved role. Store audit logs in an S3 bucket with <strong>Object Lock COMPLIANCE</strong>.</div>
 <div class="not-block"><div class="block-label">NEVER</div>• Amazon Rekognition for PII detection — Rekognition classifies images/video only<br>• Bucket policies alone — account admins can override, SCP is required for org-level enforcement<br>• S3 Object Lock GOVERNANCE mode for immutability — GOVERNANCE can be overridden by users with <code>s3:BypassGovernanceRetention</code>. COMPLIANCE mode = truly immutable</div>
 <div class="tags"><span class="tag">Amazon Macie</span><span class="tag">S3 Object Lock</span><span class="tag">SCPs</span><span class="tag">EventBridge</span></div>
 </div>
@@ -673,7 +672,7 @@ em { color: var(--label2); }
 <tr><td>Shared service cost allocation</td><td><strong>Cost Categories</strong> split charge rules</td></tr>
 <tr><td>Per-BU showback</td><td>Cost Allocation Tags + Cost Explorer</td></tr>
 <tr><td>Per-BU budget alerts to different contacts</td><td>AWS Budgets → SNS → Lambda → DynamoDB lookup → SES</td></tr>
-<tr><td>RI/SP sharing across accounts</td><td>Consolidated billing — <strong>automatic</strong>, no config needed</td></tr>
+<tr><td>RI/SP sharing across accounts</td><td>Consolidated billing — sharing is on by default, but can be disabled per account</td></tr>
 </tbody></table>
 </div>
 <div class="not-block"><div class="block-label">NEVER</div>QuickSight with Cost Explorer as data source — Cost Explorer is pre-aggregated, not line-item granularity. CUR → Athena gives full line-item detail.</div>
@@ -705,7 +704,7 @@ em { color: var(--label2); }
 <table><thead><tr><th>Pattern</th><th>Components</th></tr></thead><tbody>
 <tr><td>Single VPC connectivity</td><td>DX Connection → Private VIF → Virtual Private Gateway (VGW)</td></tr>
 <tr><td>Multiple VPCs via one DX</td><td>DX Connection → <strong>Direct Connect Gateway</strong> → Transit Gateway or multiple VGWs</td></tr>
-<tr><td>High availability (SLA 99.99%)</td><td>Two DX connections from two different DX locations → two VIFs</td></tr>
+<tr><td>High availability</td><td>For the highest resiliency, use separate DX connections at separate DX locations; follow AWS DX Resiliency Toolkit models</td></tr>
 <tr><td>DX + VPN failover</td><td>BGP metrics: DX = lower MED (preferred). VPN = higher MED (backup). Automatic failover.</td></tr>
 <tr><td>Routing control</td><td>BGP community tags control route propagation. AS_PATH prepending for traffic engineering.</td></tr>
 </tbody></table>
@@ -725,10 +724,10 @@ em { color: var(--label2); }
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Service</th><th>Use When</th><th>Key Limit</th></tr></thead><tbody>
 <tr><td><strong>Kinesis Data Streams</strong></td><td>High-throughput ordered streaming, replay, fan-out, Flink/Lambda consumers</td><td>1MB/s or 1K records/s per shard</td></tr>
-<tr><td><strong>Amazon MSK (Kafka)</strong></td><td>Existing Kafka workloads, Kafka Streams, MirrorMaker, exactly-once with Transactions API</td><td>No managed cross-region replication</td></tr>
+<tr><td><strong>Amazon MSK (Kafka)</strong></td><td>Existing Kafka workloads, Kafka Streams, MirrorMaker, exactly-once with Transactions API</td><td>Use MSK Replicator or MirrorMaker for cross-region replication</td></tr>
 <tr><td><strong>EventBridge</strong></td><td>Event routing between AWS services, SaaS integrations, low-volume event-driven triggers</td><td>~10K events/sec default per bus</td></tr>
 <tr><td><strong>SQS Standard</strong></td><td>Decoupling, at-least-once, high-throughput queue, dead-letter, long polling</td><td>Unlimited throughput, no ordering</td></tr>
-<tr><td><strong>SQS FIFO</strong></td><td>Exactly-once, strict ordering within message group</td><td>3K msg/sec with batching</td></tr>
+<tr><td><strong>SQS FIFO</strong></td><td>Exactly-once, strict ordering within message group</td><td>Default: 300 msg/s or 3K msg/s with batching; high-throughput FIFO can scale higher</td></tr>
 <tr><td><strong>SNS</strong></td><td>Fan-out to multiple subscribers (SQS, Lambda, HTTP, email)</td><td>No replay, fire-and-forget</td></tr>
 </tbody></table>
 </div>
@@ -749,11 +748,11 @@ em { color: var(--label2); }
 </details>
 
 <details class="pattern-card">
-<summary><span class="chevron">›</span><span class="summary-text">Global Leaderboard — Sub-10ms Reads, 500K Writes/sec, RPO=0</span><span class="counter">Scenario 12</span></summary>
+<summary><span class="chevron">›</span><span class="summary-text">Global Leaderboard — Sub-10ms Reads, Very High Writes, Active-Active</span><span class="counter">Scenario 12</span></summary>
 <div class="pattern-body">
-<div class="if-block"><div class="block-label">IF / WHEN</div>Global leaderboard: sub-10ms reads, 500K writes/sec, RPO=0, RTO&lt;30s, no pre-provisioning, 90-day audit</div>
-<div class="then-block"><div class="block-label">THEN</div><strong>DynamoDB Global Tables on-demand</strong> (durable score writes, active-active, RPO=0, LWW conflict resolution) → <strong>ElastiCache Redis Global Datastore</strong> sorted sets <code>ZADD/ZRANGE</code> (sub-1ms leaderboard reads per region) → DynamoDB Streams → EventBridge Pipes → Kinesis Firehose → S3 (90-day audit)</div>
-<div class="not-block"><div class="block-label">NEVER</div>• DynamoDB GSI for leaderboard ranking — GSIs are not globally sorted across all partitions<br>• Redis Global Datastore alone — async replication ≠ RPO=0, no durable backup on cluster restart<br>• Aurora Global Database for 500K writes/sec — single writer bottleneck</div>
+<div class="if-block"><div class="block-label">IF / WHEN</div>Global leaderboard needs sub-10ms reads, very high writes, active-active regions, no pre-provisioning, and 90-day audit</div>
+<div class="then-block"><div class="block-label">THEN</div><strong>DynamoDB Global Tables on-demand</strong> for durable multi-region writes (asynchronous replication, last-writer-wins conflict handling) → <strong>ElastiCache Redis Global Datastore</strong> sorted sets <code>ZADD/ZRANGE</code> for sub-ms regional leaderboard reads → DynamoDB Streams → EventBridge Pipes → Kinesis Firehose → S3 for audit.</div>
+<div class="not-block"><div class="block-label">NEVER</div>• DynamoDB GSI for global ranking — GSIs are not globally sorted across all partitions<br>• Redis Global Datastore as the only system of record — replication is asynchronous and cache durability is not enough<br>• Aurora Global Database for 500K writes/sec — one primary writer region becomes the bottleneck<br>• Claim strict RPO=0 from native Global Tables alone — replication is asynchronous</div>
 <div class="tags"><span class="tag">DynamoDB Global Tables</span><span class="tag">ElastiCache Redis</span><span class="tag">ZADD/ZRANGE</span><span class="tag">Firehose</span></div>
 </div>
 </details>
@@ -762,8 +761,8 @@ em { color: var(--label2); }
 <summary><span class="chevron">›</span><span class="summary-text">HIPAA IoT at Scale — RPO=0, 500ms Alert, 7-Year Retention, BAA Required</span><span class="counter">Scenario 7</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>HIPAA IoT ingestion at millions of devices, anomaly alert &lt;500ms, RPO=0 on region failure, 7-year retention, CMK encryption, all services need BAA</div>
-<div class="then-block"><div class="block-label">THEN</div><strong>IoT Core</strong> → <strong>Kinesis Data Streams in TWO regions simultaneously</strong> (dual-write producers = RPO=0) → <strong>Managed Flink</strong> (500ms tumbling window) → <strong>DynamoDB Global Tables KMS CMK</strong> → <strong>S3 + Glacier Deep Archive lifecycle</strong> (7-year) → <strong>Route 53 ARC</strong> (RTO &lt;1min)</div>
-<div class="not-block"><div class="block-label">NEVER</div>• Single-region Kinesis — RPO≠0<br>• ElastiCache Redis — <strong>NOT HIPAA BAA eligible</strong><br>• Aurora Global DB — replication lag ~1s ≠ RPO=0<br>• EventBridge for 2M device throughput — ~10K/sec limit</div>
+<div class="then-block"><div class="block-label">THEN</div><strong>IoT Core</strong> → producers publish to <strong>Kinesis Data Streams in two regions</strong> and acknowledge only after both writes if strict RPO=0 is required → <strong>Managed Flink</strong> for low-latency windows → <strong>DynamoDB Global Tables with KMS CMKs</strong> → <strong>S3 + Glacier Deep Archive lifecycle</strong> for 7-year retention → <strong>Route 53 ARC</strong> for controlled failover.</div>
+<div class="not-block"><div class="block-label">NEVER</div>• Single-region Kinesis for zero data loss on regional failure<br>• Redis as the durable medical record store — use it only as a cache<br>• Aurora Global Database when the question requires strict RPO=0 — replication is asynchronous<br>• EventBridge for multi-million device telemetry throughput — use streaming ingestion</div>
 <div class="why-block"><div class="block-label">KEY FACT</div>RPO=0 requires <strong>dual-region producers</strong>. Any replication-after-the-fact approach always has lag → RPO &gt; 0.</div>
 <div class="tags"><span class="tag">IoT Core</span><span class="tag">Kinesis</span><span class="tag">Flink</span><span class="tag">Route 53 ARC</span><span class="tag">HIPAA</span></div>
 </div>
@@ -791,7 +790,7 @@ em { color: var(--label2); }
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>Multi-region active-active API, 100K RPS, remove region from rotation instantly (no DNS TTL delay), sub-50ms session access globally</div>
 <div class="then-block"><div class="block-label">THEN</div><strong>AWS Global Accelerator</strong> (anycast IPs, AWS backbone routing, endpoint weight=0 = instant removal) → regional ALB + ECS Fargate → <strong>DynamoDB Global Tables on-demand</strong> → <strong>ElastiCache Global Datastore</strong> (sub-ms regional session reads)</div>
-<div class="not-block"><div class="block-label">NEVER</div>• Route 53 latency-based routing for instant removal — DNS TTL minimum 60s<br>• CloudFront + Lambda@Edge for dynamic API logic — Lambda@Edge max 30s, no VPC access<br>• S3 for session state — 10-50ms read latency</div>
+<div class="not-block"><div class="block-label">NEVER</div>• Route 53 latency-based routing for instant removal — DNS caching/TTL can delay traffic shifts<br>• CloudFront + Lambda@Edge for complex dynamic API logic — Lambda@Edge has short timeouts and no VPC access<br>• S3 for session state — 10-50ms read latency</div>
 <div class="why-block"><div class="block-label">KEY DIFFERENTIATOR</div><strong>Global Accelerator weight=0 = instant</strong>. Route 53 record change = DNS TTL propagation. Use GA when instant regional removal or health-check based routing over AWS backbone is required.</div>
 <div class="tags"><span class="tag">Global Accelerator</span><span class="tag">DynamoDB Global Tables</span><span class="tag">ElastiCache Global Datastore</span></div>
 </div>
@@ -824,9 +823,9 @@ Use <strong>Parallel state</strong> for concurrent branches. <strong>Catch + Com
 <table><thead><tr><th>Database</th><th>Use When</th></tr></thead><tbody>
 <tr><td><strong>Aurora MySQL/PostgreSQL</strong></td><td>Relational OLTP, ACID, complex joins, stored procedures, lift-and-shift from MySQL/Oracle/SQL Server</td></tr>
 <tr><td><strong>Aurora Global Database</strong></td><td>Multi-region active-read, RPO &lt;1s, RTO &lt;1min with managed failover</td></tr>
-<tr><td><strong>Aurora Serverless v2</strong></td><td>Variable/unpredictable workload, pay-per-ACU, scales in &lt;1s, no idle cost at 0.5 ACU min</td></tr>
-<tr><td><strong>DynamoDB</strong></td><td>Single-table design, key-value/document, &lt;10ms at any scale, 500K+ writes/sec, no joins</td></tr>
-<tr><td><strong>DynamoDB Global Tables</strong></td><td>Active-active multi-region, RPO=0, LWW conflict resolution, &lt;1s replication</td></tr>
+<tr><td><strong>Aurora Serverless v2</strong></td><td>Variable/unpredictable workload, pay per ACU, scales quickly; idle cost depends on the configured minimum ACU</td></tr>
+<tr><td><strong>DynamoDB</strong></td><td>Key-value/document access, single-table design, single-digit ms latency at scale, no joins</td></tr>
+<tr><td><strong>DynamoDB Global Tables</strong></td><td>Active-active multi-region, asynchronous replication, last-writer-wins conflict resolution</td></tr>
 <tr><td><strong>ElastiCache Redis</strong></td><td>Sub-ms reads, session state, leaderboards (sorted sets), pub/sub, caching layer in front of RDS/DynamoDB</td></tr>
 <tr><td><strong>Amazon Timestream</strong></td><td>Time-series data (IoT sensor data, metrics, log data with timestamps)</td></tr>
 <tr><td><strong>Amazon QLDB</strong></td><td>Immutable, cryptographically verifiable ledger (financial audit, supply chain tracking)</td></tr>
@@ -845,11 +844,11 @@ Use <strong>Parallel state</strong> for concurrent branches. <strong>Catch + Com
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Service</th><th>Use When</th><th>Key Limits</th></tr></thead><tbody>
 <tr><td><strong>Lambda</strong></td><td>Event-driven, stateless, &lt;15min execution, scale-to-zero, pay-per-invocation</td><td>15min timeout, 10GB memory, 10GB /tmp, no GPU</td></tr>
-<tr><td><strong>ECS Fargate</strong></td><td>Containerized, &gt;15min tasks, custom runtimes, GPU inference, persistent connections</td><td>4 vCPU / 30GB per task (standard), scale-to-zero possible</td></tr>
+<tr><td><strong>ECS Fargate</strong></td><td>Containerized workloads, &gt;15min tasks, custom runtimes, long-running services, persistent connections</td><td>No GPU support; Linux tasks can scale up to 16 vCPU / 120GB in supported configurations</td></tr>
 <tr><td><strong>App Runner</strong></td><td>HTTP/HTTPS web apps and APIs from container or source code, no infrastructure management</td><td>Automatic scaling, built-in load balancing, no VPC required</td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">NEVER</div>Lambda for: GPU inference (no GPU support), &gt;15min processing, persistent TCP connections, large binary processing &gt;10GB. Use Fargate instead.</div>
+<div class="not-block"><div class="block-label">NEVER</div>Use Lambda for GPU inference, &gt;15-minute processing, persistent TCP connections, or local files larger than its storage limits. Use ECS/EKS on EC2 GPU or SageMaker for GPU workloads; use Fargate for long-running non-GPU containers.</div>
 <div class="tags"><span class="tag">Lambda</span><span class="tag">ECS Fargate</span><span class="tag">App Runner</span></div>
 </div>
 </details>
@@ -883,10 +882,10 @@ Use <strong>Parallel state</strong> for concurrent branches. <strong>Catch + Com
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Feature</th><th>Use When</th></tr></thead><tbody>
 <tr><td><strong>Origin Access Control (OAC)</strong></td><td>Restrict S3 access to CloudFront only (replaces legacy OAI). Eliminates direct S3 URL access.</td></tr>
-<tr><td><strong>Lambda@Edge</strong></td><td>Complex request manipulation, A/B testing, JWT validation at edge. Max 30s (viewer) / 5s (origin).</td></tr>
+<tr><td><strong>Lambda@Edge</strong></td><td>Complex request manipulation, A/B testing, JWT validation at edge. Max 5s for viewer events and 30s for origin events.</td></tr>
 <tr><td><strong>CloudFront Functions</strong></td><td>Lightweight URL rewrites, header manipulation, &lt;1ms execution. Cheaper than Lambda@Edge.</td></tr>
 <tr><td><strong>Origin Shield</strong></td><td>Additional caching layer between edge PoPs and origin. Reduces origin load by 60-80% during spikes.</td></tr>
-<tr><td><strong>WAF integration</strong></td><td>AWS WAF on CloudFront distribution = global DDoS + application-layer protection at edge</td></tr>
+<tr><td><strong>WAF integration</strong></td><td>AWS WAF on CloudFront = edge L7 protection (SQLi, XSS, bots, rate rules). Shield handles L3/L4 DDoS.</td></tr>
 <tr><td><strong>Price Class</strong></td><td>100 = NA + Europe only (cheapest). 200 = + Asia/ME/Africa. All = all PoPs (most expensive).</td></tr>
 </tbody></table>
 </div>
@@ -928,7 +927,7 @@ Use <strong>Parallel state</strong> for concurrent branches. <strong>Catch + Com
 <tr><td><strong>AWS Backup</strong></td><td>Centralized backup policy across EC2, RDS, DynamoDB, EFS, S3</td><td>Backup plans, PITR, cross-account/region backup</td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">NEVER</div>• AWS SMS — <strong>deprecated</strong>. Always use MGN.<br>• DMS for SAP HANA — DMS does not support HANA as source/target<br>• Snowball when network bandwidth makes transfer feasible in time — DataSync is faster and supports live CDC<br>• Transfer Family (SFTP) for bulk NAS migration — designed for file transfer workflows, not bulk migration</div>
+<div class="not-block"><div class="block-label">NEVER</div>• AWS SMS — <strong>deprecated</strong>. Always use MGN.<br>• DMS for SAP HANA — DMS does not support HANA as source/target<br>• Snowball when network bandwidth meets the timeline — DataSync is simpler and supports incremental/scheduled transfers<br>• Transfer Family (SFTP) for bulk NAS migration — designed for file transfer workflows, not bulk migration</div>
 <div class="tags"><span class="tag">MGN</span><span class="tag">DMS</span><span class="tag">SCT</span><span class="tag">DataSync</span><span class="tag">Snowball</span></div>
 </div>
 </details>
@@ -1016,12 +1015,12 @@ Formula: Transfer time (hours) = Data size (bytes) / (Bandwidth (bits/s) / 8) / 
 <tr><td>Oracle (OLTP)</td><td><strong>Aurora PostgreSQL</strong></td><td>SCT + DMS CDC</td></tr>
 <tr><td>MySQL</td><td><strong>Aurora MySQL</strong></td><td>DMS CDC (homogeneous, no SCT needed)</td></tr>
 <tr><td>SQL Server (preserve T-SQL/Agent Jobs)</td><td><strong>RDS for SQL Server</strong></td><td>DMS CDC</td></tr>
-<tr><td>MongoDB (time-series data)</td><td><strong>Amazon Timestream</strong></td><td>DMS (MongoDB supported as source)</td></tr>
-<tr><td>MongoDB (document)</td><td>Amazon DocumentDB</td><td>DMS</td></tr>
+<tr><td>MongoDB (time-series data)</td><td><strong>Amazon Timestream</strong></td><td>Refactor ingestion/ETL; DMS is not a direct Timestream target</td></tr>
+<tr><td>MongoDB (document)</td><td>Amazon DocumentDB</td><td>DMS or native MongoDB tools, with compatibility validation</td></tr>
 <tr><td>PostgreSQL</td><td><strong>Aurora PostgreSQL</strong></td><td>DMS CDC (homogeneous)</td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">NEVER</div>• MySQL → DynamoDB — complete re-architecture (relational → NoSQL)<br>• MongoDB time-series → DocumentDB — DocumentDB not optimized for time-series; use Timestream<br>• All databases → DynamoDB — requires full application redesign<br>• DMS for SAP HANA — not supported</div>
+<div class="not-block"><div class="block-label">NEVER</div>• MySQL → DynamoDB — complete re-architecture (relational → NoSQL)<br>• MongoDB time-series → DocumentDB by default — DocumentDB is not optimized for time-series analytics; consider Timestream with refactored ingestion<br>• All databases → DynamoDB — requires full application redesign<br>• DMS for SAP HANA — not supported</div>
 <div class="tags"><span class="tag">SCT</span><span class="tag">DMS</span><span class="tag">Aurora</span><span class="tag">Timestream</span><span class="tag">DocumentDB</span></div>
 </div>
 </details>
@@ -1119,9 +1118,9 @@ Formula: Transfer time (hours) = Data size (bytes) / (Bandwidth (bits/s) / 8) / 
 <summary><span class="chevron">›</span><span class="summary-text">Inter-AZ Data Transfer Cost Elimination — AZ-Aware Routing</span><span class="counter">Scenario 69 · General</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>High inter-AZ transfer costs from ECS tasks in AZ-a calling RDS/ElastiCache in AZ-b, or cross-AZ load balancer traffic</div>
-<div class="then-block"><div class="block-label">THEN</div>Enable <strong>AZ-aware routing</strong>: ECS Service Connect with AZ-affinity, or configure application to call same-AZ reader endpoint. For ALB: enable <strong>cross-zone load balancing disabled</strong> or use NLB with AZ-local DNS. Ensures callers always reach same-AZ targets.</div>
+<div class="then-block"><div class="block-label">THEN</div>Prefer <strong>AZ-local routing</strong> where supported: ECS Service Connect AZ affinity, NLB zonal DNS, and same-AZ caches/read replicas where the application can choose endpoints. For load balancers, review cross-zone load balancing settings and cost impact before changing them.</div>
 <div class="not-block"><div class="block-label">NEVER</div>• Changing the database engine to fix inter-AZ costs — the charge comes from <em>traffic crossing AZs</em>, not the engine<br>• Deploying all resources in a single AZ — removes HA for marginal cost saving</div>
-<div class="why-block"><div class="block-label">KEY FACT</div>Inter-AZ data transfer = $0.01/GB <em>each way</em>. For high-throughput microservices this compounds rapidly. Always co-locate callers and callees in the same AZ.</div>
+<div class="why-block"><div class="block-label">KEY FACT</div>Inter-AZ data transfer is commonly charged per GB in each direction. For high-throughput services, keep chatty callers and callees AZ-local when you can do so without sacrificing HA.</div>
 <div class="tags"><span class="tag">Inter-AZ</span><span class="tag">ECS Service Connect</span><span class="tag">AZ-affinity</span></div>
 </div>
 </details>
@@ -1159,12 +1158,12 @@ Formula: Transfer time (hours) = Data size (bytes) / (Bandwidth (bits/s) / 8) / 
 <summary><span class="chevron">›</span><span class="summary-text">Data Transfer Cost — CloudFront vs Direct EC2/S3 Egress</span><span class="counter">Scenario 64 · General</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>High EC2 or S3 data transfer out costs for content served directly to end users</div>
-<div class="then-block"><div class="block-label">THEN</div>Route content through <strong>CloudFront</strong>:
-<table><thead><tr><th>Path</th><th>$/GB (approx)</th><th>Difference</th></tr></thead><tbody>
-<tr><td>EC2 data transfer out</td><td>$0.09</td><td>Baseline</td></tr>
-<tr><td>S3 data transfer out</td><td>$0.09</td><td>Baseline</td></tr>
-<tr><td><strong>CloudFront data transfer out</strong></td><td><strong>$0.0085</strong></td><td><strong>~90% cheaper</strong></td></tr>
-<tr><td>CloudFront Origin Shield</td><td>Small additional fee</td><td>Reduces origin requests by 60-80%</td></tr>
+<div class="then-block"><div class="block-label">THEN</div>Route cacheable content through <strong>CloudFront</strong> to reduce origin requests, improve latency, and optimize egress based on cache hit ratio and price class:
+<table><thead><tr><th>Path</th><th>Cost Signal</th><th>Decision</th></tr></thead><tbody>
+<tr><td>EC2 data transfer out</td><td>Regional internet egress</td><td>No edge cache; every request reaches origin</td></tr>
+<tr><td>S3 data transfer out</td><td>Regional internet egress</td><td>No edge cache unless CloudFront is used</td></tr>
+<tr><td><strong>CloudFront data transfer out</strong></td><td>Varies by region/price class</td><td>Can reduce origin load and may lower egress cost depending on geography and cache hit rate</td></tr>
+<tr><td>CloudFront Origin Shield</td><td>Small additional fee</td><td>Reduces duplicate origin fetches during cache misses and spikes</td></tr>
 </tbody></table>
 Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct S3 URLs and force all traffic through CloudFront.
 </div>
@@ -1178,8 +1177,8 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <div class="if-block"><div class="block-label">IF / WHEN</div>Fargate at 15% avg CPU utilization, Aurora idle 40% off-hours, S3 logs never accessed after 30 days, cross-AZ data transfer costs high — no re-architecture allowed</div>
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Issue</th><th>Fix</th><th>Saving</th></tr></thead><tbody>
-<tr><td>Fargate over-provisioned (15% CPU)</td><td>Right-size task definition (halve vCPU/memory)</td><td>~50% on Fargate line item</td></tr>
-<tr><td>Aurora idle off-hours</td><td>Aurora Serverless v2 <code>min ACU = 0.5</code></td><td>~30-40% on Aurora line item</td></tr>
+<tr><td>Fargate over-provisioned (15% CPU)</td><td>Right-size task CPU and memory after validating headroom</td><td>Often the fastest compute saving</td></tr>
+<tr><td>Aurora idle off-hours</td><td>Aurora Serverless v2 with an appropriate minimum ACU</td><td>Pay for capacity that matches demand</td></tr>
 <tr><td>S3 logs, never read after 30 days</td><td>S3 Lifecycle: <strong>expire after 30 days</strong> (delete, not Glacier)</td><td>100% of post-30-day storage</td></tr>
 <tr><td>Cross-AZ data transfer</td><td>ECS Service Connect with AZ-local routing</td><td>Eliminates $0.01/GB cross-AZ charges</td></tr>
 </tbody></table>
@@ -1233,7 +1232,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <div class="if-block"><div class="block-label">IF / WHEN</div>Lambda cold start &gt;2s on Java runtime (Spring Boot). Or any runtime with cold start latency causing P99 SLA violations.</div>
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Solution</th><th>How</th><th>Cost</th><th>Best For</th></tr></thead><tbody>
-<tr><td><strong>Lambda SnapStart</strong></td><td>Snapshots initialized execution environment after init phase. Restores from snapshot on cold start.</td><td>No additional cost during idle</td><td>Java 11/17/21 only. Cold start drops to &lt;1s.</td></tr>
+<tr><td><strong>Lambda SnapStart</strong></td><td>Snapshots initialized execution environment after init phase. Restores from snapshot on cold start.</td><td>No additional cost during idle</td><td>Supported Java runtimes. Great for Java cold-start reduction without paying for idle concurrency.</td></tr>
 <tr><td><strong>Provisioned Concurrency</strong></td><td>Pre-warms N instances, always warm, zero cold start</td><td>Pay for pre-warmed instances always</td><td>Any runtime. Guaranteed zero cold start when concurrency is within provisioned capacity.</td></tr>
 </tbody></table>
 </div>
@@ -1246,9 +1245,9 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <summary><span class="chevron">›</span><span class="summary-text">SQS DLQ — Root Cause vs Symptom Fix + Message Schema Validation</span><span class="counter">Scenario 45 · General</span></summary>
 <div class="pattern-body">
 <div class="if-block"><div class="block-label">IF / WHEN</div>SQS DLQ accumulating thousands of messages — Lambda consumer failing on malformed payloads or processing errors</div>
-<div class="then-block"><div class="block-label">THEN</div>Fix the consumer logic: add <strong>schema validation</strong> → on valid: process + explicit <code>DeleteMessage</code>. On invalid payload: log to S3 quarantine + explicit <code>DeleteMessage</code> (don't re-enqueue). On genuine processing failure: let message return to queue and DLQ after <code>maxReceiveCount</code>. Then replay existing DLQ messages with corrected consumer.</div>
+<div class="then-block"><div class="block-label">THEN</div>Fix the consumer first: add <strong>schema validation</strong>. Valid payload → process successfully. Invalid payload → write to an S3 quarantine prefix and return success so Lambda's SQS event source mapping deletes it. Real processing failure → return failure so the message is retried and sent to the DLQ after <code>maxReceiveCount</code>. Replay the DLQ only after the fix is deployed.</div>
 <div class="not-block"><div class="block-label">NEVER</div>• Replay DLQ without fixing the consumer — same malformed messages go straight back to DLQ<br>• Increasing visibility timeout — does not fix malformed message handling, just delays DLQ entry<br>• Deleting DLQ messages without investigation — loss of debugging data</div>
-<div class="why-block"><div class="block-label">KEY FACT</div>SQS Lambda trigger: Lambda must call <code>DeleteMessage</code> on success. Without explicit delete, the message returns to queue after visibility timeout. DLQ receives messages after <code>maxReceiveCount</code> processing attempts.</div>
+<div class="why-block"><div class="block-label">KEY FACT</div>With an SQS event source mapping, Lambda deletes messages from the queue when the function reports success for the batch or item. Failed messages become visible again after the visibility timeout and move to the DLQ after <code>maxReceiveCount</code>.</div>
 <div class="tags"><span class="tag">SQS</span><span class="tag">DLQ</span><span class="tag">Lambda</span><span class="tag">Schema Validation</span></div>
 </div>
 </details>
@@ -1293,7 +1292,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <table><thead><tr><th>Problem</th><th>Fix</th></tr></thead><tbody>
 <tr><td>High writer CPU, unknown query bottleneck</td><td><strong>RDS Performance Insights</strong> (DB load per SQL, wait events, top SQL ranked by impact)</td></tr>
 <tr><td>Offload reads from writer</td><td>Add <strong>RDS/Aurora Read Replica</strong>, route SELECT queries to replica endpoint</td></tr>
-<tr><td>Table bloat + stale planner stats</td><td><strong>Redshift Automatic Table Optimization (ATO)</strong> or enable Aurora automatic VACUUM/ANALYZE</td></tr>
+<tr><td>PostgreSQL table bloat + stale planner stats</td><td>Tune/monitor <strong>autovacuum</strong>, run <code>VACUUM</code>/<code>ANALYZE</code> when needed, and fix long transactions</td></tr>
 <tr><td>Replica lag 45s during peak</td><td>Route latency-sensitive reads to writer, or upgrade replica instance class, or reduce write transaction size</td></tr>
 </tbody></table>
 </div>
@@ -1317,14 +1316,14 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <div class="if-block"><div class="block-label">IF / WHEN</div>500 CloudFormation stacks with drift, 2,400 over-privileged IAM roles, no centralized logging, inconsistent S3 encryption, EOL EC2 OS with CVEs</div>
 <div class="then-block"><div class="block-label">THEN</div>
 <table><thead><tr><th>Problem</th><th>AWS-Native Fix</th></tr></thead><tbody>
-<tr><td>CloudFormation drift across 20 accounts</td><td><strong>Config conformance pack</strong> + <code>CLOUDFORMATION_STACK_DRIFT_DETECTION_CHECK</code></td></tr>
+<tr><td>CloudFormation drift across 20 accounts</td><td><strong>AWS Config conformance pack</strong> with <code>CLOUDFORMATION_STACK_DRIFT_DETECTION_CHECK</code></td></tr>
 <tr><td>Over-privileged IAM roles (2,400 roles)</td><td><strong>IAM Access Analyzer</strong> policy generation from CloudTrail (least-privilege based on actual usage history)</td></tr>
 <tr><td>No centralized logs (7-day per-account)</td><td><strong>CloudTrail Organization Trail</strong> + S3 Object Lock COMPLIANCE + <strong>CloudTrail Lake</strong> for SQL queries</td></tr>
 <tr><td>Inconsistent S3 encryption</td><td>SCP: Deny <code>s3:PutObject</code> unless <code>s3:x-amz-server-side-encryption = aws:kms</code></td></tr>
 <tr><td>EOL OS + CVEs</td><td><strong>Amazon Inspector</strong> (CVE scanning org-wide) → Security Hub + <strong>SSM Patch Manager</strong></td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">NEVER</div>• AWS Config for CloudFormation stack drift — Config tracks <em>resource</em> configuration, not CF stack drift (requires <code>detect-stack-drift</code> API)<br>• GuardDuty for over-privileged IAM — GuardDuty = runtime anomaly detection, not static policy analysis<br>• CloudWatch Logs Insights for cross-account queries when logs are in per-account S3 — logs must first be in CloudWatch Logs</div>
+<div class="not-block"><div class="block-label">NEVER</div>• Plain Config resource recording alone for CloudFormation drift — use the managed drift detection rule or CloudFormation drift APIs<br>• GuardDuty for over-privileged IAM — GuardDuty is runtime threat detection, not static policy analysis<br>• CloudWatch Logs Insights for logs stored only in S3 — use Athena or ingest logs into CloudWatch Logs first</div>
 <div class="tags"><span class="tag">Config</span><span class="tag">IAM Access Analyzer</span><span class="tag">CloudTrail Lake</span><span class="tag">Inspector</span><span class="tag">SSM Patch</span></div>
 </div>
 </details>
@@ -1341,7 +1340,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <tr><td>No Lambda canary</td><td><strong>Lambda weighted alias</strong> + CodeDeploy + CloudWatch alarm auto-rollback</td></tr>
 </tbody></table>
 </div>
-<div class="not-block"><div class="block-label">NEVER</div>SQS FIFO for high-throughput EventBridge fan-out — FIFO max 3K msg/sec. Use Standard SQS (unlimited throughput) for high-volume buffering.</div>
+<div class="not-block"><div class="block-label">NEVER</div>Use SQS FIFO for high-volume fan-out unless strict ordering is required and the needed throughput is supported in the target Region. Use Standard SQS for maximum unordered buffering.</div>
 <div class="tags"><span class="tag">SQS Buffer</span><span class="tag">DynamoDB PITR</span><span class="tag">Lambda Alias</span><span class="tag">EventBridge</span></div>
 </div>
 </details>
@@ -1407,7 +1406,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <table><thead><tr><th>Trap</th><th>Reality</th></tr></thead><tbody>
 <tr><td>Step Functions Express for long-running workflows</td><td><strong>Express = 5min max.</strong> Long-running = Standard (up to 1 year)</td></tr>
 <tr><td>SageMaker Async Inference for real-time scoring</td><td>Async = minutes latency. Real-time endpoint = ms latency</td></tr>
-<tr><td>ElastiCache Redis = HIPAA BAA eligible</td><td>Redis is <strong>NOT HIPAA BAA eligible</strong>. Use DynamoDB or Aurora instead.</td></tr>
+<tr><td>Using Redis as the durable PHI database</td><td>Use DynamoDB/Aurora for durable PHI storage. Redis can be a cache only when covered by your AWS BAA and configured correctly.</td></tr>
 <tr><td>VPC Peering for transitive routing</td><td>VPC Peering = <strong>non-transitive</strong>. A→B→C routing requires Transit Gateway.</td></tr>
 <tr><td>AWS SMS for new migrations</td><td>SMS is <strong>deprecated</strong>. Always use AWS MGN.</td></tr>
 <tr><td>Shield Advanced for SQLi protection</td><td>Shield = volumetric DDoS. SQLi = <strong>AWS WAF Managed Rules</strong></td></tr>
@@ -1415,7 +1414,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <tr><td>GuardDuty identifies over-privileged IAM policies</td><td>GuardDuty = runtime anomaly detection. Static over-privilege = <strong>IAM Access Analyzer</strong></td></tr>
 <tr><td>Rekognition for PII/PHI detection in documents</td><td>Rekognition = images/video only. PII/PHI in documents = <strong>Amazon Macie</strong></td></tr>
 <tr><td>DMS for SAP HANA migration</td><td>DMS does <strong>not support SAP HANA</strong>. Use HANA System Replication (HSR).</td></tr>
-<tr><td>Aurora Serverless v2 achieves RPO=0</td><td>Aurora Global DB replication ~1s lag ≠ RPO=0. Dual-region producers = RPO=0.</td></tr>
+<tr><td>Aurora Global Database or DynamoDB Global Tables gives strict RPO=0</td><td>Both replicate asynchronously. Strict zero data loss needs the application to commit to multiple regions before acknowledging success.</td></tr>
 <tr><td>IAM Permission Boundary overrides SCP</td><td>Permission boundaries <strong>cannot override SCPs</strong>. SCPs are evaluated before IAM.</td></tr>
 <tr><td>Route 53 health checks for instant regional removal</td><td>DNS TTL delay. Use <strong>Global Accelerator weight=0</strong> or ARC routing controls.</td></tr>
 <tr><td>Kinesis Enhanced Fan-Out fixes hot write shards</td><td>EFO increases <em>read</em> consumer bandwidth. Hot shards = producer <strong>partition key cardinality</strong> problem.</td></tr>
@@ -1447,11 +1446,11 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <tr><td>Step Functions Standard</td><td><strong>1 year max</strong></td><td>Use for long-running workflows</td></tr>
 <tr><td>Lambda timeout</td><td><strong>15 minutes max</strong></td><td>Batch jobs &gt;15min → ECS/EMR</td></tr>
 <tr><td>Lambda memory</td><td><strong>128MB – 10,240MB</strong></td><td>More memory = more CPU, lower execution time</td></tr>
-<tr><td>Lambda@Edge timeout</td><td><strong>30s (viewer), 5s (origin)</strong></td><td>Not for complex API logic</td></tr>
+<tr><td>Lambda@Edge timeout</td><td><strong>5s (viewer events), 30s (origin events)</strong></td><td>No VPC access; not for complex regional API logic</td></tr>
 <tr><td>Lambda deployment package</td><td><strong>50MB zipped, 250MB unzipped, 10GB container</strong></td><td>Large ML models → container image</td></tr>
 <tr><td>API Gateway WebSocket connections</td><td><strong>128K concurrent</strong></td><td>Sufficient for most real-time apps</td></tr>
 <tr><td>EventBridge throughput</td><td><strong>~10K events/sec default per bus</strong></td><td>Not for high-throughput streaming</td></tr>
-<tr><td>SQS FIFO throughput</td><td><strong>3K msg/sec with batching</strong></td><td>High-throughput → Standard SQS</td></tr>
+<tr><td>SQS FIFO throughput</td><td><strong>Default 300 msg/s, 3K msg/s with batching; high-throughput FIFO can scale higher</strong></td><td>Use Standard SQS when strict ordering is not required</td></tr>
 <tr><td>SQS message retention</td><td><strong>up to 14 days</strong></td><td>Maximum time a message stays in queue</td></tr>
 <tr><td>SQS visibility timeout</td><td><strong>up to 12 hours</strong></td><td>Set &gt; processing time to prevent duplicate delivery</td></tr>
 <tr><td>Kinesis shard write capacity</td><td><strong>1 MB/s or 1K records/s per shard</strong></td><td>Scale shards for throughput</td></tr>
@@ -1463,7 +1462,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <tr><td>CloudTrail event delivery</td><td><strong>up to 15 minutes</strong></td><td>Not for real-time compliance detection</td></tr>
 <tr><td>EC2 instance launch time</td><td><strong>60-90 seconds minimum</strong></td><td>Cannot absorb 30-second traffic spikes</td></tr>
 <tr><td>NAT Gateway data processing</td><td><strong>$0.045/GB</strong></td><td>VPC Gateway Endpoint = FREE</td></tr>
-<tr><td>CloudFront data transfer out</td><td><strong>~$0.0085/GB</strong></td><td>vs EC2 $0.09/GB — ~90% cheaper</td></tr>
+<tr><td>CloudFront data transfer out</td><td><strong>Varies by edge location and price class</strong></td><td>Cost benefit depends on cache hit ratio, geography, and origin offload</td></tr>
 <tr><td>Inter-AZ data transfer</td><td><strong>$0.01/GB each way</strong></td><td>Use AZ-local routing to eliminate</td></tr>
 <tr><td>Snowball Edge usable storage</td><td><strong>100TB per device</strong></td><td>10PB = 100 devices</td></tr>
 <tr><td>S3 Glacier Deep Archive retrieval</td><td><strong>12 hours standard</strong></td><td>Not for operational/active data</td></tr>
@@ -1471,7 +1470,7 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 <tr><td>S3 Glacier IR minimum storage</td><td><strong>90 days</strong></td><td>Early deletion fee applies</td></tr>
 <tr><td>S3 Glacier Deep Archive minimum</td><td><strong>180 days</strong></td><td>Early deletion fee applies</td></tr>
 <tr><td>RDS automated backup window</td><td><strong>up to 35 days PITR</strong></td><td>Restore to any point in the window</td></tr>
-<tr><td>ECS Fargate task size</td><td><strong>0.25-4 vCPU, up to 30GB</strong></td><td>Large ML inference → EC2 GPU needed</td></tr>
+<tr><td>ECS Fargate task size</td><td><strong>Up to 16 vCPU and 120GB memory for supported Linux tasks</strong></td><td>No GPU; large ML inference usually needs EC2 GPU or SageMaker</td></tr>
 <tr><td>CloudFront distribution count</td><td>200 per account (default)</td><td>Requestable increase for large-scale SaaS</td></tr>
 </tbody></table>
 </div>

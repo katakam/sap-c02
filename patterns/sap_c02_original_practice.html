@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAP-C02 Original Practice Questions</title>
+<style>
+:root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#111827; background:#f3f4f6; }
+body { margin:0; padding:24px; }
+main { max-width:980px; margin:0 auto; }
+h1 { margin:0 0 6px; font-size:28px; }
+p.note { margin:0 0 20px; color:#4b5563; }
+.card { background:white; border:1px solid #e5e7eb; border-radius:14px; padding:18px; margin:14px 0; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+.q { font-weight:700; margin-bottom:10px; }
+ol { margin:8px 0 0 22px; }
+li { margin:6px 0; }
+details { margin-top:12px; background:#f9fafb; border-radius:10px; padding:10px 12px; }
+summary { cursor:pointer; font-weight:700; color:#065f46; }
+.answer { margin-top:8px; }
+.tag { display:inline-block; font-size:12px; color:#374151; background:#e5e7eb; border-radius:999px; padding:2px 8px; margin-top:10px; }
+</style>
+</head>
+<body>
+<main>
+<h1>SAP-C02 Original Practice Questions</h1>
+<p class="note">Original, exam-style practice content only. No real exam dumps or copyrighted exam items.</p>
+
+<div class="card"><div class="q">1. A company needs temporary access to services blocked by an SCP during acquisition onboarding. What is the best approach?</div><ol type="A"><li>Add an IAM permission boundary to override the SCP.</li><li>Create a temporary OU, attach the required Allow SCP, and move the account there.</li><li>Add another Deny SCP at the child OU.</li><li>Use the management account credentials in the acquired account.</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> SCPs define maximum permissions. Use OU placement for temporary guardrail differences. Permission boundaries cannot override SCPs.</div></details><span class="tag">Organizations / SCP</span></div>
+
+<div class="card"><div class="q">2. An API must run active-active across Regions and remove a Region immediately without DNS TTL delay. Which service is best?</div><ol type="A"><li>Route 53 latency routing</li><li>AWS Global Accelerator</li><li>CloudFront signed URLs</li><li>Transit Gateway peering</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Global Accelerator uses static anycast IPs and endpoint weights for fast traffic shifting. DNS-based failover can be delayed by caching/TTL.</div></details><span class="tag">Networking / HA</span></div>
+
+<div class="card"><div class="q">3. A workflow may wait for human approval and can run for several days. Which Step Functions workflow type should be used?</div><ol type="A"><li>Express workflow</li><li>Standard workflow</li><li>Lambda destination</li><li>EventBridge Scheduler only</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Standard workflows support long-running executions and callbacks. Express workflows are limited to short-duration workloads.</div></details><span class="tag">Step Functions</span></div>
+
+<div class="card"><div class="q">4. A Lambda function using Java has high cold-start latency but low, spiky traffic. The team wants minimal idle cost. What should they try first?</div><ol type="A"><li>Provisioned Concurrency for peak traffic all day</li><li>Lambda SnapStart</li><li>Move to EC2 Auto Scaling</li><li>Increase SQS visibility timeout</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> SnapStart reduces Java cold starts without paying continuously for pre-warmed concurrency.</div></details><span class="tag">Lambda</span></div>
+
+<div class="card"><div class="q">5. EC2 instances in private subnets send high traffic to S3 through NAT Gateway. How can cost be reduced most directly?</div><ol type="A"><li>Move instances to public subnets</li><li>Add an S3 Gateway VPC Endpoint</li><li>Add more NAT Gateways</li><li>Use AWS Site-to-Site VPN</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Gateway endpoints for S3/DynamoDB keep traffic private and avoid NAT data processing charges.</div></details><span class="tag">VPC / Cost</span></div>
+
+<div class="card"><div class="q">6. A Kinesis stream has 40 shards, but only 4 shards receive most writes. What is the likely fix?</div><ol type="A"><li>Enable Enhanced Fan-Out</li><li>Increase Lambda memory</li><li>Use a higher-cardinality partition key</li><li>Enable S3 lifecycle rules</li></ol><details><summary>Answer</summary><div class="answer"><b>C.</b> Hot write shards usually come from low-cardinality partition keys. EFO improves read throughput, not write distribution.</div></details><span class="tag">Kinesis</span></div>
+
+<div class="card"><div class="q">7. A company needs immutable audit logs for 7 years across all AWS accounts. Which design is most appropriate?</div><ol type="A"><li>Per-account CloudTrail with local S3 buckets</li><li>CloudTrail organization trail to S3 with Object Lock Compliance mode</li><li>CloudWatch Logs with 7-day retention</li><li>Config aggregator only</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Organization trails centralize events. S3 Object Lock Compliance mode prevents deletion during retention.</div></details><span class="tag">Audit / Security</span></div>
+
+<div class="card"><div class="q">8. A Windows application requires SMB file shares and Active Directory integration with no code changes. Which storage service fits?</div><ol type="A"><li>Amazon EFS</li><li>Amazon FSx for Windows File Server</li><li>S3 Glacier Instant Retrieval</li><li>Instance store</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> FSx for Windows supports SMB and AD integration. EFS is NFS-focused for Linux workloads.</div></details><span class="tag">Migration / Storage</span></div>
+
+<div class="card"><div class="q">9. A database migration from Oracle to Aurora PostgreSQL must minimize downtime and reduce license cost. Which tools are best?</div><ol type="A"><li>SCT for conversion and DMS full load + CDC</li><li>Snowball only</li><li>RDS read replica only</li><li>CloudFront and Lambda@Edge</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> SCT helps convert schema/code. DMS full load + CDC keeps source and target synchronized until cutover.</div></details><span class="tag">Migration / Database</span></div>
+
+<div class="card"><div class="q">10. A workload runs 6 hours per day on EMR and remains idle the rest of the time. What is the best cost pattern?</div><ol type="A"><li>Buy 3-year RIs for all nodes</li><li>Use transient EMR clusters and terminate after jobs</li><li>Move all data to EBS io2</li><li>Disable CloudTrail</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Transient clusters avoid idle compute cost. Spot can further reduce cost for fault-tolerant task nodes.</div></details><span class="tag">Cost / EMR</span></div>
+
+<div class="card"><div class="q">11. A REST API requires API keys, usage plans, request validation, response caching, and WAF integration. Which API Gateway type is best?</div><ol type="A"><li>HTTP API</li><li>REST API</li><li>WebSocket API</li><li>PrivateLink endpoint service only</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> REST APIs support these advanced API management features. HTTP APIs are cheaper but have fewer features.</div></details><span class="tag">API Gateway</span></div>
+
+<div class="card"><div class="q">12. A system must detect public S3 buckets and auto-remediate across all member accounts. Which pattern fits best?</div><ol type="A"><li>AWS Config organization rule with SSM Automation remediation</li><li>Manual monthly review</li><li>GuardDuty only</li><li>CloudFront Origin Shield</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> Config evaluates resource compliance. SSM Automation can remediate violations at scale.</div></details><span class="tag">Compliance</span></div>
+
+<div class="card"><div class="q">13. A microservice sends malformed messages to SQS, and the DLQ keeps growing. What should be done first?</div><ol type="A"><li>Replay the DLQ immediately</li><li>Increase visibility timeout only</li><li>Fix consumer validation and quarantine invalid payloads</li><li>Delete the DLQ</li></ol><details><summary>Answer</summary><div class="answer"><b>C.</b> Fix the root cause first. Replaying before fixing the consumer sends bad messages back to the DLQ.</div></details><span class="tag">SQS / Reliability</span></div>
+
+<div class="card"><div class="q">14. A global relational database requires cross-Region reads and RPO under 1 minute. Which option is most appropriate?</div><ol type="A"><li>Aurora Global Database</li><li>S3 One Zone-IA</li><li>DynamoDB DAX only</li><li>CloudWatch Logs Insights</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> Aurora Global Database provides low-lag storage replication and secondary Region reads. It is not strict RPO=0.</div></details><span class="tag">Database / DR</span></div>
+
+<div class="card"><div class="q">15. A company must share Transit Gateway attachments and Route 53 Resolver rules with many accounts. What should it use?</div><ol type="A"><li>AWS RAM</li><li>IAM Access Analyzer</li><li>AWS Backup Vault Lock</li><li>Amazon Macie</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> AWS Resource Access Manager shares supported resources with accounts, OUs, or the organization.</div></details><span class="tag">Multi-account</span></div>
+
+<div class="card"><div class="q">16. A service needs strict ordering within customer workflows but high throughput across many customers. Which queue design is best?</div><ol type="A"><li>SQS Standard only</li><li>SQS FIFO using customer ID as MessageGroupId</li><li>One Lambda per customer</li><li>CloudTrail Lake</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> FIFO preserves order within each message group. Multiple message groups allow parallelism across customers.</div></details><span class="tag">SQS FIFO</span></div>
+
+<div class="card"><div class="q">17. A company needs centralized threat findings and compliance posture from GuardDuty, Inspector, Macie, and Config. Which service aggregates this?</div><ol type="A"><li>Security Hub</li><li>Shield Standard</li><li>S3 Inventory</li><li>Route 53 ARC</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> Security Hub aggregates security findings and compliance checks. It does not replace the detection services.</div></details><span class="tag">Security</span></div>
+
+<div class="card"><div class="q">18. A live sports platform needs low-latency adaptive bitrate streaming and global viewer scale. Which service chain is best?</div><ol type="A"><li>MediaLive → MediaPackage → CloudFront</li><li>Kinesis Data Streams → Athena → QuickSight</li><li>SQS FIFO → Lambda → EBS</li><li>Direct EC2 streaming servers only</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> AWS Elemental services handle live encoding/packaging; CloudFront scales global delivery.</div></details><span class="tag">Media / CDN</span></div>
+
+<div class="card"><div class="q">19. An application has hot DynamoDB writes for a small set of popular keys. Auto scaling is enabled but throttling continues. What should be changed?</div><ol type="A"><li>Use write sharding for hot keys</li><li>Enable CloudFront OAC</li><li>Use an SCP Allow list</li><li>Increase CloudWatch retention</li></ol><details><summary>Answer</summary><div class="answer"><b>A.</b> Table capacity does not remove per-partition limits. Write sharding distributes writes across partition keys.</div></details><span class="tag">DynamoDB</span></div>
+
+<div class="card"><div class="q">20. A company has logs in S3 and wants SQL analysis without loading them into CloudWatch Logs. What should it use?</div><ol type="A"><li>CloudWatch Logs Insights directly on S3</li><li>Athena with Glue Data Catalog</li><li>Shield Advanced</li><li>SQS long polling</li></ol><details><summary>Answer</summary><div class="answer"><b>B.</b> Athena queries data in S3 using table metadata from Glue. CloudWatch Logs Insights queries CloudWatch Logs data.</div></details><span class="tag">Analytics</span></div>
+
+</main>
+</body>
+</html>

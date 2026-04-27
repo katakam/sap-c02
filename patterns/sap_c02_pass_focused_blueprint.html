@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAP-C02 Pass-Focused Blueprint</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--ink:#111827;--muted:#6b7280;--blue:#2563eb;--green:#047857;--red:#b91c1c;--orange:#c2410c;--line:#e5e7eb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;padding:24px}main{max-width:1120px;margin:auto}.hero{background:#0f172a;color:white;border-radius:20px;padding:24px;margin-bottom:16px}.hero h1{margin:0 0 6px;font-size:30px}.hero p{margin:0;color:#cbd5e1}.warn{background:#fff7ed;border:1px solid #fdba74;color:#7c2d12;border-radius:14px;padding:14px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}.green{border-left:5px solid var(--green)}.blue{border-left:5px solid var(--blue)}.red{border-left:5px solid var(--red)}.orange{border-left:5px solid var(--orange)}h2{margin:28px 0 10px}h3{margin:0 0 8px}ul{margin:8px 0 0 22px;padding:0}li{margin:5px 0}table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden;margin:12px 0}th,td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef2ff;text-align:left}.pill{display:inline-block;background:#e5e7eb;color:#374151;border-radius:999px;padding:3px 9px;font-size:12px;margin:2px}.score{font-weight:800;color:var(--green)}.bad{color:var(--red);font-weight:700}.q{font-weight:700;margin-bottom:8px}details{margin-top:10px;background:#f9fafb;border-radius:10px;padding:10px 12px}summary{cursor:pointer;font-weight:700;color:var(--green)}code{background:#f3f4f6;padding:1px 4px;border-radius:4px}.small{color:var(--muted);font-size:14px}.toc a{display:inline-block;margin:4px 6px 4px 0;background:#dbeafe;color:#1e3a8a;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:13px}</style>
+</head>
+<body><main>
+<section class="hero"><h1>SAP-C02 Pass-Focused Blueprint</h1><p>Built from the available local study files: patterns, traps, and original practice content. Designed for a 10-day candidate sprint.</p></section>
+<div class="warn"><b>No honest guarantee:</b> Nobody can guarantee a pass. What I can build is a high-probability prep system: know the decision rules, test under time, close weak domains, and avoid common traps.</div>
+<div class="toc"><a href="#threshold">Ready-to-Book Threshold</a><a href="#weights">Domain Weighting</a><a href="#daily">Daily Execution</a><a href="#rules">Decision Rules</a><a href="#redflags">Failure Red Flags</a><a href="#drill">Final Drill</a></div>
+
+<h2 id="threshold">1) Ready-to-Book Threshold</h2>
+<div class="grid">
+<div class="card green"><h3>You are exam-ready when:</h3><ul><li>Two timed mocks score <span class="score">78%+</span>.</li><li>No domain below <span class="score">70%</span>.</li><li>You can explain why each wrong option is wrong.</li><li>You finish 75 questions with 20+ minutes left for review.</li><li>You miss fewer than 5 questions due to AWS service confusion.</li></ul></div>
+<div class="card orange"><h3>If mock score is 65–77%</h3><ul><li>Do not learn new random topics.</li><li>Review only missed domains and traps.</li><li>Redo questions by pattern, not by memorizing answers.</li><li>Delay exam if any high-weight domain is below 65%.</li></ul></div>
+<div class="card red"><h3>If mock score is &lt;65%</h3><ul><li>Do not sit in 10 days unless unavoidable.</li><li>Focus on Organizations, Networking, DR, Migration, and Cost first.</li><li>Use decision tables daily until service selection is automatic.</li></ul></div>
+</div>
+
+<h2 id="weights">2) SAP-C02 Domain Weighting Strategy</h2>
+<table><thead><tr><th>Domain</th><th>Weight</th><th>What to Master</th><th>Pass Strategy</th></tr></thead><tbody>
+<tr><td>Domain 1: Organizational Complexity</td><td><b>26%</b></td><td>Organizations, SCPs, IAM Identity Center, cross-account access, centralized networking/security</td><td>Must be strong. These questions are pattern-based and easy to score if rules are clear.</td></tr>
+<tr><td>Domain 2: New Solutions</td><td><b>29%</b></td><td>Serverless, databases, streaming, APIs, high availability, security by design</td><td>Highest weight. Practice service selection: Kinesis vs EventBridge vs SQS, Aurora vs DynamoDB, GA vs CloudFront.</td></tr>
+<tr><td>Domain 3: Migration Planning</td><td><b>20%</b></td><td>MGN, DMS, SCT, DataSync, Snowball, Storage Gateway, discovery tools</td><td>Very scorable. Learn “which migration tool when”.</td></tr>
+<tr><td>Domain 4: Cost Control</td><td><b>25%</b></td><td>RI/SP/Spot, S3 lifecycle, NAT endpoints, idle compute, data transfer</td><td>Also very scorable. Always match cost option to utilization pattern.</td></tr>
+</tbody></table>
+
+<h2 id="daily">3) 10-Day Execution Plan</h2>
+<table><thead><tr><th>Day</th><th>Primary Goal</th><th>Required Output</th></tr></thead><tbody>
+<tr><td>1</td><td>Organizations + IAM</td><td>Write 1-page rules: SCP, IAM Identity Center, cross-account roles, delegated admin.</td></tr>
+<tr><td>2</td><td>Networking</td><td>Draw: TGW hub-spoke, PrivateLink, hybrid DNS, DX + VPN failover.</td></tr>
+<tr><td>3</td><td>Security + Governance</td><td>Memorize GuardDuty vs Inspector vs Macie vs Security Hub vs Detective vs WAF vs Shield.</td></tr>
+<tr><td>4</td><td>Databases + Data</td><td>Build your own mapping: Aurora, DynamoDB, Redis, Redshift, Athena, OpenSearch, QLDB.</td></tr>
+<tr><td>5</td><td>Serverless + Integration</td><td>Master SQS/SNS/EventBridge/Kinesis/Step Functions/API Gateway/Lambda limits.</td></tr>
+<tr><td>6</td><td>Migration</td><td>Memorize MGN, DMS, SCT, DataSync, Snowball, Storage Gateway, ADS Agent, Migration Hub.</td></tr>
+<tr><td>7</td><td>Cost</td><td>Practice cost questions: Spot vs SP vs RI, S3 tiers, NAT endpoints, idle clusters, CloudFront.</td></tr>
+<tr><td>8</td><td>Reliability + DR</td><td>Master RTO/RPO, DRS, Aurora Global DB, DynamoDB Global Tables, Route 53 ARC, backup vs replication.</td></tr>
+<tr><td>9</td><td>Timed mock</td><td>Take 75-question timed mock. Review all misses. Create final weak-list.</td></tr>
+<tr><td>10</td><td>Light review</td><td>Review traps, numbers, and weak-list only. No new deep topics.</td></tr>
+</tbody></table>
+
+<h2 id="rules">4) High-Yield Decision Rules</h2>
+<div class="grid">
+<div class="card blue"><h3>Organizations / IAM</h3><ul><li>SCPs set maximum permissions; they do not grant access.</li><li>Explicit Deny always wins.</li><li>SCPs do not apply to the management account.</li><li>Workforce federation → IAM Identity Center.</li><li>External AWS account access → cross-account role.</li></ul></div>
+<div class="card blue"><h3>Networking</h3><ul><li>Many VPCs + transitive routing → Transit Gateway.</li><li>Private consumer access to service → PrivateLink.</li><li>Hybrid DNS → Route 53 Resolver inbound/outbound endpoints.</li><li>Instant regional removal → Global Accelerator or Route 53 ARC, not normal DNS.</li><li>Static/dynamic HTTP acceleration → CloudFront.</li></ul></div>
+<div class="card blue"><h3>Integration</h3><ul><li>High-throughput stream + replay → Kinesis Data Streams or MSK.</li><li>Event routing + SaaS integrations → EventBridge.</li><li>Worker decoupling + buffering → SQS.</li><li>Fanout → SNS to SQS queues.</li><li>Long workflows → Step Functions Standard, not Express.</li></ul></div>
+<div class="card blue"><h3>Database</h3><ul><li>Relational + joins → Aurora/RDS.</li><li>Massive key-value scale → DynamoDB.</li><li>Sub-ms leaderboard/session cache → Redis.</li><li>SQL on S3 → Athena + Glue.</li><li>Warehouse analytics → Redshift.</li></ul></div>
+<div class="card blue"><h3>Migration</h3><ul><li>Servers/VMs → MGN.</li><li>Database minimal downtime → DMS full load + CDC.</li><li>Engine/schema conversion → SCT.</li><li>NFS/SMB bulk transfer → DataSync.</li><li>Bandwidth cannot meet timeline → Snowball Edge.</li></ul></div>
+<div class="card blue"><h3>Cost</h3><ul><li>Steady 24/7 compute → Savings Plans / RIs.</li><li>Interruptible stateless jobs → Spot.</li><li>Unknown S3 access → Intelligent-Tiering.</li><li>Known archive → lifecycle to Glacier/Deep Archive.</li><li>Private S3/DynamoDB from VPC → Gateway Endpoint to avoid NAT.</li></ul></div>
+</div>
+
+<h2 id="redflags">5) Red Flags That Cause Fails</h2>
+<div class="grid">
+<div class="card red"><h3>Wrong Assumptions</h3><ul><li>Thinking SCPs grant permissions.</li><li>Choosing Route 53 when question says “instant” failover.</li><li>Using Lambda for &gt;15-minute jobs.</li><li>Using Step Functions Express for long workflows.</li><li>Using DMS for every database target without checking support.</li></ul></div>
+<div class="card red"><h3>Ignoring Constraints</h3><ul><li>“No code changes” means do not replace MSMQ with SQS.</li><li>“Lowest operational overhead” favors managed services.</li><li>“Strict RPO=0” rules out normal async replication alone.</li><li>“Private connectivity” rules out public internet paths.</li><li>“Existing Windows SMB” points to FSx for Windows, not EFS.</li></ul></div>
+<div class="card red"><h3>Cost Mistakes</h3><ul><li>Buying RI/SP for short daily jobs.</li><li>Using NAT for heavy S3/DynamoDB traffic.</li><li>Keeping idle Redshift/EMR clusters running.</li><li>Moving private EC2 to public subnets to avoid NAT.</li><li>Using Intelligent-Tiering for billions of objects with predictable lifecycle.</li></ul></div>
+</div>
+
+<h2 id="drill">6) Final Drill: 25 Rapid Questions</h2>
+<p class="small">Answer mentally in under 15 seconds each. If you hesitate, review that topic.</p>
+<div class="card"><div class="q">1. Org-wide max permission boundary?</div><details><summary>Answer</summary>SCP. It limits; it does not grant.</details></div>
+<div class="card"><div class="q">2. Transitive routing between hundreds of VPCs?</div><details><summary>Answer</summary>Transit Gateway.</details></div>
+<div class="card"><div class="q">3. Private service access from consumer VPCs?</div><details><summary>Answer</summary>AWS PrivateLink.</details></div>
+<div class="card"><div class="q">4. VPC resolves on-prem DNS names?</div><details><summary>Answer</summary>Route 53 Resolver outbound endpoint + forwarding rule.</details></div>
+<div class="card"><div class="q">5. On-prem resolves private hosted zone?</div><details><summary>Answer</summary>Route 53 Resolver inbound endpoint.</details></div>
+<div class="card"><div class="q">6. 500K events/sec stream with replay?</div><details><summary>Answer</summary>Kinesis Data Streams or MSK, depending on Kafka requirement.</details></div>
+<div class="card"><div class="q">7. Event routing from SaaS partner?</div><details><summary>Answer</summary>EventBridge.</details></div>
+<div class="card"><div class="q">8. Long-running workflow with human approval?</div><details><summary>Answer</summary>Step Functions Standard.</details></div>
+<div class="card"><div class="q">9. Java Lambda cold start, low traffic?</div><details><summary>Answer</summary>SnapStart first; Provisioned Concurrency if strict zero cold start is required.</details></div>
+<div class="card"><div class="q">10. GPU inference?</div><details><summary>Answer</summary>SageMaker or EC2/EKS GPU, not Lambda/Fargate.</details></div>
+<div class="card"><div class="q">11. Oracle to Aurora PostgreSQL?</div><details><summary>Answer</summary>SCT + DMS full load and CDC.</details></div>
+<div class="card"><div class="q">12. VM lift-and-shift to EC2?</div><details><summary>Answer</summary>AWS Application Migration Service (MGN).</details></div>
+<div class="card"><div class="q">13. NFS/SMB transfer to AWS over network?</div><details><summary>Answer</summary>AWS DataSync.</details></div>
+<div class="card"><div class="q">14. Petabytes with insufficient bandwidth?</div><details><summary>Answer</summary>Snowball Edge.</details></div>
+<div class="card"><div class="q">15. Windows SMB file share?</div><details><summary>Answer</summary>FSx for Windows File Server.</details></div>
+<div class="card"><div class="q">16. Linux shared NFS file system?</div><details><summary>Answer</summary>Amazon EFS.</details></div>
+<div class="card"><div class="q">17. SQL on S3 logs?</div><details><summary>Answer</summary>Athena + Glue Data Catalog.</details></div>
+<div class="card"><div class="q">18. Immutable audit log retention?</div><details><summary>Answer</summary>CloudTrail organization trail + S3 Object Lock Compliance mode.</details></div>
+<div class="card"><div class="q">19. PII discovery in S3?</div><details><summary>Answer</summary>Amazon Macie.</details></div>
+<div class="card"><div class="q">20. CVE scanning for EC2/ECR?</div><details><summary>Answer</summary>Amazon Inspector.</details></div>
+<div class="card"><div class="q">21. Threat detection from CloudTrail/VPC/DNS logs?</div><details><summary>Answer</summary>GuardDuty.</details></div>
+<div class="card"><div class="q">22. Aggregate security findings?</div><details><summary>Answer</summary>Security Hub.</details></div>
+<div class="card"><div class="q">23. SQL injection protection?</div><details><summary>Answer</summary>AWS WAF, not Shield.</details></div>
+<div class="card"><div class="q">24. Private EC2 heavy traffic to S3?</div><details><summary>Answer</summary>S3 Gateway VPC Endpoint.</details></div>
+<div class="card"><div class="q">25. Strict RPO=0 across Regions?</div><details><summary>Answer</summary>Application-level dual/multi-region commit before acknowledgement; native async replication alone is not strict RPO=0.</details></div>
+
+<h2>How to Use the Local Files</h2>
+<div class="card green"><ul>
+<li><b>sap_c02_patterns_v2.html</b> — primary decision-pattern reference.</li>
+<li><b>sap_c02_10_day_prep.html</b> — daily study plan + 60 original questions.</li>
+<li><b>sap_c02_original_practice.html</b> — quick warm-up questions.</li>
+<li><b>sap_c02_pass_focused_blueprint.html</b> — this file; use as the final readiness and execution checklist.</li>
+</ul></div>
+</main></body></html>
