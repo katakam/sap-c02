@@ -1,14 +1,9 @@
----
-layout: default
-title: Scenarios 56–70
----
-
-<nav style="background:#157878;padding:10px 20px;margin:-20px -20px 20px -20px;display:flex;gap:20px;flex-wrap:wrap;">
-  <a href="/" style="color:white;text-decoration:none;">Scenarios 1–40</a>
-  <a href="/scenarios_41_55.html" style="color:white;text-decoration:none;">Scenarios 41–55</a>
-  <a href="/scenarios_56_70.html" style="color:white;text-decoration:none;font-weight:bold;">Scenarios 56–70</a>
-</nav>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP-C02 Scenarios 56–70</title>
 <style>
   /* Pearson VUE Exam Authentic Styling */
   body {
@@ -105,250 +100,213 @@ title: Scenarios 56–70
   }
 </style>
 
-### Scenario 56: Domain 1 — Design Solutions for Organizational Complexity
+<style>
+.expl-item { margin: 10px 0 4px; font-weight: normal; }
+.expl-sub  { margin: 4px 0 4px 20px; }
+ul.options { list-style: none; padding: 0; margin: 20px 0; }
+ul.options li { display: flex; align-items: flex-start; margin-bottom: 14px; }
+ul.options input[type=checkbox] { margin-right: 12px; margin-top: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<nav style="background:#157878;padding:10px 20px;margin:-20px -20px 20px -20px;display:flex;gap:20px;flex-wrap:wrap;">
+  <a href="/" style="color:white;text-decoration:none;">Scenarios 1–40</a>
+  <a href="/scenarios_41_55.html" style="color:white;text-decoration:none;">Scenarios 41–55</a>
+  <a href="/scenarios_56_70.html" style="color:white;text-decoration:none;font-weight:bold;">Scenarios 56–70</a>
+</nav>
+
+
+
+
+<h3>Scenario 56: Domain 1 — Design Solutions for Organizational Complexity</h3>
 
 A financial institution uses AWS Organizations with 80 accounts. They must implement a
-**network architecture** that meets: (1) all accounts share a **centralized egress** path
+<strong>network architecture</strong> that meets: (1) all accounts share a <strong>centralized egress</strong> path
 to the internet through a single Egress VPC with NAT Gateways; (2) DNS resolution for
-on-premises hostnames must work from **all 80 account VPCs** without deploying resolvers
-in each account; (3) **inter-VPC traffic** between business domains must be inspected by a
-centralized firewall; (4) new accounts added to the Organization must **automatically inherit**
+on-premises hostnames must work from <strong>all 80 account VPCs</strong> without deploying resolvers
+in each account; (3) <strong>inter-VPC traffic</strong> between business domains must be inspected by a
+centralized firewall; (4) new accounts added to the Organization must <strong>automatically inherit</strong>
 all connectivity without manual TGW attachment approval; (5) Direct Connect to on-premises
-must be **shared across all accounts** — no per-account virtual interfaces.
+must be <strong>shared across all accounts</strong> — no per-account virtual interfaces.
 
-**Question:** Which architecture satisfies ALL five requirements with least operational overhead?
+<strong>Question:</strong> Which architecture satisfies ALL five requirements with least operational overhead?
 
-- [ ] **A)** Deploy a Transit Gateway in the Networking account. Share the TGW via AWS RAM to
-all accounts in the Organization. Use TGW route tables (spoke-rt, egress-rt, inspection-rt)
-for traffic steering. Deploy Route 53 Resolver Inbound/Outbound Endpoints in a central
-Network Services VPC — share Resolver rules via AWS RAM to all accounts. Connect Direct
-Connect via a Direct Connect Gateway attached to the TGW. Use TGW auto-accept for RAM-shared
-attachments to auto-enroll new accounts.
-- [ ] **B)** Use VPC Peering between all 80 accounts and the Egress VPC. Deploy DNS forwarders
-on EC2 in each account. Use separate Direct Connect Virtual Interfaces per account.
-- [ ] **C)** Deploy an AWS Cloud WAN core network with segment-based routing. Use Route 53
-Resolver endpoints per region. Deploy per-account TGW attachments manually.
-- [ ] **D)** Use AWS PrivateLink for all inter-VPC communication. Deploy NAT Gateways in each
-account. Use Direct Connect hosted connections per account for on-premises connectivity.
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Deploy a Transit Gateway in the Networking account. Share the TGW via AWS RAM to all accounts in the Organization. Use TGW route tables (spoke-rt, egress-rt, inspection-rt) for traffic steering. Deploy Route 53 Resolver Inbound/Outbound Endpoints in a central Network Services VPC — share Resolver rules via AWS RAM to all accounts. Connect Direct Connect via a Direct Connect Gateway attached to the TGW. Use TGW auto-accept for RAM-shared attachments to auto-enroll new accounts.</li>
+<li><input type="checkbox"> <strong>B)</strong> Use VPC Peering between all 80 accounts and the Egress VPC. Deploy DNS forwarders on EC2 in each account. Use separate Direct Connect Virtual Interfaces per account.</li>
+<li><input type="checkbox"> <strong>C)</strong> Deploy an AWS Cloud WAN core network with segment-based routing. Use Route 53 Resolver endpoints per region. Deploy per-account TGW attachments manually.</li>
+<li><input type="checkbox"> <strong>D)</strong> Use AWS PrivateLink for all inter-VPC communication. Deploy NAT Gateways in each account. Use Direct Connect hosted connections per account for on-premises connectivity.</li>
 
+</ul>
 <details>
   <summary>View Architectural Decision Record (Resolution)</summary>
 
-  **Architectural Decision Record (Resolution):**
+  <strong>Architectural Decision Record (Resolution):</strong>
 
-  * **Optimal Solution:** **A** — TGW shared via RAM + multiple route tables + Route 53 Resolver
-  rules shared via RAM + Direct Connect Gateway + TGW auto-accept.
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>A</strong> — TGW shared via RAM + multiple route tables + Route 53 Resolver rules shared via RAM + Direct Connect Gateway + TGW auto-accept.</p>
 
-  * **Why it succeeds:** **AWS Transit Gateway** shared via **AWS RAM** to the entire Organization
-  (or specific OUs) allows all 80 accounts to attach their VPCs to the central TGW without
-  manual approval when **auto-accept is enabled** — satisfying constraint 4. TGW **multiple
-  route tables** implement the inspection and egress hairpin patterns: a `spoke-rt` routes all
-  egress to the Egress VPC attachment (NAT Gateways) and all inter-domain traffic to the
-  Inspection VPC attachment (centralized firewall via GWLB) — satisfying constraints 1 and 3.
-  **Route 53 Resolver** Inbound and Outbound Endpoints deployed in the central Network Services
-  VPC handle hybrid DNS; **Resolver Rules shared via AWS RAM** to all Organization accounts
+<p class="expl-item"><strong>Why it succeeds:</strong> <strong>AWS Transit Gateway</strong> shared via <strong>AWS RAM</strong> to the entire Organization (or specific OUs) allows all 80 accounts to attach their VPCs to the central TGW without manual approval when <strong>auto-accept is enabled</strong> — satisfying constraint 4. TGW <strong>multiple route tables</strong> implement the inspection and egress hairpin patterns: a <code>spoke-rt</code> routes all egress to the Egress VPC attachment (NAT Gateways) and all inter-domain traffic to the Inspection VPC attachment (centralized firewall via GWLB) — satisfying constraints 1 and 3.</p>
+  <strong>Route 53 Resolver</strong> Inbound and Outbound Endpoints deployed in the central Network Services
+  VPC handle hybrid DNS; <strong>Resolver Rules shared via AWS RAM</strong> to all Organization accounts
   mean each spoke VPC automatically forwards on-premises DNS queries to the central resolver
-  without per-account resolver deployment — satisfying constraint 2. **Direct Connect Gateway**
+  without per-account resolver deployment — satisfying constraint 2. <strong>Direct Connect Gateway</strong>
   attaches once to the TGW and propagates on-premises routes to all spoke VPCs through the
   TGW route tables — satisfying constraint 5 with a single DX connection shared across all
   accounts via the TGW.
 
-  * **Why alternatives fail:**
-  - **B)** VPC Peering does not support transitive routing — traffic cannot flow VPC-A →
-  Egress VPC → internet via a peer. At 80 accounts, VPC Peering requires up to 3,160 peering
-  connections (n×(n-1)/2) — operationally unmanageable. Per-account Direct Connect Virtual
-  Interfaces are expensive and operationally complex.
-  - **C)** AWS Cloud WAN is a valid modern alternative but adds significant complexity for a
-  scenario solvable with TGW. Cloud WAN's segment-based routing requires careful policy
-  design and is operationally heavier for an 80-account setup. Per-account manual TGW
-  attachments directly violate constraint 4.
-  - **D)** AWS PrivateLink is for service endpoint exposure, not general inter-VPC routing for
-  complex multi-account topologies. Per-account NAT Gateways violate constraint 1 (centralized
-  egress). Per-account Direct Connect hosted connections are expensive and violate constraint 5.
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+<p class="expl-sub">– <strong>B)</strong> VPC Peering does not support transitive routing — traffic cannot flow VPC-A → Egress VPC → internet via a peer. At 80 accounts, VPC Peering requires up to 3,160 peering connections (n×(n-1)/2) — operationally unmanageable. Per-account Direct Connect Virtual Interfaces are expensive and operationally complex.</p>
+<p class="expl-sub">– <strong>C)</strong> AWS Cloud WAN is a valid modern alternative but adds significant complexity for a scenario solvable with TGW. Cloud WAN's segment-based routing requires careful policy design and is operationally heavier for an 80-account setup. Per-account manual TGW attachments directly violate constraint 4.</p>
+<p class="expl-sub">– <strong>D)</strong> AWS PrivateLink is for service endpoint exposure, not general inter-VPC routing for complex multi-account topologies. Per-account NAT Gateways violate constraint 1 (centralized egress). Per-account Direct Connect hosted connections are expensive and violate constraint 5.</p>
 
 </details>
 
 </div>
 
-### Scenario 57: Domain 2 — Design for New Solutions
+<h3>Scenario 57: Domain 2 — Design for New Solutions</h3>
 
-A media company is building a **live video streaming platform** for sports events. Requirements:
-(1) support **100,000 concurrent viewers** per event; (2) end-to-end latency from camera to
-viewer must be **under 5 seconds** (ultra-low latency); (3) the platform must support
-**adaptive bitrate streaming** (ABR) — automatically adjusting quality based on viewer
-bandwidth; (4) DVR functionality — viewers can **rewind up to 30 minutes** of live content;
-(5) the architecture must handle **10× traffic spikes** (goal scored, viral moment) within
-**30 seconds** without buffering; (6) global audience across 50 countries.
+A media company is building a <strong>live video streaming platform</strong> for sports events. Requirements:
+(1) support <strong>100,000 concurrent viewers</strong> per event; (2) end-to-end latency from camera to
+viewer must be <strong>under 5 seconds</strong> (ultra-low latency); (3) the platform must support
+<strong>adaptive bitrate streaming</strong> (ABR) — automatically adjusting quality based on viewer
+bandwidth; (4) DVR functionality — viewers can <strong>rewind up to 30 minutes</strong> of live content;
+(5) the architecture must handle <strong>10× traffic spikes</strong> (goal scored, viral moment) within
+<strong>30 seconds</strong> without buffering; (6) global audience across 50 countries.
 
-**Question:** Which architecture BEST satisfies all six requirements?
+<strong>Question:</strong> Which architecture BEST satisfies all six requirements?
 
-- [ ] **A)** EC2-based encoder → S3 (HLS segments) → CloudFront (global CDN) → viewers.
-Use CloudFront Origin Shield for cache efficiency. Lambda@Edge for ABR manifest manipulation.
-S3 lifecycle for DVR segment retention.
-- [ ] **B)** AWS Elemental MediaLive (live encoder, multiple bitrate renditions) →
-AWS Elemental MediaPackage (origin, ABR packaging into HLS/DASH, DVR with 30-minute
-time-shifted window, low-latency HLS/CMAF) → CloudFront (global CDN, 100K+ concurrent
-viewers, auto-scales to 10× spikes within seconds via edge cache) → Route 53 latency
-routing for origin selection. CloudFront Origin Shield reduces origin load during traffic
-spikes.
-- [ ] **C)** Kinesis Video Streams → Lambda (transcoding) → S3 → CloudFront. Use
-ElastiCache for DVR state. Lambda@Edge for ABR.
-- [ ] **D)** AWS Elemental MediaLive → S3 (HLS) → ALB → EC2 Auto Scaling (streaming
-servers) → viewers. CloudFront for static assets only.
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> EC2-based encoder → S3 (HLS segments) → CloudFront (global CDN) → viewers. Use CloudFront Origin Shield for cache efficiency. Lambda@Edge for ABR manifest manipulation. S3 lifecycle for DVR segment retention.</li>
+<li><input type="checkbox"> <strong>B)</strong> AWS Elemental MediaLive (live encoder, multiple bitrate renditions) → AWS Elemental MediaPackage (origin, ABR packaging into HLS/DASH, DVR with 30-minute time-shifted window, low-latency HLS/CMAF) → CloudFront (global CDN, 100K+ concurrent viewers, auto-scales to 10× spikes within seconds via edge cache) → Route 53 latency routing for origin selection. CloudFront Origin Shield reduces origin load during traffic spikes.</li>
+<li><input type="checkbox"> <strong>C)</strong> Kinesis Video Streams → Lambda (transcoding) → S3 → CloudFront. Use ElastiCache for DVR state. Lambda@Edge for ABR.</li>
+<li><input type="checkbox"> <strong>D)</strong> AWS Elemental MediaLive → S3 (HLS) → ALB → EC2 Auto Scaling (streaming servers) → viewers. CloudFront for static assets only.</li>
 
+</ul>
 <details>
   <summary>View Architectural Decision Record (Resolution)</summary>
 
-  **Architectural Decision Record (Resolution):**
+  <strong>Architectural Decision Record (Resolution):</strong>
 
-  * **Optimal Solution:** **B** — MediaLive + MediaPackage (low-latency HLS/CMAF, DVR) +
-  CloudFront Origin Shield + Route 53 latency routing.
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>B</strong> — MediaLive + MediaPackage (low-latency HLS/CMAF, DVR) + CloudFront Origin Shield + Route 53 latency routing.</p>
 
-  * **Why it succeeds:** **AWS Elemental MediaLive** ingests the camera feed and produces multiple
-  bitrate renditions simultaneously (e.g., 1080p, 720p, 480p, 360p) — the input to ABR
-  packaging (constraint 3). **AWS Elemental MediaPackage** is purpose-built for live video
-  origin: it packages renditions into **HLS, DASH, and CMAF** formats with **Low-Latency HLS
-  (LL-HLS)** achieving glass-to-glass latency of **3-5 seconds** (constraint 2). MediaPackage
-  natively supports **DVR time-shifted viewing** with a configurable window (up to 72 hours) —
-  satisfying constraint 4 with zero custom storage management. **CloudFront** serves the global
-  audience with edge PoPs in 50+ countries — HLS/DASH segments are cached at edge, enabling
-  **100,000+ concurrent viewers** without proportional origin load (constraint 1). CloudFront
+<p class="expl-item"><strong>Why it succeeds:</strong> <strong>AWS Elemental MediaLive</strong> ingests the camera feed and produces multiple bitrate renditions simultaneously (e.g., 1080p, 720p, 480p, 360p) — the input to ABR packaging (constraint 3). <strong>AWS Elemental MediaPackage</strong> is purpose-built for live video origin: it packages renditions into <strong>HLS, DASH, and CMAF</strong> formats with <strong>Low-Latency HLS (LL-HLS)</strong> achieving glass-to-glass latency of <strong>3-5 seconds</strong> (constraint 2). MediaPackage natively supports <strong>DVR time-shifted viewing</strong> with a configurable window (up to 72 hours) — satisfying constraint 4 with zero custom storage management. <strong>CloudFront</strong> serves the global audience with edge PoPs in 50+ countries — HLS/DASH segments are cached at edge, enabling</p>
+  <strong>100,000+ concurrent viewers</strong> without proportional origin load (constraint 1). CloudFront
   auto-scales at the edge layer in seconds — a viral spike increases cache hit rate, not origin
-  load; **Origin Shield** adds a regional cache layer that absorbs origin requests during spikes
+  load; <strong>Origin Shield</strong> adds a regional cache layer that absorbs origin requests during spikes
   (constraint 5). Route 53 latency routing selects the nearest MediaPackage origin endpoint
   for global viewers (constraint 6).
 
-  * **Why alternatives fail:**
-  - **A)** A custom EC2-based encoder requires managing encoding software, scaling, and
-  redundancy manually — MediaLive provides managed encoding with input redundancy and
-  automatic failover. Lambda@Edge for ABR manifest manipulation adds complexity and latency
-  that MediaPackage handles natively.
-  - **C)** Kinesis Video Streams is designed for video analytics and ML inference — it does not
-  produce HLS/DASH output for live streaming viewers. Lambda for transcoding cannot match
-  MediaLive's real-time encoding performance for live broadcast-quality video at multiple
-  bitrates.
-  - **D)** EC2 Auto Scaling for streaming servers cannot scale from 0 to 10× in 30 seconds —
-  EC2 launch time is 60-90 seconds minimum. Serving video through ALB + EC2 instead of
-  CloudFront edge caching means every viewer request hits EC2 origin, creating a bottleneck
-  at 100K concurrent viewers.
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+<p class="expl-sub">– <strong>A)</strong> A custom EC2-based encoder requires managing encoding software, scaling, and redundancy manually — MediaLive provides managed encoding with input redundancy and automatic failover. Lambda@Edge for ABR manifest manipulation adds complexity and latency that MediaPackage handles natively.</p>
+<p class="expl-sub">– <strong>C)</strong> Kinesis Video Streams is designed for video analytics and ML inference — it does not produce HLS/DASH output for live streaming viewers. Lambda for transcoding cannot match MediaLive's real-time encoding performance for live broadcast-quality video at multiple bitrates.</p>
+<p class="expl-sub">– <strong>D)</strong> EC2 Auto Scaling for streaming servers cannot scale from 0 to 10× in 30 seconds — EC2 launch time is 60-90 seconds minimum. Serving video through ALB + EC2 instead of CloudFront edge caching means every viewer request hits EC2 origin, creating a bottleneck at 100K concurrent viewers.</p>
 
 </details>
 
 </div>
 
-### Scenario 58: Domain 3 — Migration Planning
+<h3>Scenario 58: Domain 3 — Migration Planning</h3>
 
-A retail company is migrating a **monolithic .NET Framework 4.6 application** from on-premises
+A retail company is migrating a <strong>monolithic .NET Framework 4.6 application</strong> from on-premises
 Windows Server 2016 to AWS. The application: uses Windows Authentication (Active Directory),
 writes to a shared SMB file share (500GB), uses MSMQ for internal messaging, connects to
-SQL Server 2019 (2TB). Migration constraints: (1) **no application code changes**; (2) must
-maintain **Active Directory integration** post-migration; (3) the SMB file share must remain
+SQL Server 2019 (2TB). Migration constraints: (1) <strong>no application code changes</strong>; (2) must
+maintain <strong>Active Directory integration</strong> post-migration; (3) the SMB file share must remain
 accessible; (4) MSMQ messaging must continue to function; (5) SQL Server must remain on
-**SQL Server** (cannot migrate to Aurora or RDS PostgreSQL); (6) cutover downtime must be
-**under 4 hours**.
+<strong>SQL Server</strong> (cannot migrate to Aurora or RDS PostgreSQL); (6) cutover downtime must be
+<strong>under 4 hours</strong>.
 
-**Question:** Which migration approach satisfies ALL six constraints?
+<strong>Question:</strong> Which migration approach satisfies ALL six constraints?
 
-- [ ] **A)** Lift-and-shift the .NET app to EC2 Windows. Join EC2 to AWS Managed Microsoft AD.
-Use Amazon FSx for Windows File Server for SMB. Migrate MSMQ to Amazon SQS. Migrate SQL
-Server to RDS for SQL Server. Use DMS for database migration with CDC.
-- [ ] **B)** Lift-and-shift the .NET app to EC2 Windows (no code changes — constraint 1). Join
-EC2 instances to **AWS Managed Microsoft AD** (supports Windows Authentication — constraint 2).
-Deploy **Amazon FSx for Windows File Server** (native SMB, AD-integrated — constraint 3).
-Keep **MSMQ on the same EC2 instance** as the application (MSMQ is a Windows feature,
-co-located with the app — constraint 4). Migrate SQL Server to **RDS for SQL Server Multi-AZ**
-using **AWS DMS Full Load + CDC** (same SQL Server engine — constraint 5). MGN for EC2
-continuous replication → cutover in <4 hours (constraint 6). - [ ] **C)** Containerize the .NET app in Windows
-  containers on ECS. Use AWS Directory Service for AD. Use EFS for file share. Replace MSMQ with SQS. Use RDS for SQL
-  Server. - [ ] **D)** Migrate to .NET 6 on Linux EC2. Use Samba for SMB. Use RabbitMQ for messaging. Migrate SQL Server
-  to Aurora PostgreSQL. No code changes via automated refactoring tools. <details>
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Lift-and-shift the .NET app to EC2 Windows. Join EC2 to AWS Managed Microsoft AD. Use Amazon FSx for Windows File Server for SMB. Migrate MSMQ to Amazon SQS. Migrate SQL Server to RDS for SQL Server. Use DMS for database migration with CDC.</li>
+<li><input type="checkbox"> <strong>B)</strong> Lift-and-shift the .NET app to EC2 Windows (no code changes — constraint 1). Join EC2 instances to <strong>AWS Managed Microsoft AD</strong> (supports Windows Authentication — constraint 2). Deploy <strong>Amazon FSx for Windows File Server</strong> (native SMB, AD-integrated — constraint 3). Keep <strong>MSMQ on the same EC2 instance</strong> as the application (MSMQ is a Windows feature, co-located with the app — constraint 4). Migrate SQL Server to <strong>RDS for SQL Server Multi-AZ</strong> using <strong>AWS DMS Full Load + CDC</strong> (same SQL Server engine — constraint 5). MGN for EC2 continuous replication → cutover in <4 hours (constraint 6).</li>
+<li><input type="checkbox"> <strong>C)</strong> Containerize the .NET app in Windows containers on ECS. Use AWS Directory Service for AD. Use EFS for file share. Replace MSMQ with SQS. Use RDS for SQL Server.</li>
+<li><input type="checkbox"> <strong>D)</strong> Migrate to .NET 6 on Linux EC2. Use Samba for SMB. Use RabbitMQ for messaging. Migrate SQL Server to Aurora PostgreSQL. No code changes via automated refactoring tools. <details></li>
+</ul>
   <summary>View Architectural Decision Record (Resolution)</summary>
 
-  **Architectural Decision Record (Resolution):**
+  <strong>Architectural Decision Record (Resolution):</strong>
 
-  * **Optimal Solution:** **B** — EC2 Windows lift-and-shift + AWS Managed Microsoft AD + FSx
-  for Windows + MSMQ on EC2 + RDS SQL Server via DMS + MGN for <4hr cutover. * **Why it succeeds:** **No code changes**
+  * <strong>Optimal Solution:</strong> <strong>B</strong> — EC2 Windows lift-and-shift + AWS Managed Microsoft AD + FSx
+  for Windows + MSMQ on EC2 + RDS SQL Server via DMS + MGN for <4hr cutover. * <strong>Why it succeeds:</strong> <strong>No code changes</strong>
     is satisfied by lift-and-shift to EC2 Windows — the application runs identically on Windows Server EC2 as
-    on-premises (constraint 1). **AWS Managed Microsoft AD** is a fully managed Active Directory that EC2 instances can
-    domain-join — Windows Authentication (Kerberos/NTLM) works transparently, satisfying constraint 2. **Amazon FSx for
-    Windows File Server** provides a native **SMB file share** backed by Windows File Server, integrated with Active
-    Directory — the application accesses it via UNC path identical to on-premises (constraint 3). **MSMQ co-located on
-    EC2** is the correct approach — MSMQ is a Windows component that cannot be migrated to SQS without code changes
+    on-premises (constraint 1). <strong>AWS Managed Microsoft AD</strong> is a fully managed Active Directory that EC2 instances can
+    domain-join — Windows Authentication (Kerberos/NTLM) works transparently, satisfying constraint 2. <strong>Amazon FSx for
+    Windows File Server</strong> provides a native <strong>SMB file share</strong> backed by Windows File Server, integrated with Active
+    Directory — the application accesses it via UNC path identical to on-premises (constraint 3). <strong>MSMQ co-located on
+    EC2</strong> is the correct approach — MSMQ is a Windows component that cannot be migrated to SQS without code changes
     (constraint 1 would be violated). Since the app and MSMQ are on the same server on-premises, they move together to
-    EC2 (constraint 4). **RDS for SQL Server** maintains the SQL Server engine with DMS Full Load + CDC providing
-    zero-data-loss migration (constraint 5). MGN continuous block-level replication enables a **<4-hour cutover** by
-    keeping EC2 instances synchronized up to the cutover moment (constraint 6). * **Why alternatives fail:** - **A)**
+    EC2 (constraint 4). <strong>RDS for SQL Server</strong> maintains the SQL Server engine with DMS Full Load + CDC providing
+    zero-data-loss migration (constraint 5). MGN continuous block-level replication enables a <strong><4-hour cutover</strong> by
+    keeping EC2 instances synchronized up to the cutover moment (constraint 6). * <strong>Why alternatives fail:</strong> - <strong>A)</strong>
     Migrating MSMQ to Amazon SQS requires code changes to replace MSMQ APIs with SQS SDK calls — directly violating
-    constraint 1. MSMQ and SQS have different programming models (COM-based vs HTTP/SDK-based). - **C)** Containerizing
+    constraint 1. MSMQ and SQS have different programming models (COM-based vs HTTP/SDK-based). - <strong>C)</strong> Containerizing
     in Windows containers requires testing, potential application compatibility issues, and is not a true no-code-change
     lift-and-shift. EFS does not support native SMB (it uses NFS) — SMB access from Windows requires FSx for Windows
-    File Server. This also violates constraint 1 implicitly through re-packaging. - **D)** Migrating to .NET 6 on Linux
+    File Server. This also violates constraint 1 implicitly through re-packaging. - <strong>D)</strong> Migrating to .NET 6 on Linux
     and Aurora PostgreSQL involves code changes (constraint 1 violated) and database engine change (constraint 5
     violated). "Automated refactoring tools" do not produce zero-code-change migrations — they require significant
     validation and testing. </details>
 
     </div>
 
-    ### Scenario 59: Domain 4 — Cost Control
+    
+<h3>Scenario 59: Domain 4 — Cost Control</h3>
 
-    A data analytics company runs **Amazon EMR clusters** for big data processing. Current setup:
+    A data analytics company runs <strong>Amazon EMR clusters</strong> for big data processing. Current setup:
     3 persistent EMR clusters (one per team: Data Engineering, Data Science, Analytics) running
-    24/7 on On-Demand `m5.xlarge` (core nodes) and `r5.2xlarge` (task nodes). Each cluster runs
-    jobs for only **6 hours per day**. Additionally, **Amazon Redshift** (8 `ra3.4xlarge` nodes)
-    runs continuous analytical queries. **Amazon SageMaker** training jobs run daily for 4 hours
-    using `ml.p3.2xlarge` instances. Monthly bill: EMR $45,000, Redshift $28,000, SageMaker
-    $12,000. Total: $85,000/month. The team wants **maximum cost reduction** while maintaining
+    24/7 on On-Demand <code>m5.xlarge</code> (core nodes) and <code>r5.2xlarge</code> (task nodes). Each cluster runs
+    jobs for only <strong>6 hours per day</strong>. Additionally, <strong>Amazon Redshift</strong> (8 <code>ra3.4xlarge</code> nodes)
+    runs continuous analytical queries. <strong>Amazon SageMaker</strong> training jobs run daily for 4 hours
+    using <code>ml.p3.2xlarge</code> instances. Monthly bill: EMR $45,000, Redshift $28,000, SageMaker
+    $12,000. Total: $85,000/month. The team wants <strong>maximum cost reduction</strong> while maintaining
     all capabilities.
 
-    **Question:** Which combination achieves the highest savings?
+    <strong>Question:</strong> Which combination achieves the highest savings?
 
-    - [ ] **A)** Purchase EMR Reserved Instances (1-year). Purchase Redshift Reserved Nodes (1-year).
-    Use SageMaker Managed Spot Training.
-    - [ ] **B)** Migrate EMR to transient clusters (spin up for job duration, terminate after).
-    Use EC2 Spot for EMR task nodes. Purchase Redshift Reserved Nodes (1-year). Use SageMaker
-    Managed Spot Training.
-    - [ ] **C)** Convert EMR clusters to **transient clusters** — triggered by job scheduler
-    (e.g., Apache Airflow on MWAA or Step Functions), spin up before job, terminate after
-    (~6hrs/day = 25% of 24hrs → 75% EMR cost reduction). Use **EC2 Spot Instances for EMR task
-    nodes** (additional 70-90% saving on task node cost). Use **EMR Serverless** for ad-hoc
-    workloads. Purchase **Redshift Reserved Nodes (1-year)** for the persistent analytical
-    cluster (~35% saving on $28K). Enable **SageMaker Managed Spot Training** with checkpointing
-    (~70-90% saving on $12K training jobs — Spot interruptions handled by automatic checkpoint
-    resume).
-    - [ ] **D)** Migrate EMR to AWS Glue (serverless ETL). Migrate Redshift to Athena. Use
-    SageMaker Serverless Inference instead of training instances.
+    
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Purchase EMR Reserved Instances (1-year). Purchase Redshift Reserved Nodes (1-year). Use SageMaker Managed Spot Training.</li>
+    
+<li><input type="checkbox"> <strong>B)</strong> Migrate EMR to transient clusters (spin up for job duration, terminate after). Use EC2 Spot for EMR task nodes. Purchase Redshift Reserved Nodes (1-year). Use SageMaker Managed Spot Training.</li>
+    
+<li><input type="checkbox"> <strong>C)</strong> Convert EMR clusters to <strong>transient clusters</strong> — triggered by job scheduler (e.g., Apache Airflow on MWAA or Step Functions), spin up before job, terminate after (~6hrs/day = 25% of 24hrs → 75% EMR cost reduction). Use <strong>EC2 Spot Instances for EMR task nodes</strong> (additional 70-90% saving on task node cost). Use <strong>EMR Serverless</strong> for ad-hoc workloads. Purchase <strong>Redshift Reserved Nodes (1-year)</strong> for the persistent analytical cluster (~35% saving on $28K). Enable <strong>SageMaker Managed Spot Training</strong> with checkpointing (~70-90% saving on $12K training jobs — Spot interruptions handled by automatic checkpoint resume).</li>
+    
+<li><input type="checkbox"> <strong>D)</strong> Migrate EMR to AWS Glue (serverless ETL). Migrate Redshift to Athena. Use SageMaker Serverless Inference instead of training instances.</li>
 
+</ul>
     <details>
       <summary>View Architectural Decision Record (Resolution)</summary>
 
-      **Architectural Decision Record (Resolution):**
+      <strong>Architectural Decision Record (Resolution):</strong>
 
-      * **Optimal Solution:** **C** — Transient EMR clusters + Spot task nodes + Redshift Reserved
+      * <strong>Optimal Solution:</strong> <strong>C</strong> — Transient EMR clusters + Spot task nodes + Redshift Reserved
       Nodes + SageMaker Managed Spot Training.
 
-      * **Why it succeeds:** Each lever targets the dominant waste in each service:
-      **EMR (75% idle):** Persistent clusters running 24/7 for 6-hour jobs waste 75% of compute.
-      **Transient clusters** (launch → run jobs → terminate) pay only for the 6-hour active window.
+      * <strong>Why it succeeds:</strong> Each lever targets the dominant waste in each service:
+      <strong>EMR (75% idle):</strong> Persistent clusters running 24/7 for 6-hour jobs waste 75% of compute.
+      <strong>Transient clusters</strong> (launch → run jobs → terminate) pay only for the 6-hour active window.
       At 6hrs/24hrs = 25% utilization, this cuts EMR from $45,000 to ~$11,250/month → saves
       ~$33,750. EC2 Spot for task nodes (which are stateless — HDFS data is on core nodes or S3)
       adds a further 70% reduction on task node costs within those 6 hours.
-      **Redshift (continuous):** Redshift runs continuous analytical queries — transient clusters
-      are not appropriate. **Reserved Nodes (1-year)** provide ~35% saving on $28,000 →
+      <strong>Redshift (continuous):</strong> Redshift runs continuous analytical queries — transient clusters
+      are not appropriate. <strong>Reserved Nodes (1-year)</strong> provide ~35% saving on $28,000 →
       ~$9,800/month → saves ~$9,800.
-      **SageMaker (4hrs/day, interruptible ML training):** **Managed Spot Training** uses EC2 Spot
+      <strong>SageMaker (4hrs/day, interruptible ML training):</strong> <strong>Managed Spot Training</strong> uses EC2 Spot
       for training jobs with automatic checkpointing — if a Spot instance is interrupted, training
-      resumes from the last checkpoint. Spot discounts for `ml.p3.2xlarge` are 70-90%. Saves
+      resumes from the last checkpoint. Spot discounts for <code>ml.p3.2xlarge</code> are 70-90%. Saves
       ~$8,400-10,800/month on $12,000.
-      **Total savings: ~$52,000+ on $85,000 = >60%.**
+      <strong>Total savings: ~$52,000+ on $85,000 = >60%.</strong>
 
-      * **Why alternatives fail:**
-      - **A)** Reserved Instances for EMR persistent clusters save only ~40% — they do not address
+      * <strong>Why alternatives fail:</strong>
+      - <strong>A)</strong> Reserved Instances for EMR persistent clusters save only ~40% — they do not address
       the fundamental problem that clusters are idle 75% of the time. Paying for 24/7 reserved
       capacity for a 6-hour workload wastes 60% of the reserved commitment even with the discount.
-      - **B)** Correct direction but incomplete — does not specify EMR Serverless for ad-hoc
+      - <strong>B)</strong> Correct direction but incomplete — does not specify EMR Serverless for ad-hoc
       workloads or provide the quantified savings breakdown. The answer is partially correct but
       option C is more complete and specific.
-      - **D)** Migrating EMR to AWS Glue changes the processing framework (Spark on Glue vs Spark
+      - <strong>D)</strong> Migrating EMR to AWS Glue changes the processing framework (Spark on Glue vs Spark
       on EMR have differences in configuration and supported libraries). Migrating Redshift to
       Athena requires schema redesign and removes Redshift-specific optimizations. Replacing
       SageMaker training with Serverless Inference conflates training and inference — Serverless
@@ -359,772 +317,690 @@ continuous replication → cutover in <4 hours (constraint 6). - [ ] **C)** Cont
 
     </div>
 
-    ### Scenario 60: Domain 5 — Continuous Improvement for Existing Solutions
+    
+<h3>Scenario 60: Domain 5 — Continuous Improvement for Existing Solutions</h3>
 
-    A fintech company's **AWS Well-Architected Review** has identified the following gaps in their
-    production payment processing system: (1) **no multi-region DR** — RTO is currently 8 hours,
-    RPO 4 hours (business requires RTO 15min, RPO 5min); (2) **API Gateway has no WAF** — the
-    security team detected SQL injection attempts in CloudTrail logs; (3) **Secrets rotation is
-    manual** — DB passwords in Secrets Manager have not been rotated in 14 months; (4) the system
-    uses **HTTP (not HTTPS)** for internal microservice communication within the VPC; (5) **no
-    chaos engineering** — the team has never tested failure scenarios and doesn't know actual
+    A fintech company's <strong>AWS Well-Architected Review</strong> has identified the following gaps in their
+    production payment processing system: (1) <strong>no multi-region DR</strong> — RTO is currently 8 hours,
+    RPO 4 hours (business requires RTO 15min, RPO 5min); (2) <strong>API Gateway has no WAF</strong> — the
+    security team detected SQL injection attempts in CloudTrail logs; (3) <strong>Secrets rotation is
+    manual</strong> — DB passwords in Secrets Manager have not been rotated in 14 months; (4) the system
+    uses <strong>HTTP (not HTTPS)</strong> for internal microservice communication within the VPC; (5) <strong>no
+    chaos engineering</strong> — the team has never tested failure scenarios and doesn't know actual
     recovery behavior.
 
-    **Question:** Which combination of improvements resolves ALL five gaps systematically?
+    <strong>Question:</strong> Which combination of improvements resolves ALL five gaps systematically?
 
-    - [ ] **A)** Deploy a pilot light in a secondary region using Route 53 ARC. Enable AWS WAF on
-    API Gateway. Enable automatic rotation in Secrets Manager. Enforce HTTPS via ALB listener
-    rules. Use AWS Fault Injection Simulator for chaos testing.
-    - [ ] **B)** Deploy Aurora Global Database + EC2 AMI replication to secondary region. Enable
-    AWS WAF with SQL injection managed rule group. Rotate secrets manually on a schedule.
-    Use ACM certificates for HTTPS. Run manual failover tests quarterly.
-    - [ ] **C)** Deploy **AWS Elastic Disaster Recovery** for EC2 continuous replication (RPO
-    seconds) + **Aurora Global Database** (RPO <1s) to secondary region + **Route 53 ARC** routing controls (RTO
-      <15min). Enable **AWS WAF** on API Gateway with **AWS Managed Rules** (SQLi, XSS, known bad inputs rule groups).
-      Enable **Secrets Manager automatic rotation** with Lambda rotation function (built-in for RDS — rotates every 30
-      days, zero-downtime dual-password rotation). Enforce **HTTPS for internal traffic** via mutual TLS (mTLS) using
-      **ACM Private CA** issuing certificates to each microservice (or AWS App Mesh with Envoy sidecar enforcing mTLS).
-      Implement **AWS Fault Injection Simulator (FIS)** experiments (AZ failure, instance termination, network latency
-      injection) in a staging environment and run monthly in production during low-traffic windows. - [ ] **D)** Use
-      Route 53 failover routing for DR. Enable Shield Advanced for WAF. Use Parameter Store for secret rotation. Use NLB
-      for HTTPS termination. Use CloudWatch alarms to simulate failure testing. <details>
+    
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Deploy a pilot light in a secondary region using Route 53 ARC. Enable AWS WAF on API Gateway. Enable automatic rotation in Secrets Manager. Enforce HTTPS via ALB listener rules. Use AWS Fault Injection Simulator for chaos testing.</li>
+    
+<li><input type="checkbox"> <strong>B)</strong> Deploy Aurora Global Database + EC2 AMI replication to secondary region. Enable AWS WAF with SQL injection managed rule group. Rotate secrets manually on a schedule. Use ACM certificates for HTTPS. Run manual failover tests quarterly.</li>
+    
+<li><input type="checkbox"> <strong>C)</strong> Deploy <strong>AWS Elastic Disaster Recovery</strong> for EC2 continuous replication (RPO seconds) + <strong>Aurora Global Database</strong> (RPO <1s) to secondary region + <strong>Route 53 ARC</strong> routing controls (RTO</li>
+</ul>
+      <15min). Enable <strong>AWS WAF</strong> on API Gateway with <strong>AWS Managed Rules</strong> (SQLi, XSS, known bad inputs rule groups).
+      Enable <strong>Secrets Manager automatic rotation</strong> with Lambda rotation function (built-in for RDS — rotates every 30
+      days, zero-downtime dual-password rotation). Enforce <strong>HTTPS for internal traffic</strong> via mutual TLS (mTLS) using
+      <strong>ACM Private CA</strong> issuing certificates to each microservice (or AWS App Mesh with Envoy sidecar enforcing mTLS).
+      Implement <strong>AWS Fault Injection Simulator (FIS)</strong> experiments (AZ failure, instance termination, network latency
+      injection) in a staging environment and run monthly in production during low-traffic windows. 
+<ul class="options">
+<li><input type="checkbox"> <strong>D)</strong> Use Route 53 failover routing for DR. Enable Shield Advanced for WAF. Use Parameter Store for secret rotation. Use NLB for HTTPS termination. Use CloudWatch alarms to simulate failure testing. <details></li>
+</ul>
       <summary>View Architectural Decision Record (Resolution)</summary>
 
-      **Architectural Decision Record (Resolution):**
+      <strong>Architectural Decision Record (Resolution):</strong>
 
-      * **Optimal Solution:** **C** — AWS DRS + Aurora Global Database + Route 53 ARC + WAF managed
+      * <strong>Optimal Solution:</strong> <strong>C</strong> — AWS DRS + Aurora Global Database + Route 53 ARC + WAF managed
       rules + Secrets Manager auto-rotation + ACM Private CA mTLS + AWS FIS.
 
-      * **Why it succeeds:**
-      **Issue 1 (DR):** AWS Elastic Disaster Recovery replicates EC2 block-level changes continuously
-      (RPO seconds); Aurora Global Database replicates with <1 second lag. Route 53 ARC routing controls enable **RTO
-        <15 minutes** via pre-validated routing switches without DNS TTL delays. Both RPO and RTO targets are met.
-        **Issue 2 (WAF):** AWS WAF on API Gateway with **AWS Managed Rule Groups** (specifically the
-        `AWSManagedRulesSQLiRuleSet` and `AWSManagedRulesCommonRuleSet`) blocks SQL injection and XSS patterns
-        automatically — no custom rule writing required for known attack patterns. **Issue 3 (Secret rotation):**
-        Secrets Manager's **automatic rotation** uses a built-in Lambda rotation function for RDS/Aurora — implements
-        dual-password rotation (creates new password, updates DB user, updates secret, verifies, then deletes old
-        password) with zero application downtime. Configurable rotation interval (e.g., 30 days). **Issue 4 (HTTP
-        internal traffic):** ACM Private CA issues internal TLS certificates to microservices; App Mesh with Envoy
-        enforces mTLS between services, encrypting all internal VPC traffic without application code changes. **Issue 5
-        (Chaos testing):** AWS FIS provides managed fault injection experiments (EC2 termination, AZ outage simulation,
-        API throttling, network latency) with safety guardrails — measurably tests recovery behavior and validates the
-        DR improvements from Issue 1. * **Why alternatives fail:** - **A)** Functionally the closest but "pilot light"
-        without specifying DRS for EC2 continuous replication leaves RPO at hours (AMI-based recovery). A pilot light
-        requires manual instance launch at failover — RTO may exceed 15 minutes without pre-warmed resources. ALB
-        listener rules redirecting HTTP to HTTPS handle client-to-ALB traffic only — it does not encrypt internal
-        microservice-to-microservice traffic within the VPC (constraint 4 partially unmet). - **B)** Manual secret
-        rotation on a schedule defeats the purpose of constraint 3 (the problem is 14 months without rotation — manual
-        processes will recur). Quarterly manual failover tests are insufficient for validating chaos behavior across all
-        failure modes — FIS provides continuous, automated, guardrailed chaos experiments. - **D)** AWS Shield Advanced
-        provides DDoS protection, not WAF functionality — it does not block SQL injection at the application layer.
-        CloudWatch alarms monitoring for failures is not chaos engineering — alarms react to failures but do not inject
-        failures to test recovery. Parameter Store does not support automatic secret rotation natively — Secrets Manager
-        is required for automatic rotation with Lambda functions. </details>
-
-        </div>
-
-        ### Scenario 61: Domain 1 — Design Solutions for Organizational Complexity
-
-        A global enterprise uses AWS Organizations with 200 accounts across 15 OUs representing
-        business units. The CISO requires: (1) **every API call** across all 200 accounts must be
-        captured in a **tamper-proof, centralized, queryable audit log** retained for **7 years**;
-        (2) the audit log must be **immutable** — even the Security account administrator cannot
-        delete it; (3) audit logs must be **queryable via SQL** without loading data into a database;
-        (4) any **root account login** in any member account must trigger a **real-time alert** within
-        60 seconds; (5) the solution must be **fully automated** — new accounts get coverage within
-        5 minutes of creation.
-
-        **Question:** Which architecture satisfies ALL five requirements?
-
-        - [ ] **A)** Create CloudTrail trails in each account. Aggregate logs to a central S3 bucket.
-        Use S3 Object Lock. Use Athena for SQL queries. Use CloudWatch Events for root login alerts.
-        Use CloudFormation StackSets for new account automation.
-        - [ ] **B)** Create an **AWS CloudTrail Organization Trail** (single trail, all current and
-        future accounts auto-enrolled within minutes — constraint 5). Deliver to a central S3 bucket
-        in the Security account with **S3 Object Lock COMPLIANCE mode** (7-year retention — even the
-        bucket owner cannot delete — constraints 1 and 2). Enable **AWS CloudTrail Lake** for
-        SQL-based event queries directly on CloudTrail data without S3/Athena setup (constraint 3).
-        Create an **EventBridge Organization rule** matching `{ "userIdentity": { "type": "Root" },
-        "eventName": "ConsoleLogin" }` across all accounts → SNS → Security team (constraint 4,
-        <60 second delivery). New accounts automatically covered by Organization Trail and Organization EventBridge
-          rule. - [ ] **C)** Use AWS Config Organization Rules to capture API calls. Store in DynamoDB. Use DynamoDB
-          Streams for root login alerts. Use S3 Glacier for 7-year retention. - [ ] **D)** Deploy a Security Information
-          and Event Management (SIEM) tool on EC2. Forward all CloudTrail logs via Kinesis to the SIEM. Use SIEM
-          alerting for root login. Use S3 lifecycle for 7-year retention. <details>
-          <summary>View Architectural Decision Record (Resolution)</summary>
-
-          **Architectural Decision Record (Resolution):**
-
-          * **Optimal Solution:** **B** — Organization Trail + S3 Object Lock COMPLIANCE + CloudTrail
-          Lake + Organization EventBridge rule for root login.
-
-          * **Why it succeeds:** **CloudTrail Organization Trail** created from the management account
-          automatically covers **all existing and future member accounts** — new accounts get coverage
-          within minutes of creation without any manual configuration (constraint 5). The trail delivers
-          to a central S3 bucket in the Security account; member accounts cannot modify or delete the
-          trail. **S3 Object Lock COMPLIANCE mode** with a 7-year retention period makes logs
-          **absolutely immutable** — even the root user of the Security account cannot delete objects
-          within the retention period (constraint 2). This is the strongest immutability guarantee in
-          AWS. **CloudTrail Lake** provides a managed event data store with native SQL query capability
-          via the CloudTrail console or API — no Athena table creation, Glue crawlers, or S3 prefix
-          management required (constraint 3). Queries run against the event data store directly. The
-          **EventBridge Organization-level event bus** (or cross-account EventBridge rule) matching
-          root `ConsoleLogin` events delivers alerts within seconds — well within the 60-second SLA
-          (constraint 4).
-
-          * **Why alternatives fail:**
-          - **A)** Per-account CloudTrail trails + StackSets automation is the manual predecessor to
-          Organization Trail. StackSets have deployment delays (5+ minutes per account batch) and
-          require ongoing maintenance. Athena with S3 requires Glue crawlers, table definitions,
-          and partition management — CloudTrail Lake is simpler and purpose-built. Functionally valid
-          but operationally inferior to B.
-          - **C)** AWS Config captures **resource configuration changes**, not API call audit logs —
-          Config Rules do not replace CloudTrail for API audit logging. DynamoDB is not an appropriate
-          store for 7 years of CloudTrail events from 200 accounts (petabytes of data at potential
-          $0.25/GB storage vs S3 at $0.023/GB). S3 Glacier for active query use cases introduces
-          retrieval delays.
-          - **D)** A SIEM on EC2 introduces self-managed infrastructure, licensing costs, and
-          operational overhead. Kinesis delivery adds complexity and potential for data loss if the
-          Kinesis stream is misconfigured. This violates the principle of using managed AWS services
-          for centralized governance.
-
-
-
-          ### Scenario 62: Domain 2 — Design for New Solutions
-
-          A healthcare company is building a **clinical decision support system** that uses ML to
-          recommend treatments. Requirements: (1) ML models are trained on **PHI data** that must
-          **never leave the AWS account**; (2) training jobs run on **100 GPU instances** and must
-          complete within **2 hours** — Spot interruptions are acceptable if training auto-resumes;
-          (3) model inference must return recommendations within **200ms** — models are 2GB in size;
-          (4) the inference endpoint must **auto-scale from 0 to 1000 TPS** within 2 minutes of a
-          traffic spike; (5) model versions must be tracked with **full lineage** (training data version,
-          hyperparameters, metrics, code version); (6) PHI used in training must be **automatically
-          detected and catalogued** for HIPAA compliance reporting.
-
-          **Question:** Which architecture satisfies all six requirements?
-
-          - [ ] **A)** EC2 p3.16xlarge instances for training. Custom model serving on EC2 Auto Scaling.
-          Git for version tracking. Macie for PHI detection. Manual lineage tracking in DynamoDB.
-          - [ ] **B)** SageMaker Training Jobs with **Managed Spot Training** (100 GPU instances,
-          automatic checkpoint to S3, resumes after interruption — constraint 2) in a **VPC with no
-          internet gateway** (PHI stays in account — constraint 1). SageMaker **Real-Time Inference**
-          endpoint with **Application Auto Scaling** (target tracking, scales out on invocation count —
-          constraint 4). Enable **SageMaker Model Registry** + **SageMaker Pipelines** (tracks
-          training data version via S3 URIs, hyperparameters, metrics, code commit hash — constraint 5).
-          Deploy 2GB model on **ml.g4dn.xlarge** instances (GPU inference, <200ms — constraint 3). Enable **Amazon
-            Macie** on the training data S3 bucket for PHI detection and cataloguing (constraint 6). SageMaker endpoint
-            minimum instances=0 with **Serverless Inference** for scale-from-zero, or use **Inference Recommender** to
-            right-size. - [ ] **C)** SageMaker Training with On-Demand instances. Deploy model on Lambda (2GB layer).
-            Use MLflow for lineage. Enable CloudTrail for PHI audit. Auto Scaling on EC2 for inference. - [ ] **D)**
-            Azure ML for training (better GPU availability). SageMaker for inference. S3 for data. Manual compliance
-            reporting. Route 53 for endpoint routing. <details>
-            <summary>View Architectural Decision Record (Resolution)</summary>
-
-            **Architectural Decision Record (Resolution):**
-
-            * **Optimal Solution:** **B** — SageMaker Managed Spot Training in isolated VPC + Real-Time
-            Inference with Auto Scaling + Model Registry + Pipelines + Macie for PHI.
-
-            * **Why it succeeds:** **SageMaker Managed Spot Training** uses EC2 Spot Instances for training
-            jobs with automatic **checkpoint-and-resume** — if a Spot instance is reclaimed, training
-            automatically restarts from the last checkpoint saved to S3. For a 2-hour job across 100
-            GPUs, checkpointing every 15-30 minutes limits lost work. The training job runs in a **VPC
-            with no NAT Gateway or Internet Gateway** — PHI data never leaves the AWS account network
-            boundary (constraint 1); SageMaker communicates with S3 via **VPC Endpoints**. **SageMaker
-            Real-Time Inference** on `ml.g4dn.xlarge` (GPU) serves the 2GB model — GPU inference
-            reduces latency well below 200ms for medical recommendation models (constraint 3). **Application
-            Auto Scaling** with target tracking (invocations per instance) scales the endpoint from
-            minimum to handle 1000 TPS — scale-out time is 1-2 minutes with pre-loaded model (constraint
-            4). **SageMaker Model Registry** tracks model versions; **SageMaker Pipelines** records the
-            full training lineage (data URI, code commit, hyperparameters, evaluation metrics) — the
-            canonical ML lineage solution on AWS (constraint 5). **Amazon Macie** scans S3 buckets for
-            PHI patterns and catalogues findings in Security Hub — HIPAA compliance reporting (constraint 6).
-
-            * **Why alternatives fail:**
-            - **A)** Custom EC2 Auto Scaling for inference cannot scale from 0 to handle 1000 TPS within
-            2 minutes — EC2 launch time alone is 60-90 seconds, plus model loading time for a 2GB model.
-            Manual lineage tracking in DynamoDB requires custom tooling and is error-prone. No managed
-            Spot checkpoint-resume capability without custom implementation.
-            - **C)** Lambda has a **maximum deployment package size of 10GB (including layers)** and a
-            maximum memory of 10GB — a 2GB model on Lambda is technically possible but Lambda's
-            execution model (cold starts, 15-min timeout) makes it unsuitable for consistent <200ms GPU inference at
-              1000 TPS. Lambda does not support GPU instances. - **D)** Using Azure ML violates constraint 1 — PHI data
-              would leave the AWS account and traverse the public internet to Azure, violating HIPAA data residency
-              requirements and the explicit constraint that PHI must never leave the AWS account. ### Scenario 63:
-              Domain 3 — Migration Planning A financial services company is migrating **200 microservices** from
-              on-premises Kubernetes (bare metal) to **Amazon EKS**. The migration must: (1) be executed in **waves**
-              with 10-20 services per wave; (2) maintain **service-to-service communication** during the transition —
-              some services will be on-premises, some on EKS at any given time; (3) all services use **mutual TLS
-              (mTLS)** for authentication — the existing PKI must be extended to AWS; (4) migrated services must use
-              **IAM Roles for Service Accounts (IRSA)** to access AWS services — no long-lived credentials; (5) the
-              **rollback time** for any single wave must be under **30 minutes**; (6) services must be migrated without
-              rewriting Kubernetes manifests — only AWS-specific annotations should be added. **Question:** Which
-              migration architecture satisfies ALL six constraints? - [ ] **A)** Migrate all services at once during a
-              maintenance window. Use AWS Certificate Manager for mTLS. Configure IRSA. Use kubectl rollout undo for
-              rollback. Rewrite manifests for EKS compatibility. - [ ] **B)** Use **AWS Application Migration Service
-              (MGN)** to lift the bare-metal Kubernetes nodes to EC2. Run the existing Kubernetes cluster on EC2.
-              Gradually migrate workloads to EKS managed node groups. Use AWS Private CA for mTLS certificates.
-              Configure IRSA per service. - [ ] **C)** Execute wave-based migration using **AWS App Mesh** (service mesh
-              across on-premises and EKS — hybrid mesh with Virtual Nodes representing on-premises services and EKS
-              services). App Mesh Envoy sidecars handle mTLS using **ACM Private CA** certificates (extends existing PKI
-              into AWS — constraint 3). **IRSA** configured via EKS OIDC provider + IAM role annotations on Kubernetes
-              ServiceAccounts (constraint 4). **Helm chart annotations** add AWS-specific configurations without
-              rewriting base manifests (constraint 6). Wave rollback: **EKS managed node group scaling to 0** + **App
-              Mesh Virtual Node routing weight** shifted back to on-premises endpoints — achievable in <30 minutes
-              (constraint 5). Hybrid connectivity via Direct Connect or Site-to-Site VPN for on-prem ↔ EKS service
-              communication during transition (constraint 2). - [ ] **D)** Use Istio service mesh for mTLS. Migrate all
-              services to ECS Fargate instead of EKS. Use Secrets Manager for credentials. Perform migration in a single
-              wave. <details>
-              <summary>View Architectural Decision Record (Resolution)</summary>
-
-              **Architectural Decision Record (Resolution):**
-
-              * **Optimal Solution:** **C** — App Mesh hybrid mesh + ACM Private CA + IRSA + Helm annotations
-              + wave-based rollback via mesh routing weights.
-
-              * **Why it succeeds:** **AWS App Mesh** supports a **hybrid service mesh** — Virtual Nodes can
-              represent both EKS pods and on-premises services (via DNS names or IP addresses). During each
-              migration wave, on-premises services are registered as Virtual Nodes; after migration, the
-              Virtual Node DNS name changes to the EKS service endpoint — no service-to-service communication
-              changes during the hybrid period (constraint 2). **ACM Private CA** integrates with App Mesh
-              to issue and rotate mTLS certificates automatically — the Private CA can be configured as an
-              intermediate CA chained to the existing on-premises PKI, extending the trust chain into AWS
-              (constraint 3). **IRSA** uses the EKS OIDC provider to associate IAM roles with Kubernetes
-              ServiceAccounts via annotations — no credential management required, satisfying constraint 4.
-              **Helm** `values.yaml` overrides and annotations add IRSA ServiceAccount annotations and App
-              Mesh sidecar injection annotations without modifying base Kubernetes manifests (constraint 6).
-              **Wave rollback** in App Mesh uses Virtual Router routing weights — shifting 100% traffic back
-              to on-premises Virtual Node within minutes; EKS deployments are scaled down independently.
-              Total rollback time <30 minutes (constraint 5). * **Why alternatives fail:** - **A)** Migrating all 200
-                services at once eliminates wave-based migration (constraint 1) and makes rollback of any single wave
-                meaningless. Rewriting manifests violates constraint 6. "kubectl rollout undo" rolls back a Deployment
-                to the previous version within EKS but does not restore traffic routing to on-premises — hybrid rollback
-                is not addressed. - **B)** Lifting bare-metal Kubernetes nodes to EC2 with MGN creates a self-managed
-                Kubernetes cluster on EC2 — this is not migrating to EKS. It simply moves the existing cluster to EC2 as
-                a stepping stone without the managed EKS control plane benefits. IRSA requires EKS OIDC provider — not
-                available on self-managed Kubernetes without additional tooling. - **D)** Migrating to ECS Fargate
-                instead of EKS violates constraint 6 (Kubernetes manifests cannot be used on ECS — completely different
-                orchestration API). Istio is a valid service mesh but is not an AWS-managed service and does not
-                integrate natively with ACM Private CA or IRSA. </details>
-
-                </div>
-
-                ### Scenario 64: Domain 4 — Cost Control
-
-                A company runs a **data processing pipeline** on AWS: S3 (raw data) → Glue ETL jobs (daily,
-                2-hour run) → Redshift (analytical queries) → QuickSight dashboards. Additional workloads:
-                Lambda functions processing S3 events (100M invocations/month), CloudWatch Logs retaining
-                all logs for 1 year (500GB/month ingested), API Gateway (REST, 500M calls/month). Monthly
-                bill: Glue $8,000, Redshift $18,000, Lambda $6,000, CloudWatch Logs $12,000, API Gateway
-                $7,000. Total: $51,000/month. Target: **35% reduction** with no loss of functionality.
-
-                **Question:** Which combination of changes achieves ≥35% reduction?
-
-                - [ ] **A)** Purchase Redshift Reserved Nodes (1-year). Reduce Lambda memory. Reduce CloudWatch
-                Logs retention to 90 days. Use API Gateway HTTP API instead of REST API.
-                - [ ] **B)** Use Glue job bookmarks to avoid reprocessing. Purchase Redshift Reserved Nodes
-                (1-year). Optimize Lambda with Graviton2 (`arm64`). Export CloudWatch Logs to S3 after
-                7 days (S3 at $0.023/GB vs CloudWatch at $0.03/GB). Use API Gateway HTTP API (~71% cheaper
-                than REST API for the same call volume).
-                - [ ] **C)** Migrate Glue to EMR on EC2 Spot. Purchase Redshift Serverless. Reduce Lambda
-                timeout. Delete CloudWatch Logs after 30 days. Use ALB instead of API Gateway.
-                - [ ] **D)** Purchase **Redshift Reserved Nodes (1-year)** (~35% saving on $18K → saves ~$6,300).
-                Switch **API Gateway REST to HTTP API** (~71% cost reduction: REST API $3.50/million calls
-                vs HTTP API $1.00/million — at 500M calls: REST=$1,750, HTTP=$500 → saves ~$1,250 base, but
-                at scale the difference is significant — actual saving ~$5,000/month on the $7,000 line).
-                Set **CloudWatch Logs retention to 30 days** + export to **S3 Glacier Instant Retrieval**
-                for 1-year compliance (CloudWatch charges $0.03/GB/month for stored data; 500GB/month × 12
-                months = 6TB at $0.03 = $180/month vs current $12,000 — the $12K must include ingestion +
-                storage; reducing retention to 30 days cuts stored volume by 92% → saves ~$9,000-11,000).
-                Use **AWS Lambda Graviton2** (arm64 architecture — 20% better price-performance, 20% cost
-                reduction on $6,000 → saves ~$1,200). Use **Glue job bookmarks** to skip already-processed
-                S3 objects (avoids redundant DPU usage — saves 20-30% on $8,000 → saves ~$1,600-2,400).
-
-                <details>
-                  <summary>View Architectural Decision Record (Resolution)</summary>
-
-                  **Architectural Decision Record (Resolution):**
-
-                  * **Optimal Solution:** **D** — Redshift Reserved Nodes + API Gateway HTTP API + CloudWatch
-                  Logs retention reduction + S3 export + Lambda Graviton2 + Glue job bookmarks.
-
-                  * **Why it succeeds:** This option addresses every line item simultaneously:
-                  **Redshift ($18K):** 1-year Reserved Nodes provide 35% discount → saves ~$6,300/month.
-                  **API Gateway ($7K):** HTTP API is 71% cheaper than REST API for equivalent functionality
-                  (HTTP API lacks some features like API keys, usage plans, and custom request validation, but
-                  if those aren't needed, the saving is direct) → saves ~$5,000/month.
-                  **CloudWatch Logs ($12K):** The largest line item. Setting 30-day retention in CloudWatch
-                  and exporting to S3 Glacier Instant Retrieval ($0.004/GB/month) for the remaining 10 months
-                  dramatically cuts the stored-log cost. CloudWatch storage at $0.03/GB/month on 6TB (12 months
-                  × 500GB) = $180/month; but active ingestion cost and the $12K figure suggest significant
-                  stored volume. Cutting retention to 30 days reduces in-CW storage by 92% → saves ~$9,000+.
-                  **Lambda ($6K):** Graviton2 arm64 provides 20% better price/performance with no code changes
-                  for most Node.js/Python runtimes → saves ~$1,200.
-                  **Glue ($8K):** Job bookmarks prevent full re-scans of S3 on daily runs → saves ~$2,000.
-                  **Total: ~$23,500+ savings on $51,000 = ~46% — exceeds the 35% target.**
-
-                  * **Why alternatives fail:**
-                  - **A)** Reduces Lambda memory — this may increase execution duration and increase total cost
-                  (Lambda charges = duration × memory). Reducing memory is not a guaranteed saving. Missing
-                  the CloudWatch Logs export strategy and Glue optimization — two of the largest saving
-                  opportunities.
-                  - **B)** Correct components but "export CloudWatch Logs to S3 after 7 days" retains 7 days
-                  in CloudWatch and moves to S3 — at $0.023/GB S3 Standard vs $0.003/GB Glacier, the
-                  recommendation should be S3 Glacier for archived compliance logs. Also omits Redshift
-                  Reserved Nodes which is the single largest saving. Less complete than D.
-                  - **C)** Migrating Glue to EMR on EC2 Spot is a re-architecture (different ETL framework,
-                  operational overhead). Redshift Serverless is appropriate for sporadic/unpredictable
-                  workloads — for a daily analytical cluster with predictable usage, Reserved Nodes are
-                  more cost-effective. Replacing API Gateway with ALB removes API management features
-                  and is a significant re-architecture.
-
-                </details>
-
-                </div>
-
-                ### Scenario 65: Domain 5 — Continuous Improvement for Existing Solutions
-
-                A retail company's **recommendation engine** runs on ECS Fargate (Python Flask API) backed
-                by a DynamoDB table with 500 million items. Issues identified: (1) **DynamoDB costs $45,000/month**
-                — hot partition reads on popular product IDs causing both high cost and throttling; (2) the
-                Flask API has **P99 latency of 800ms** — profiling shows 70% of time is DynamoDB `GetItem`
-                calls; (3) **ECS task definition uses 4 vCPU / 8GB memory** but CPU utilization averages 15%
-                and memory utilization averages 20%; (4) the API has **no rate limiting** — a single misbehaving
-                client sent 500K requests in 10 minutes last week, causing a cost spike; (5) Fargate tasks run
-                in **us-east-1 only** — European users (40% of traffic) experience 180ms additional latency.
-
-                **Question:** Which set of improvements resolves all five issues?
-
-                - [ ] **A)** Add ElastiCache Redis in front of DynamoDB. Right-size Fargate tasks. Add API
-                Gateway with throttling. Deploy CloudFront for European users.
-                - [ ] **B)** Enable DynamoDB DAX cluster (in-memory cache, microsecond reads, reduces DynamoDB
-                RCU consumption for hot items — resolves issue 1 cost and issue 2 latency). Right-size Fargate
-                to **1 vCPU / 2GB** (matching actual utilization + headroom — reduces Fargate cost by 70%).
-                Implement **API Gateway usage plans with throttling** (per-client rate limiting, prevents
-                runaway clients). Deploy **CloudFront with Lambda@Edge** for European users (routes to
-                nearest CloudFront PoP, reduces latency by ~150ms for European users).
-                - [ ] **C)** Deploy **DynamoDB Accelerator (DAX)** cluster (drop-in DynamoDB API replacement,
-                microsecond read latency, caches hot items — directly reduces both DynamoDB RCU costs on
-                hot partitions and P99 latency from 800ms to <10ms for cached items). Right-size ECS Fargate task from
-                  4vCPU/8GB to **1vCPU/2GB** (15% CPU → ~0.6vCPU actual; 20% memory → ~1.6GB actual; 1vCPU/2GB provides
-                  67% headroom at a 75% cost reduction). Add **AWS WAF rate-based rule** on API Gateway or ALB (rate
-                  limit per IP, blocks after threshold — prevents runaway client cost spikes without requiring usage
-                  plan API keys). Deploy ECS tasks in **eu-west-1** with **Route 53 latency-based routing** to route
-                  European users to the nearest region. - [ ] **D)** Migrate DynamoDB to Aurora with read replicas for
-                  caching. Scale down Fargate manually. Add Lambda authorizer for rate limiting. Use Direct Connect for
-                  European users. <details>
-                  <summary>View Architectural Decision Record (Resolution)</summary>
-
-                  **Architectural Decision Record (Resolution):**
-
-                  * **Optimal Solution:** **C** — DynamoDB DAX + ECS right-sizing + WAF rate-based rule +
-                  Route 53 latency-based routing to eu-west-1.
-
-                  * **Why it succeeds:** **DynamoDB Accelerator (DAX)** is a purpose-built, fully managed
-                  in-memory cache for DynamoDB — it uses the exact same DynamoDB API (drop-in replacement,
-                  no Flask code changes beyond changing the client endpoint). DAX caches `GetItem` and `Query`
-                  results at microsecond latency, serving hot product ID reads from memory instead of DynamoDB —
-                  this directly reduces DynamoDB RCU consumption (lower cost) and reduces P99 latency from
-                  800ms to <1ms for cached reads (issues 1 and 2). **ECS right-sizing** from 4vCPU/8GB to 1vCPU/2GB
-                    reduces Fargate cost by 75% — at 15% CPU utilization of 4vCPU (0.6vCPU actual), 1vCPU provides
-                    adequate headroom. Memory utilization at 20% of 8GB=1.6GB actual; 2GB provides sufficient headroom
-                    (issue 3). **AWS WAF rate-based rule** on the ALB or API Gateway blocks IP addresses that exceed a
-                    configurable request threshold (e.g., 1,000 requests per 5 minutes) — this is simpler and more
-                    effective than API keys/usage plans for blocking anonymous misbehaving clients (issue 4). **Route 53
-                    latency-based routing** with ECS tasks deployed in `eu-west-1` routes European users to the nearest
-                    region — ~180ms RTT reduction for the 40% European traffic segment (issue 5). * **Why alternatives
-                    fail:** - **A)** ElastiCache Redis requires code changes to the Flask application (Redis client,
-                    cache key design, TTL management, cache invalidation logic) — DAX is a drop-in DynamoDB API
-                    replacement requiring only a client endpoint change. CloudFront caches HTTP responses at edge — it
-                    does not reduce per-user latency for dynamic, personalized recommendation API responses (each user
-                    gets different recommendations, cache hit rate would be near 0). Route 53 with regional ECS
-                    deployment is the correct latency solution for a dynamic API. - **B)** Functionally similar to C but
-                    uses Lambda@Edge with CloudFront for European users — CloudFront + Lambda@Edge is appropriate for
-                    content delivery and edge logic, not for routing to a full regional API deployment. Lambda@Edge
-                    functions run at CloudFront PoPs but still call back to the origin (us-east-1) for dynamic
-                    personalized API responses — it does not eliminate the cross-Atlantic latency for origin calls. -
-                    **D)** Migrating DynamoDB to Aurora requires a complete data model redesign and application
-                    re-architecture — 500 million items with hot partition access patterns is a DynamoDB-native use
-                    case, not an Aurora use case. Direct Connect for European users routes network traffic through a
-                    dedicated connection but does not reduce public internet latency for end-user HTTP requests — it's
-                    for corporate network connectivity, not CDN/API latency optimization. </details>
-
-                    </div>
-
-                    ### Scenario 66: Domain 1 — Design Solutions for Organizational Complexity
-
-                    A bank's security team must ensure **all EC2 instances across 50 accounts** meet the following
-                    continuously: (1) no EC2 instance may have a public IP address; (2) all EC2 instances must
-                    have SSM Agent installed and report to Systems Manager; (3) any non-compliant instance must be
-                    **automatically remediated within 10 minutes**; (4) compliance status must be visible in a
-                    **single dashboard** without logging into each account; (5) the solution must cover newly
-                    launched instances within **2 minutes** of launch.
-
-                    **Question:** Which architecture satisfies ALL five requirements?
-
-                    - [ ] **A)** Use AWS Config Organization Rules with auto-remediation: Rule
-                    `EC2_INSTANCE_NO_PUBLIC_IP` triggers SSM Automation document `AWS-DisassociatePublicIp` on
-                    non-compliance. Rule `EC2_INSTANCE_MANAGED_BY_SYSTEMS_MANAGER` triggers SSM Automation
-                    `AWS-InstallAndConfigureSSMAgent`. Deploy Config Aggregator in Security account for
-                    centralized compliance dashboard. Organization Rules auto-apply to new accounts and detect
-                    new instances within 2 minutes via Config change-triggered evaluation.
-                    - [ ] **B)** Deploy SCPs blocking `ec2:AssociateAddress`. Use Lambda to scan instances hourly.
-                    Use AWS Systems Manager Fleet Manager for visibility. Email alerts for non-compliance.
-                    - [ ] **C)** Use AWS Security Hub with EC2 findings. Use GuardDuty for public IP detection.
-                    Manually remediate via runbooks. Use CloudWatch dashboards per account.
-                    - [ ] **D)** Deploy a third-party CSPM tool. Use CloudTrail to detect EC2 launches. Use
-                    Lambda for remediation. Use a custom compliance dashboard in QuickSight.
-
-                    <details>
-                      <summary>View Architectural Decision Record (Resolution)</summary>
-
-                      **Architectural Decision Record (Resolution):**
-
-                      * **Optimal Solution:** **A** — AWS Config Organization Rules with SSM Automation
-                      auto-remediation
-                      + Config Aggregator for centralized dashboard.
-
-                      * **Why it succeeds:** **AWS Config Organization Rules** deploy a Config rule to all 50 accounts
-                      from the management account or delegated admin — no per-account configuration needed. New
-                      accounts in the Organization automatically receive the rules. **Config change-triggered
-                      evaluation** (as opposed to periodic) fires within **2 minutes** of an EC2 instance entering
-                      the running state (constraint 5) — Config receives the `EC2:instance` configuration item
-                      change and immediately evaluates compliance. **SSM Automation auto-remediation** attached to
-                      the Config rule runs the specified document within **minutes** of a non-compliance finding —
-                      `AWS-DisassociatePublicIp` removes the public IP association; `AWS-InstallAndConfigureSSMAgent`
-                      installs SSM Agent. Total detection-to-remediation time is well within 10 minutes (constraint
-                      3). **AWS Config Aggregator** (Organization-level) aggregates compliance data from all 50
-                      accounts into the Security account — providing a single-pane compliance dashboard (constraint
-                      4) via the Config console or exported to S3/Athena for custom reporting.
-
-                      * **Why alternatives fail:**
-                      - **B)** SCPs blocking `ec2:AssociateAddress` prevent associating Elastic IPs but do not
-                      prevent launching instances with `associatePublicIpAddress=true` in the subnet settings —
-                      the SCP would need to deny the launch call itself with conditions, which is complex and
-                      cannot target the `AssociatePublicIpAddress` parameter of `RunInstances` cleanly. Hourly
-                      Lambda scans violate constraint 5 (2-minute detection) and constraint 3 (10-minute
-                      remediation). SSM Fleet Manager provides visibility but not centralized compliance
-                      aggregation from a Config rules perspective.
-                      - **C)** Security Hub aggregates findings from Config, GuardDuty, Inspector — it is a
-                      consumer of compliance data, not a remediation engine. GuardDuty detects threats, not
-                      configuration compliance issues like public IPs or missing SSM Agent. Manual remediation
-                      via runbooks violates constraint 3 (automated remediation within 10 minutes).
-                      - **D)** Third-party CSPM tools are valid but the question asks for an AWS-native solution.
-                      CloudTrail-triggered Lambda with hourly scans cannot meet the 2-minute detection
-                      requirement — CloudTrail delivers events with a delay of up to 15 minutes for management
-                      events.
-
-                    </details>
-
-                    </div>
-
-                    ### Scenario 67: Domain 2 — Design for New Solutions
-
-                    A logistics company needs a **serverless event-driven order fulfillment system**. An order goes
-                    through states: `PLACED → PAYMENT_PROCESSING → PAYMENT_CONFIRMED → WAREHOUSE_ASSIGNED →
-                    PICKED → PACKED → SHIPPED → DELIVERED`. Requirements: (1) each state transition must be
-                    **auditable** with the exact timestamp and triggering event; (2) the workflow must support
-                    **parallel processing** — PICKED and PACKED can happen concurrently in sub-workflows; (3) if
-                    any step fails, the system must execute **compensating transactions** (e.g., release warehouse
-                    reservation if payment fails); (4) the workflow must be **resumable** — if a downstream
-                    service (warehouse API) is unavailable, the system must retry with **exponential backoff** up
-                    to 24 hours; (5) business analysts must be able to **visualize workflow execution** in a GUI
-                    without writing code; (6) total workflow duration can be up to **90 days** (delayed deliveries).
-
-                    **Question:** Which architecture BEST satisfies all six requirements?
-
-                    - [ ] **A)** SQS queues chained with Lambda functions for each state. DynamoDB for state
-                    tracking. CloudWatch for visualization. Custom retry logic in Lambda. SNS for notifications.
-                    - [ ] **B)** AWS Step Functions **Standard Workflow** (supports execution duration up to 1 year
-                    — constraint 6). State machine with states for each order stage. **Parallel state** for
-                    PICKED/PACKED concurrent processing (constraint 2). **Catch and Retry** blocks with
-                    exponential backoff configuration (up to 24-hour retry window — constraint 4). **Compensating
-                    transactions** via dedicated rollback states triggered by `Catch` blocks (constraint 3).
-                    Step Functions **execution history** records every state transition with exact timestamps —
-                    full audit trail (constraint 1). **Step Functions console visual workflow editor** and
-                    execution visualization for business analysts (constraint 5).
-                    - [ ] **C)** AWS Step Functions **Express Workflow**. EventBridge for state transitions.
-                    Lambda for each step. S3 for audit logs. Custom visualization in QuickSight.
-                    - [ ] **D)** Apache Airflow on Amazon MWAA for workflow orchestration. DynamoDB for state.
-                    Lambda for each task. SNS for retry notifications. Custom dashboard for visualization.
-
-                    <details>
-                      <summary>View Architectural Decision Record (Resolution)</summary>
-
-                      **Architectural Decision Record (Resolution):**
-
-                      * **Optimal Solution:** **B** — Step Functions Standard Workflow with Parallel states, Catch/
-                      Retry blocks, compensating transaction states, execution history, and visual console.
-
-                      * **Why it succeeds:** **AWS Step Functions Standard Workflow** supports execution durations
-                      of up to **1 year** — accommodating 90-day delayed deliveries (constraint 6). Express
-                      Workflows are limited to **5 minutes** and would fail this requirement. The **Parallel state**
-                      in Step Functions runs branches concurrently and waits for all to complete before proceeding —
-                      PICKED and PACKED sub-workflows run in parallel (constraint 2). **Retry** blocks with
-                      `IntervalSeconds`, `BackoffRate`, and `MaxAttempts` implement exponential backoff; combined
-                      with **HeartbeatSeconds** and `WaitForTaskToken` pattern for asynchronous callbacks, the
-                      system can retry warehouse API calls for up to 24 hours (constraint 4). **Catch** blocks
-                      transition to dedicated compensation states (e.g., `ReleaseWarehouseReservation`) when steps
-                      fail — implementing the Saga pattern for distributed transaction compensation (constraint 3).
-                      Step Functions **execution history** stores every state transition with exact timestamps,
-                      input/output, and event details — queryable via API or console (constraint 1). The **Step
-                      Functions console** provides a visual graph of the state machine with live execution tracking —
-                      business analysts can monitor order progress without code (constraint 5).
-
-                      * **Why alternatives fail:**
-                      - **A)** Chained SQS + Lambda with custom retry logic and DynamoDB state tracking can
-                      implement this pattern but requires significant custom engineering for: parallel execution
-                      coordination, compensating transaction triggers, exponential backoff state management, and
-                      execution visualization. Step Functions provides all of this natively with less code.
-                      - **C)** **Step Functions Express Workflows** have a maximum duration of **5 minutes** —
-                      completely inadequate for a 90-day order fulfillment workflow. This is a fundamental
-                      constraint mismatch. Express Workflows are designed for high-volume, short-duration workflows.
-                      - **D)** Amazon MWAA (Apache Airflow) is a batch-oriented workflow orchestrator designed for
-                      data pipeline DAGs — it is not designed for event-driven, long-running transactional
-                      workflows with compensating transactions. Airflow DAGs run on a schedule or trigger, not
-                      per-order event. The operational overhead (Airflow environment cost, DAG management) is
-                      significantly higher than Step Functions for this use case.
-
-                    </details>
-
-                    </div>
-
-                    ### Scenario 68: Domain 3 — Migration Planning
-
-                    A company is performing a **database migration assessment** for 40 databases across their
-                    data center: Oracle 12c (15 databases), MySQL 5.7 (10 databases), Microsoft SQL Server 2016
-                    (8 databases), MongoDB 4.0 (5 databases), PostgreSQL 11 (2 databases). The migration team
-                    must: (1) **assess schema complexity and migration effort** for each database before committing
-                    to a migration path; (2) select the **optimal AWS target database** for each engine; (3) the
-                    migration must use **continuous replication** to minimize cutover downtime; (4) **heterogeneous
-                    migrations** (e.g., Oracle → Aurora PostgreSQL) must include automated schema conversion; (5)
-                    the MongoDB databases contain **time-series data** — the target must optimize for time-series
-                    queries; (6) all migrations must be tracked centrally.
-
-                    **Question:** Which toolchain and target mapping BEST satisfies all six requirements?
-
-                    - [ ] **A)** Use AWS DMS for all databases. Migrate all to Amazon RDS Multi-AZ. Use SCT for
-                    Oracle and SQL Server. Track in Migration Hub.
-                    - [ ] **B)** Use **AWS Schema Conversion Tool (SCT)** for assessment and conversion of
-                    heterogeneous migrations (Oracle → Aurora PostgreSQL, SQL Server → Aurora PostgreSQL — SCT
-                    generates assessment reports showing conversion complexity, manual action items, and estimated
-                    effort — constraint 1 and 4). Target mapping: Oracle → **Aurora PostgreSQL** (SCT + DMS CDC),
-                    MySQL → **Aurora MySQL** (homogeneous DMS migration — no SCT needed), SQL Server → **RDS
-                    for SQL Server** (homogeneous, preserve SQL Server features), MongoDB → **Amazon Timestream**
-                    (purpose-built time-series database — constraint 5), PostgreSQL → **Aurora PostgreSQL**
-                    (homogeneous). Use **DMS with CDC** for all migrations (constraint 3). Track via **AWS
-                    Migration Hub** (constraint 6).
-                    - [ ] **C)** Use SCT for Oracle only. Migrate MySQL to DynamoDB. Migrate SQL Server to Aurora
-                    MySQL. Migrate MongoDB to DocumentDB. Migrate PostgreSQL to RDS PostgreSQL. Use DMS for
-                    replication. Track in Migration Hub.
-                    - [ ] **D)** Migrate all databases to Amazon DynamoDB (single target for simplicity). Use DMS
-                    for replication. Use SCT for schema conversion. Track in Migration Hub.
-
-                    <details>
-                      <summary>View Architectural Decision Record (Resolution)</summary>
-
-                      **Architectural Decision Record (Resolution):**
-
-                      * **Optimal Solution:** **B** — SCT for heterogeneous assessment + optimal per-engine target
-                      mapping (Aurora PG, Aurora MySQL, RDS SQL Server, Timestream, Aurora PG) + DMS CDC + Migration
-                      Hub.
-
-                      * **Why it succeeds:** **AWS SCT** generates **Database Migration Assessment Reports** for each
-                      source database — quantifying the number of objects that convert automatically vs require manual
-                      intervention, estimated migration effort in person-days, and a complexity rating (constraint 1).
-                      This informs the go/no-go decision before committing migration resources. The **target mapping**
-                      is architecturally optimal:
-                      - **Oracle 12c → Aurora PostgreSQL**: SCT converts DDL/stored procedures/packages; DMS CDC
-                      replicates data continuously (heterogeneous migration, constraints 3 and 4).
-                      - **MySQL 5.7 → Aurora MySQL**: Homogeneous migration — no schema conversion needed; DMS
-                      CDC handles continuous replication with near-zero downtime cutover.
-                      - **SQL Server 2016 → RDS for SQL Server**: Preserves SQL Server-specific features (T-SQL,
-                      Agent Jobs, linked servers) that would require significant refactoring to migrate to Aurora
-                      PostgreSQL. DMS CDC for replication.
-                      - **MongoDB 4.0 (time-series) → Amazon Timestream**: Timestream is AWS's purpose-built
-                      time-series database optimized for time-series ingestion and queries — orders of magnitude
-                      more cost-efficient than MongoDB for time-series workloads (constraint 5). DMS supports
-                      MongoDB as a source.
-                      - **PostgreSQL 11 → Aurora PostgreSQL**: Drop-in compatible homogeneous migration.
-                      Migration Hub tracks all DMS tasks centrally (constraint 6).
-
-                      * **Why alternatives fail:**
-                      - **A)** Migrating all databases to RDS Multi-AZ is a valid target but misses the optimal
-                      engine selection: MySQL should go to Aurora MySQL (better performance, serverless option),
-                      MongoDB time-series should go to Timestream (not RDS). SCT for Oracle and SQL Server only
-                      — misses the assessment for all 40 databases (constraint 1 partially unmet).
-                      - **C)** Migrating MySQL to DynamoDB is a major re-architecture (relational → NoSQL, requires
-                      complete data model redesign). SQL Server to Aurora MySQL requires schema conversion (SCT
-                      needed, T-SQL → MySQL compatibility issues). MongoDB to DocumentDB is a valid choice but
-                      DocumentDB is not optimized for time-series queries — Timestream provides purpose-built
-                      time-series optimization (constraint 5 unmet).
-                      - **D)** Migrating all databases to DynamoDB requires complete re-architecture of every
-                      application that uses relational databases — this is not a migration, it's a modernization
-                      project. Relational schemas with joins, transactions, and stored procedures cannot be
-                      directly migrated to DynamoDB without significant redesign.
-
-                    </details>
-
-                    </div>
-
-                    ### Scenario 69: Domain 4 — Cost Control
-
-                    A company's **AWS bill analysis** reveals the following top cost drivers: (1) **NAT Gateway**
-                    data processing charges: $18,000/month — EC2 instances in private subnets are downloading
-                    S3 objects and calling DynamoDB, Secrets Manager, and SSM APIs through NAT Gateway; (2)
-                    **Inter-AZ data transfer**: $12,000/month — ECS tasks in AZ-a are calling an RDS read replica
-                    in AZ-b; (3) **CloudWatch Logs ingestion**: $9,000/month — application logs include DEBUG-
-                    level logs being shipped to CloudWatch in production; (4) **Elastic Load Balancer** idle costs:
-                    $4,000/month — 20 ALBs provisioned for microservices, most with <100 requests/day; (5) **EC2 data
-                      transfer out**: $7,000/month — all API responses are served via EC2 directly, bypassing
-                      CloudFront. Total targeted savings: **$35,000/month (70% reduction)**. **Question:** Which
-                      combination of fixes achieves the target? - [ ] **A)** Add NAT Gateway to each AZ. Enable VPC Flow
-                      Logs to analyze traffic. Reduce CloudWatch Logs retention. Consolidate ALBs. Enable CloudFront. -
-                      [ ] **B)** Replace NAT Gateway with VPC Endpoints for S3, DynamoDB, Secrets Manager, SSM. Use
-                      AZ-aware routing for ECS-to-RDS. Set application log level to INFO/WARN in production. Consolidate
-                      microservice ALBs onto a single ALB with path/host-based routing. Route API responses through
-                      CloudFront. - [ ] **C)** Deploy **VPC Gateway Endpoints** for S3 and DynamoDB (free — no data
-                      processing charges, routes traffic within AWS network — eliminates NAT Gateway charges for
-                      S3/DynamoDB traffic) + **VPC Interface Endpoints** for Secrets Manager and SSM (interface endpoint
-                      data processing: $0.01/GB vs NAT Gateway $0.045/GB — ~78% reduction). Enable **ECS AZ-aware
-                      routing** (ECS Service Connect or AWS Cloud Map with AZ-affinity routing — ensures tasks route to
-                      same-AZ RDS replica endpoint). Set **CloudWatch Logs log level to INFO/WARN** (DEBUG generates
-                      10-100× more log lines — setting to INFO typically reduces log volume by 80-90%, reducing
-                      ingestion from $9K to ~$900-1,800). **Consolidate 20 ALBs to 2-3 ALBs** using ALB path-based and
-                      host-based routing rules (ALB fixed cost: ~$16/month + LCU charges — 20 ALBs at $16 each=$320
-                      fixed + $3,680 LCU; consolidating to 3 ALBs saves ~$272 fixed + LCU savings). Enable
-                      **CloudFront** for API responses (CloudFront data transfer out: ~$0.0085/GB vs EC2 data transfer
-                      out: $0.09/GB — 90% reduction on the $7,000 line item). - [ ] **D)** Move all EC2 to a public
-                      subnet to avoid NAT Gateway. Use Aurora instead of RDS to eliminate AZ data transfer. Delete all
-                      CloudWatch Logs. Use NLB instead of ALB. <details>
-                      <summary>View Architectural Decision Record (Resolution)</summary>
-
-                      **Architectural Decision Record (Resolution):**
-
-                      * **Optimal Solution:** **C** — VPC Gateway/Interface Endpoints + ECS AZ-aware routing +
-                      CloudWatch log level reduction + ALB consolidation + CloudFront.
-
-                      * **Why it succeeds:**
-                      **NAT Gateway ($18K):** VPC Gateway Endpoints for S3 and DynamoDB are **completely free**
-                      and route traffic within the AWS network — zero data processing charges. Interface Endpoints
-                      for Secrets Manager and SSM charge $0.01/GB data processing vs NAT Gateway's $0.045/GB —
-                      78% reduction. Eliminating S3/DynamoDB NAT traffic (typically 80%+ of NAT data volume)
-                      reduces NAT Gateway charges by ~$14,000-16,000.
-                      **Inter-AZ transfer ($12K):** ECS Service Connect with AZ-affinity or RDS reader endpoint
-                      with AZ-aware DNS routing ensures ECS tasks call the same-AZ read replica — eliminates
-                      cross-AZ transfer charges entirely → saves ~$12,000.
-                      **CloudWatch Logs ($9K):** DEBUG logs generate excessive volume. Setting log level to INFO
-                      in production reduces volume 80-90% → saves ~$7,200-8,100.
-                      **ALB idle costs ($4K):** Consolidating 20 ALBs to 3 using path/host routing reduces fixed
-                      ALB charges by 85% → saves ~$3,400.
-                      **EC2 data transfer ($7K):** CloudFront data transfer at $0.0085/GB vs EC2 $0.09/GB is a
-                      90% reduction → saves ~$6,300.
-                      **Total saves: ~$43,000-45,000 — exceeds $35,000 target.**
-
-                      * **Why alternatives fail:**
-                      - **A)** Adding NAT Gateway to each AZ reduces cross-AZ NAT traffic overhead but does not
-                      eliminate the S3/DynamoDB data processing charges — VPC Endpoints are required for that.
-                      VPC Flow Logs analysis helps understand traffic but does not reduce costs. This option
-                      correctly identifies the issues but proposes the wrong fixes.
-                      - **B)** Correct strategy but lacks specificity on VPC Endpoint types (Gateway vs Interface)
-                      — the distinction matters because Gateway Endpoints are free while Interface Endpoints have
-                      hourly + data charges. Also lacks quantification. Option C is more technically precise.
-                      - **D)** Moving EC2 to public subnets is a security anti-pattern — eliminating private
-                      subnets to avoid NAT Gateway costs exposes instances directly to the internet. Aurora instead
-                      of RDS does not eliminate inter-AZ data transfer charges — the charges come from the ECS-to-
-                      RDS traffic crossing AZs, not the database engine. Deleting all CloudWatch Logs removes
-                      operational visibility critical for a production system.
-
-                      </details>
-
-                      </div>
-
-                      ### Scenario 70: Domain 5 — Continuous Improvement for Existing Solutions
-
-                      A company's production **three-tier web application** (ALB → EC2 Auto Scaling → RDS MySQL)
-                      has the following Well-Architected review findings: (1) the **RDS instance** (`db.r5.4xlarge`)
-                      is at **90% CPU** during peak — queries are not optimized and no read replicas exist; (2) the
-                      **EC2 Auto Scaling group** takes **8 minutes** to scale out during traffic spikes — the AMI
-                      baking process for custom software installation takes 6 of those 8 minutes; (3) there is **no
-                      circuit breaker** between the web tier and a third-party payment API — when the payment API is
-                      slow (>5s), all web tier threads block, causing cascading failure; (4) **RDS automated backups
-                      are disabled** — a recent schema migration gone wrong caused 6 hours of downtime with no
-                      restore path; (5) CloudFormation templates are stored in **S3 with public read access** —
-                      a recent audit flagged potential credential exposure in template parameters.
-
-                      **Question:** Which set of improvements resolves ALL five findings?
-
-                      - [ ] **A)** Add RDS read replica. Reduce AMI size. Add ALB timeout for payment API. Enable
-                      RDS automated backups. Make S3 bucket private.
-                      - [ ] **B)** Add RDS read replica and Performance Insights. Pre-warm ASG. Implement retry logic
-                      in application for payment API. Enable RDS PITR. Enable S3 bucket versioning and encryption.
-                      - [ ] **C)** Add **RDS read replica** + enable **RDS Performance Insights** (identifies top
-                      SQL queries causing 90% CPU — enables query optimization; read replica offloads read traffic).
-                      Replace AMI baking with **EC2 Launch Templates using EC2 Image Builder** pipeline + store
-                      pre-baked AMI with all software installed (reduces ASG scale-out from 8min to ~2min — software
-                      pre-installed in AMI, only boot + health check time remaining). Implement **AWS Lambda or
-                      Step Functions** as an **async wrapper** for the payment API call — web tier enqueues payment
-                      request to SQS, Lambda calls payment API asynchronously; web tier returns `202 Accepted`
-                      immediately, preventing thread blocking (circuit breaker pattern via async decoupling).
-                      Enable **RDS automated backups** (1-35 day retention) + **enable PITR** — allows restore to
-                      any second within the retention window. **Block S3 public access** on the CloudFormation
-                      template bucket + migrate sensitive parameters to **AWS Systems Manager Parameter Store**
-                      (SecureString) or **AWS Secrets Manager** — reference in CloudFormation via dynamic
-                      references (`{{resolve:ssm-secure:...}}` or `{{resolve:secretsmanager:...}}`).
-                      - [ ] **D)** Migrate RDS to Aurora Serverless. Use Lambda for all compute. Replace payment API
-                      with internal service. Migrate to S3 encrypted storage. Rewrite CloudFormation in CDK.
-
-                      <details>
-                        <summary>View Architectural Decision Record (Resolution)</summary>
-
-                        **Architectural Decision Record (Resolution):**
-
-                        * **Optimal Solution:** **C** — RDS read replica + Performance Insights + pre-baked AMI via
-                        Image Builder + SQS async payment decoupling + RDS PITR + S3 block public access + SSM/
-                        Secrets Manager for parameters.
-
-                        * **Why it succeeds:**
-                        **Issue 1 (RDS CPU 90%):** RDS Performance Insights identifies the top N SQL queries by
-                        load — this enables targeted query optimization (add indexes, rewrite queries) without
-                        guessing. Adding a read replica offloads SELECT queries from the writer, directly reducing
-                        writer CPU. Combined approach addresses both the root cause (bad queries) and immediate relief
-                        (read scaling).
-                        **Issue 2 (8-minute scale-out):** Pre-baking the AMI with EC2 Image Builder (all application
-                        dependencies, runtime, configuration pre-installed) means new instances only need to boot and
-                        pass health checks — scale-out drops from 8 minutes to ~90 seconds. Launch Templates reference
-                        the latest Image Builder AMI automatically via SSM Parameter Store parameter.
-                        **Issue 3 (Payment API blocking):** Asynchronous decoupling via SQS + Lambda breaks the
-                        synchronous call chain — web tier threads are never blocked waiting for the payment API.
-                        SQS provides buffering; Lambda retries with exponential backoff; the payment API slowness is
-                        isolated behind the queue.
-                        **Issue 4 (No backups):** RDS automated backups with PITR enable restore to any second within
-                        the retention window — the schema migration scenario would have been recoverable in minutes
-                        by restoring to the timestamp before the migration.
-                        **Issue 5 (Public S3 + credentials in parameters):** S3 Block Public Access is a one-click
-                        fix. CloudFormation dynamic references to SSM Parameter Store (SecureString) or Secrets
-                        Manager replace hardcoded credentials in templates — the templates themselves no longer
-                        contain sensitive values.
-
-                        * **Why alternatives fail:**
-                        - **A)** "Add ALB timeout for payment API" (e.g., setting ALB idle timeout to 5 seconds)
-                        would cause the ALB to return a 504 timeout to users — this terminates the request but
-                        does not prevent thread exhaustion in the web tier if threads are blocked waiting for the
-                        ALB timeout. The circuit breaker must be in the application layer (async SQS pattern) or
-                        App Mesh/Envoy. "Make S3 bucket private" addresses the access control but doesn't fix
-                        credentials stored in template parameters — the credentials are still in S3, just not
-                        publicly readable.
-                        - **B)** "Pre-warm ASG" is not a defined AWS feature — ASG pre-warming requires scheduled
-                        scaling or predictive scaling, not fixing the root cause (AMI baking time). "Retry logic
-                        in application for payment API" improves resilience but still keeps synchronous threads
-                        blocked during retries — it does not implement a circuit breaker pattern. S3 versioning
-                        and encryption do not address public access or credential exposure in template parameters.
-                        - **D)** Migrating RDS to Aurora Serverless, Lambda for all compute, and rewriting
-                        CloudFormation in CDK constitutes a complete re-architecture — not a Well-Architected
-                        improvement of the existing system. These changes introduce significant migration risk and
-                        cost for problems solvable with targeted improvements.
-
-                      </details>
-
-                      </div>
+      * <strong>Why it succeeds:</strong>
+      <strong>Issue 1 (DR):</strong> AWS Elastic Disaster Recovery replicates EC2 block-level changes continuously
+      (RPO seconds); Aurora Global Database replicates with <1 second lag. Route 53 ARC routing controls enable <strong>RTO
+<15 minutes</strong> via pre-validated routing switches without DNS TTL delays. Both RPO and RTO targets are met.
+<strong>Issue 2 (WAF):</strong> AWS WAF on API Gateway with <strong>AWS Managed Rule Groups</strong> (specifically the
+<code>AWSManagedRulesSQLiRuleSet</code> and <code>AWSManagedRulesCommonRuleSet</code>) blocks SQL injection and XSS patterns
+automatically — no custom rule writing required for known attack patterns. <strong>Issue 3 (Secret rotation):</strong>
+Secrets Manager's <strong>automatic rotation</strong> uses a built-in Lambda rotation function for RDS/Aurora — implements
+dual-password rotation (creates new password, updates DB user, updates secret, verifies, then deletes old
+password) with zero application downtime. Configurable rotation interval (e.g., 30 days). <strong>Issue 4 (HTTP
+internal traffic):</strong> ACM Private CA issues internal TLS certificates to microservices; App Mesh with Envoy
+enforces mTLS between services, encrypting all internal VPC traffic without application code changes. <strong>Issue 5
+(Chaos testing):</strong> AWS FIS provides managed fault injection experiments (EC2 termination, AZ outage simulation,
+API throttling, network latency) with safety guardrails — measurably tests recovery behavior and validates the
+DR improvements from Issue 1. * <strong>Why alternatives fail:</strong> - <strong>A)</strong> Functionally the closest but "pilot light"
+without specifying DRS for EC2 continuous replication leaves RPO at hours (AMI-based recovery). A pilot light
+requires manual instance launch at failover — RTO may exceed 15 minutes without pre-warmed resources. ALB
+listener rules redirecting HTTP to HTTPS handle client-to-ALB traffic only — it does not encrypt internal
+microservice-to-microservice traffic within the VPC (constraint 4 partially unmet). - <strong>B)</strong> Manual secret
+rotation on a schedule defeats the purpose of constraint 3 (the problem is 14 months without rotation — manual
+processes will recur). Quarterly manual failover tests are insufficient for validating chaos behavior across all
+failure modes — FIS provides continuous, automated, guardrailed chaos experiments. - <strong>D)</strong> AWS Shield Advanced
+provides DDoS protection, not WAF functionality — it does not block SQL injection at the application layer.
+CloudWatch alarms monitoring for failures is not chaos engineering — alarms react to failures but do not inject
+failures to test recovery. Parameter Store does not support automatic secret rotation natively — Secrets Manager
+is required for automatic rotation with Lambda functions. </details>
+
+</div>
+
+<h3>Scenario 61: Domain 1 — Design Solutions for Organizational Complexity</h3>
+
+A global enterprise uses AWS Organizations with 200 accounts across 15 OUs representing
+business units. The CISO requires: (1) <strong>every API call</strong> across all 200 accounts must be
+captured in a <strong>tamper-proof, centralized, queryable audit log</strong> retained for <strong>7 years</strong>;
+(2) the audit log must be <strong>immutable</strong> — even the Security account administrator cannot
+delete it; (3) audit logs must be <strong>queryable via SQL</strong> without loading data into a database;
+(4) any <strong>root account login</strong> in any member account must trigger a <strong>real-time alert</strong> within
+60 seconds; (5) the solution must be <strong>fully automated</strong> — new accounts get coverage within
+5 minutes of creation.
+
+<strong>Question:</strong> Which architecture satisfies ALL five requirements?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Create CloudTrail trails in each account. Aggregate logs to a central S3 bucket. Use S3 Object Lock. Use Athena for SQL queries. Use CloudWatch Events for root login alerts. Use CloudFormation StackSets for new account automation.</li>
+<li><input type="checkbox"> <strong>B)</strong> Create an <strong>AWS CloudTrail Organization Trail</strong> (single trail, all current and future accounts auto-enrolled within minutes — constraint 5). Deliver to a central S3 bucket in the Security account with <strong>S3 Object Lock COMPLIANCE mode</strong> (7-year retention — even the bucket owner cannot delete — constraints 1 and 2). Enable <strong>AWS CloudTrail Lake</strong> for SQL-based event queries directly on CloudTrail data without S3/Athena setup (constraint 3). Create an <strong>EventBridge Organization rule</strong> matching <code>{ "userIdentity": { "type": "Root" }, "eventName": "ConsoleLogin" }</code> across all accounts → SNS → Security team (constraint 4,</li>
+</ul>
+<60 second delivery). New accounts automatically covered by Organization Trail and Organization EventBridge
+rule. 
+<ul class="options">
+<li><input type="checkbox"> <strong>C)</strong> Use AWS Config Organization Rules to capture API calls. Store in DynamoDB. Use DynamoDB Streams for root login alerts. Use S3 Glacier for 7-year retention.</li>
+<li><input type="checkbox"> <strong>D)</strong> Deploy a Security Information and Event Management (SIEM) tool on EC2. Forward all CloudTrail logs via Kinesis to the SIEM. Use SIEM alerting for root login. Use S3 lifecycle for 7-year retention. <details></li>
+</ul>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+* <strong>Optimal Solution:</strong> <strong>B</strong> — Organization Trail + S3 Object Lock COMPLIANCE + CloudTrail
+Lake + Organization EventBridge rule for root login.
+
+* <strong>Why it succeeds:</strong> <strong>CloudTrail Organization Trail</strong> created from the management account
+automatically covers <strong>all existing and future member accounts</strong> — new accounts get coverage
+within minutes of creation without any manual configuration (constraint 5). The trail delivers
+to a central S3 bucket in the Security account; member accounts cannot modify or delete the
+trail. <strong>S3 Object Lock COMPLIANCE mode</strong> with a 7-year retention period makes logs
+<strong>absolutely immutable</strong> — even the root user of the Security account cannot delete objects
+within the retention period (constraint 2). This is the strongest immutability guarantee in
+AWS. <strong>CloudTrail Lake</strong> provides a managed event data store with native SQL query capability
+via the CloudTrail console or API — no Athena table creation, Glue crawlers, or S3 prefix
+management required (constraint 3). Queries run against the event data store directly. The
+<strong>EventBridge Organization-level event bus</strong> (or cross-account EventBridge rule) matching
+root <code>ConsoleLogin</code> events delivers alerts within seconds — well within the 60-second SLA
+(constraint 4).
+
+* <strong>Why alternatives fail:</strong>
+- <strong>A)</strong> Per-account CloudTrail trails + StackSets automation is the manual predecessor to
+Organization Trail. StackSets have deployment delays (5+ minutes per account batch) and
+require ongoing maintenance. Athena with S3 requires Glue crawlers, table definitions,
+and partition management — CloudTrail Lake is simpler and purpose-built. Functionally valid
+but operationally inferior to B.
+- <strong>C)</strong> AWS Config captures <strong>resource configuration changes</strong>, not API call audit logs —
+Config Rules do not replace CloudTrail for API audit logging. DynamoDB is not an appropriate
+store for 7 years of CloudTrail events from 200 accounts (petabytes of data at potential
+$0.25/GB storage vs S3 at $0.023/GB). S3 Glacier for active query use cases introduces
+retrieval delays.
+- <strong>D)</strong> A SIEM on EC2 introduces self-managed infrastructure, licensing costs, and
+operational overhead. Kinesis delivery adds complexity and potential for data loss if the
+Kinesis stream is misconfigured. This violates the principle of using managed AWS services
+for centralized governance.
+
+
+
+<h3>Scenario 62: Domain 2 — Design for New Solutions</h3>
+
+A healthcare company is building a <strong>clinical decision support system</strong> that uses ML to
+recommend treatments. Requirements: (1) ML models are trained on <strong>PHI data</strong> that must
+<strong>never leave the AWS account</strong>; (2) training jobs run on <strong>100 GPU instances</strong> and must
+complete within <strong>2 hours</strong> — Spot interruptions are acceptable if training auto-resumes;
+(3) model inference must return recommendations within <strong>200ms</strong> — models are 2GB in size;
+(4) the inference endpoint must <strong>auto-scale from 0 to 1000 TPS</strong> within 2 minutes of a
+traffic spike; (5) model versions must be tracked with <strong>full lineage</strong> (training data version,
+hyperparameters, metrics, code version); (6) PHI used in training must be <strong>automatically
+detected and catalogued</strong> for HIPAA compliance reporting.
+
+<strong>Question:</strong> Which architecture satisfies all six requirements?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> EC2 p3.16xlarge instances for training. Custom model serving on EC2 Auto Scaling. Git for version tracking. Macie for PHI detection. Manual lineage tracking in DynamoDB.</li>
+<li><input type="checkbox"> <strong>B)</strong> SageMaker Training Jobs with <strong>Managed Spot Training</strong> (100 GPU instances, automatic checkpoint to S3, resumes after interruption — constraint 2) in a <strong>VPC with no internet gateway</strong> (PHI stays in account — constraint 1). SageMaker <strong>Real-Time Inference</strong> endpoint with <strong>Application Auto Scaling</strong> (target tracking, scales out on invocation count — constraint 4). Enable <strong>SageMaker Model Registry</strong> + <strong>SageMaker Pipelines</strong> (tracks training data version via S3 URIs, hyperparameters, metrics, code commit hash — constraint 5). Deploy 2GB model on <strong>ml.g4dn.xlarge</strong> instances (GPU inference, <200ms — constraint 3). Enable <strong>Amazon Macie</strong> on the training data S3 bucket for PHI detection and cataloguing (constraint 6). SageMaker endpoint minimum instances=0 with <strong>Serverless Inference</strong> for scale-from-zero, or use <strong>Inference Recommender</strong> to right-size.</li>
+<li><input type="checkbox"> <strong>C)</strong> SageMaker Training with On-Demand instances. Deploy model on Lambda (2GB layer). Use MLflow for lineage. Enable CloudTrail for PHI audit. Auto Scaling on EC2 for inference.</li>
+<li><input type="checkbox"> <strong>D)</strong> Azure ML for training (better GPU availability). SageMaker for inference. S3 for data. Manual compliance reporting. Route 53 for endpoint routing. <details></li>
+</ul>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+* <strong>Optimal Solution:</strong> <strong>B</strong> — SageMaker Managed Spot Training in isolated VPC + Real-Time
+Inference with Auto Scaling + Model Registry + Pipelines + Macie for PHI.
+
+* <strong>Why it succeeds:</strong> <strong>SageMaker Managed Spot Training</strong> uses EC2 Spot Instances for training
+jobs with automatic <strong>checkpoint-and-resume</strong> — if a Spot instance is reclaimed, training
+automatically restarts from the last checkpoint saved to S3. For a 2-hour job across 100
+GPUs, checkpointing every 15-30 minutes limits lost work. The training job runs in a <strong>VPC
+with no NAT Gateway or Internet Gateway</strong> — PHI data never leaves the AWS account network
+boundary (constraint 1); SageMaker communicates with S3 via <strong>VPC Endpoints</strong>. <strong>SageMaker
+Real-Time Inference</strong> on <code>ml.g4dn.xlarge</code> (GPU) serves the 2GB model — GPU inference
+reduces latency well below 200ms for medical recommendation models (constraint 3). <strong>Application
+Auto Scaling</strong> with target tracking (invocations per instance) scales the endpoint from
+minimum to handle 1000 TPS — scale-out time is 1-2 minutes with pre-loaded model (constraint
+4). <strong>SageMaker Model Registry</strong> tracks model versions; <strong>SageMaker Pipelines</strong> records the
+full training lineage (data URI, code commit, hyperparameters, evaluation metrics) — the
+canonical ML lineage solution on AWS (constraint 5). <strong>Amazon Macie</strong> scans S3 buckets for
+PHI patterns and catalogues findings in Security Hub — HIPAA compliance reporting (constraint 6).
+
+* <strong>Why alternatives fail:</strong>
+- <strong>A)</strong> Custom EC2 Auto Scaling for inference cannot scale from 0 to handle 1000 TPS within
+2 minutes — EC2 launch time alone is 60-90 seconds, plus model loading time for a 2GB model.
+Manual lineage tracking in DynamoDB requires custom tooling and is error-prone. No managed
+Spot checkpoint-resume capability without custom implementation.
+- <strong>C)</strong> Lambda has a <strong>maximum deployment package size of 10GB (including layers)</strong> and a
+maximum memory of 10GB — a 2GB model on Lambda is technically possible but Lambda's
+execution model (cold starts, 15-min timeout) makes it unsuitable for consistent <200ms GPU inference at
+1000 TPS. Lambda does not support GPU instances. - <strong>D)</strong> Using Azure ML violates constraint 1 — PHI data
+would leave the AWS account and traverse the public internet to Azure, violating HIPAA data residency
+requirements and the explicit constraint that PHI must never leave the AWS account. 
+<h3>Scenario 63: Domain 3 — Migration Planning</h3>
+A financial services company is migrating <strong>200 microservices</strong> from
+on-premises Kubernetes (bare metal) to <strong>Amazon EKS</strong>. The migration must: (1) be executed in <strong>waves</strong>
+with 10-20 services per wave; (2) maintain <strong>service-to-service communication</strong> during the transition —
+some services will be on-premises, some on EKS at any given time; (3) all services use <strong>mutual TLS
+(mTLS)</strong> for authentication — the existing PKI must be extended to AWS; (4) migrated services must use
+<strong>IAM Roles for Service Accounts (IRSA)</strong> to access AWS services — no long-lived credentials; (5) the
+<strong>rollback time</strong> for any single wave must be under <strong>30 minutes</strong>; (6) services must be migrated without
+rewriting Kubernetes manifests — only AWS-specific annotations should be added. <strong>Question:</strong> Which
+migration architecture satisfies ALL six constraints? 
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Migrate all services at once during a maintenance window. Use AWS Certificate Manager for mTLS. Configure IRSA. Use kubectl rollout undo for rollback. Rewrite manifests for EKS compatibility.</li>
+<li><input type="checkbox"> <strong>B)</strong> Use <strong>AWS Application Migration Service (MGN)</strong> to lift the bare-metal Kubernetes nodes to EC2. Run the existing Kubernetes cluster on EC2. Gradually migrate workloads to EKS managed node groups. Use AWS Private CA for mTLS certificates. Configure IRSA per service.</li>
+<li><input type="checkbox"> <strong>C)</strong> Execute wave-based migration using <strong>AWS App Mesh</strong> (service mesh across on-premises and EKS — hybrid mesh with Virtual Nodes representing on-premises services and EKS services). App Mesh Envoy sidecars handle mTLS using <strong>ACM Private CA</strong> certificates (extends existing PKI into AWS — constraint 3). <strong>IRSA</strong> configured via EKS OIDC provider + IAM role annotations on Kubernetes ServiceAccounts (constraint 4). <strong>Helm chart annotations</strong> add AWS-specific configurations without rewriting base manifests (constraint 6). Wave rollback: <strong>EKS managed node group scaling to 0</strong> + <strong>App Mesh Virtual Node routing weight</strong> shifted back to on-premises endpoints — achievable in <30 minutes (constraint 5). Hybrid connectivity via Direct Connect or Site-to-Site VPN for on-prem ↔ EKS service communication during transition (constraint 2).</li>
+<li><input type="checkbox"> <strong>D)</strong> Use Istio service mesh for mTLS. Migrate all services to ECS Fargate instead of EKS. Use Secrets Manager for credentials. Perform migration in a single wave. <details></li>
+</ul>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+* <strong>Optimal Solution:</strong> <strong>C</strong> — App Mesh hybrid mesh + ACM Private CA + IRSA + Helm annotations
++ wave-based rollback via mesh routing weights.
+
+* <strong>Why it succeeds:</strong> <strong>AWS App Mesh</strong> supports a <strong>hybrid service mesh</strong> — Virtual Nodes can
+represent both EKS pods and on-premises services (via DNS names or IP addresses). During each
+migration wave, on-premises services are registered as Virtual Nodes; after migration, the
+Virtual Node DNS name changes to the EKS service endpoint — no service-to-service communication
+changes during the hybrid period (constraint 2). <strong>ACM Private CA</strong> integrates with App Mesh
+to issue and rotate mTLS certificates automatically — the Private CA can be configured as an
+intermediate CA chained to the existing on-premises PKI, extending the trust chain into AWS
+(constraint 3). <strong>IRSA</strong> uses the EKS OIDC provider to associate IAM roles with Kubernetes
+ServiceAccounts via annotations — no credential management required, satisfying constraint 4.
+<strong>Helm</strong> <code>values.yaml</code> overrides and annotations add IRSA ServiceAccount annotations and App
+Mesh sidecar injection annotations without modifying base Kubernetes manifests (constraint 6).
+<strong>Wave rollback</strong> in App Mesh uses Virtual Router routing weights — shifting 100% traffic back
+to on-premises Virtual Node within minutes; EKS deployments are scaled down independently.
+Total rollback time <30 minutes (constraint 5). * <strong>Why alternatives fail:</strong> - <strong>A)</strong> Migrating all 200
+services at once eliminates wave-based migration (constraint 1) and makes rollback of any single wave
+meaningless. Rewriting manifests violates constraint 6. "kubectl rollout undo" rolls back a Deployment
+to the previous version within EKS but does not restore traffic routing to on-premises — hybrid rollback
+is not addressed. - <strong>B)</strong> Lifting bare-metal Kubernetes nodes to EC2 with MGN creates a self-managed
+Kubernetes cluster on EC2 — this is not migrating to EKS. It simply moves the existing cluster to EC2 as
+a stepping stone without the managed EKS control plane benefits. IRSA requires EKS OIDC provider — not
+available on self-managed Kubernetes without additional tooling. - <strong>D)</strong> Migrating to ECS Fargate
+instead of EKS violates constraint 6 (Kubernetes manifests cannot be used on ECS — completely different
+orchestration API). Istio is a valid service mesh but is not an AWS-managed service and does not
+integrate natively with ACM Private CA or IRSA. </details>
+
+</div>
+
+<h3>Scenario 64: Domain 4 — Cost Control</h3>
+
+A company runs a <strong>data processing pipeline</strong> on AWS: S3 (raw data) → Glue ETL jobs (daily,
+2-hour run) → Redshift (analytical queries) → QuickSight dashboards. Additional workloads:
+Lambda functions processing S3 events (100M invocations/month), CloudWatch Logs retaining
+all logs for 1 year (500GB/month ingested), API Gateway (REST, 500M calls/month). Monthly
+bill: Glue $8,000, Redshift $18,000, Lambda $6,000, CloudWatch Logs $12,000, API Gateway
+$7,000. Total: $51,000/month. Target: <strong>35% reduction</strong> with no loss of functionality.
+
+<strong>Question:</strong> Which combination of changes achieves ≥35% reduction?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Purchase Redshift Reserved Nodes (1-year). Reduce Lambda memory. Reduce CloudWatch Logs retention to 90 days. Use API Gateway HTTP API instead of REST API.</li>
+<li><input type="checkbox"> <strong>B)</strong> Use Glue job bookmarks to avoid reprocessing. Purchase Redshift Reserved Nodes (1-year). Optimize Lambda with Graviton2 (<code>arm64</code>). Export CloudWatch Logs to S3 after 7 days (S3 at $0.023/GB vs CloudWatch at $0.03/GB). Use API Gateway HTTP API (~71% cheaper than REST API for the same call volume).</li>
+<li><input type="checkbox"> <strong>C)</strong> Migrate Glue to EMR on EC2 Spot. Purchase Redshift Serverless. Reduce Lambda timeout. Delete CloudWatch Logs after 30 days. Use ALB instead of API Gateway.</li>
+<li><input type="checkbox"> <strong>D)</strong> Purchase <strong>Redshift Reserved Nodes (1-year)</strong> (~35% saving on $18K → saves ~$6,300). Switch <strong>API Gateway REST to HTTP API</strong> (~71% cost reduction: REST API $3.50/million calls vs HTTP API $1.00/million — at 500M calls: REST=$1,750, HTTP=$500 → saves ~$1,250 base, but at scale the difference is significant — actual saving ~$5,000/month on the $7,000 line). Set <strong>CloudWatch Logs retention to 30 days</strong> + export to <strong>S3 Glacier Instant Retrieval</strong> for 1-year compliance (CloudWatch charges $0.03/GB/month for stored data; 500GB/month × 12 months = 6TB at $0.03 = $180/month vs current $12,000 — the $12K must include ingestion + storage; reducing retention to 30 days cuts stored volume by 92% → saves ~$9,000-11,000). Use <strong>AWS Lambda Graviton2</strong> (arm64 architecture — 20% better price-performance, 20% cost reduction on $6,000 → saves ~$1,200). Use <strong>Glue job bookmarks</strong> to skip already-processed S3 objects (avoids redundant DPU usage — saves 20-30% on $8,000 → saves ~$1,600-2,400).</li>
+
+</ul>
+<details>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>D</strong> — Redshift Reserved Nodes + API Gateway HTTP API + CloudWatch</p>
+Logs retention reduction + S3 export + Lambda Graviton2 + Glue job bookmarks.
+
+<p class="expl-item"><strong>Why it succeeds:</strong> This option addresses every line item simultaneously:</p>
+<strong>Redshift ($18K):</strong> 1-year Reserved Nodes provide 35% discount → saves ~$6,300/month.
+<strong>API Gateway ($7K):</strong> HTTP API is 71% cheaper than REST API for equivalent functionality
+(HTTP API lacks some features like API keys, usage plans, and custom request validation, but
+if those aren't needed, the saving is direct) → saves ~$5,000/month.
+<strong>CloudWatch Logs ($12K):</strong> The largest line item. Setting 30-day retention in CloudWatch
+and exporting to S3 Glacier Instant Retrieval ($0.004/GB/month) for the remaining 10 months
+dramatically cuts the stored-log cost. CloudWatch storage at $0.03/GB/month on 6TB (12 months
+× 500GB) = $180/month; but active ingestion cost and the $12K figure suggest significant
+stored volume. Cutting retention to 30 days reduces in-CW storage by 92% → saves ~$9,000+.
+<strong>Lambda ($6K):</strong> Graviton2 arm64 provides 20% better price/performance with no code changes
+for most Node.js/Python runtimes → saves ~$1,200.
+<strong>Glue ($8K):</strong> Job bookmarks prevent full re-scans of S3 on daily runs → saves ~$2,000.
+<strong>Total: ~$23,500+ savings on $51,000 = ~46% — exceeds the 35% target.</strong>
+
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+- <strong>A)</strong> Reduces Lambda memory — this may increase execution duration and increase total cost
+(Lambda charges = duration × memory). Reducing memory is not a guaranteed saving. Missing
+the CloudWatch Logs export strategy and Glue optimization — two of the largest saving
+opportunities.
+- <strong>B)</strong> Correct components but "export CloudWatch Logs to S3 after 7 days" retains 7 days
+in CloudWatch and moves to S3 — at $0.023/GB S3 Standard vs $0.003/GB Glacier, the
+recommendation should be S3 Glacier for archived compliance logs. Also omits Redshift
+Reserved Nodes which is the single largest saving. Less complete than D.
+- <strong>C)</strong> Migrating Glue to EMR on EC2 Spot is a re-architecture (different ETL framework,
+operational overhead). Redshift Serverless is appropriate for sporadic/unpredictable
+workloads — for a daily analytical cluster with predictable usage, Reserved Nodes are
+more cost-effective. Replacing API Gateway with ALB removes API management features
+and is a significant re-architecture.
+
+</details>
+
+</div>
+
+<h3>Scenario 65: Domain 5 — Continuous Improvement for Existing Solutions</h3>
+
+A retail company's <strong>recommendation engine</strong> runs on ECS Fargate (Python Flask API) backed
+by a DynamoDB table with 500 million items. Issues identified: (1) <strong>DynamoDB costs $45,000/month</strong>
+— hot partition reads on popular product IDs causing both high cost and throttling; (2) the
+Flask API has <strong>P99 latency of 800ms</strong> — profiling shows 70% of time is DynamoDB <code>GetItem</code>
+calls; (3) <strong>ECS task definition uses 4 vCPU / 8GB memory</strong> but CPU utilization averages 15%
+and memory utilization averages 20%; (4) the API has <strong>no rate limiting</strong> — a single misbehaving
+client sent 500K requests in 10 minutes last week, causing a cost spike; (5) Fargate tasks run
+in <strong>us-east-1 only</strong> — European users (40% of traffic) experience 180ms additional latency.
+
+<strong>Question:</strong> Which set of improvements resolves all five issues?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Add ElastiCache Redis in front of DynamoDB. Right-size Fargate tasks. Add API Gateway with throttling. Deploy CloudFront for European users.</li>
+<li><input type="checkbox"> <strong>B)</strong> Enable DynamoDB DAX cluster (in-memory cache, microsecond reads, reduces DynamoDB RCU consumption for hot items — resolves issue 1 cost and issue 2 latency). Right-size Fargate to <strong>1 vCPU / 2GB</strong> (matching actual utilization + headroom — reduces Fargate cost by 70%). Implement <strong>API Gateway usage plans with throttling</strong> (per-client rate limiting, prevents runaway clients). Deploy <strong>CloudFront with Lambda@Edge</strong> for European users (routes to nearest CloudFront PoP, reduces latency by ~150ms for European users).</li>
+<li><input type="checkbox"> <strong>C)</strong> Deploy <strong>DynamoDB Accelerator (DAX)</strong> cluster (drop-in DynamoDB API replacement, microsecond read latency, caches hot items — directly reduces both DynamoDB RCU costs on hot partitions and P99 latency from 800ms to <10ms for cached items). Right-size ECS Fargate task from 4vCPU/8GB to <strong>1vCPU/2GB</strong> (15% CPU → ~0.6vCPU actual; 20% memory → ~1.6GB actual; 1vCPU/2GB provides 67% headroom at a 75% cost reduction). Add <strong>AWS WAF rate-based rule</strong> on API Gateway or ALB (rate limit per IP, blocks after threshold — prevents runaway client cost spikes without requiring usage plan API keys). Deploy ECS tasks in <strong>eu-west-1</strong> with <strong>Route 53 latency-based routing</strong> to route European users to the nearest region.</li>
+<li><input type="checkbox"> <strong>D)</strong> Migrate DynamoDB to Aurora with read replicas for caching. Scale down Fargate manually. Add Lambda authorizer for rate limiting. Use Direct Connect for European users. <details></li>
+</ul>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+* <strong>Optimal Solution:</strong> <strong>C</strong> — DynamoDB DAX + ECS right-sizing + WAF rate-based rule +
+Route 53 latency-based routing to eu-west-1.
+
+* <strong>Why it succeeds:</strong> <strong>DynamoDB Accelerator (DAX)</strong> is a purpose-built, fully managed
+in-memory cache for DynamoDB — it uses the exact same DynamoDB API (drop-in replacement,
+no Flask code changes beyond changing the client endpoint). DAX caches <code>GetItem</code> and <code>Query</code>
+results at microsecond latency, serving hot product ID reads from memory instead of DynamoDB —
+this directly reduces DynamoDB RCU consumption (lower cost) and reduces P99 latency from
+800ms to <1ms for cached reads (issues 1 and 2). <strong>ECS right-sizing</strong> from 4vCPU/8GB to 1vCPU/2GB
+reduces Fargate cost by 75% — at 15% CPU utilization of 4vCPU (0.6vCPU actual), 1vCPU provides
+adequate headroom. Memory utilization at 20% of 8GB=1.6GB actual; 2GB provides sufficient headroom
+(issue 3). <strong>AWS WAF rate-based rule</strong> on the ALB or API Gateway blocks IP addresses that exceed a
+configurable request threshold (e.g., 1,000 requests per 5 minutes) — this is simpler and more
+effective than API keys/usage plans for blocking anonymous misbehaving clients (issue 4). <strong>Route 53
+latency-based routing</strong> with ECS tasks deployed in <code>eu-west-1</code> routes European users to the nearest
+region — ~180ms RTT reduction for the 40% European traffic segment (issue 5). * <strong>Why alternatives
+fail:</strong> - <strong>A)</strong> ElastiCache Redis requires code changes to the Flask application (Redis client,
+cache key design, TTL management, cache invalidation logic) — DAX is a drop-in DynamoDB API
+replacement requiring only a client endpoint change. CloudFront caches HTTP responses at edge — it
+does not reduce per-user latency for dynamic, personalized recommendation API responses (each user
+gets different recommendations, cache hit rate would be near 0). Route 53 with regional ECS
+deployment is the correct latency solution for a dynamic API. - <strong>B)</strong> Functionally similar to C but
+uses Lambda@Edge with CloudFront for European users — CloudFront + Lambda@Edge is appropriate for
+content delivery and edge logic, not for routing to a full regional API deployment. Lambda@Edge
+functions run at CloudFront PoPs but still call back to the origin (us-east-1) for dynamic
+personalized API responses — it does not eliminate the cross-Atlantic latency for origin calls. -
+<strong>D)</strong> Migrating DynamoDB to Aurora requires a complete data model redesign and application
+re-architecture — 500 million items with hot partition access patterns is a DynamoDB-native use
+case, not an Aurora use case. Direct Connect for European users routes network traffic through a
+dedicated connection but does not reduce public internet latency for end-user HTTP requests — it's
+for corporate network connectivity, not CDN/API latency optimization. </details>
+
+</div>
+
+<h3>Scenario 66: Domain 1 — Design Solutions for Organizational Complexity</h3>
+
+A bank's security team must ensure <strong>all EC2 instances across 50 accounts</strong> meet the following
+continuously: (1) no EC2 instance may have a public IP address; (2) all EC2 instances must
+have SSM Agent installed and report to Systems Manager; (3) any non-compliant instance must be
+<strong>automatically remediated within 10 minutes</strong>; (4) compliance status must be visible in a
+<strong>single dashboard</strong> without logging into each account; (5) the solution must cover newly
+launched instances within <strong>2 minutes</strong> of launch.
+
+<strong>Question:</strong> Which architecture satisfies ALL five requirements?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Use AWS Config Organization Rules with auto-remediation: Rule</li>
+</ul>
+<code>EC2_INSTANCE_NO_PUBLIC_IP</code> triggers SSM Automation document <code>AWS-DisassociatePublicIp</code> on
+non-compliance. Rule <code>EC2_INSTANCE_MANAGED_BY_SYSTEMS_MANAGER</code> triggers SSM Automation
+<code>AWS-InstallAndConfigureSSMAgent</code>. Deploy Config Aggregator in Security account for
+centralized compliance dashboard. Organization Rules auto-apply to new accounts and detect
+new instances within 2 minutes via Config change-triggered evaluation.
+<ul class="options">
+<li><input type="checkbox"> <strong>B)</strong> Deploy SCPs blocking <code>ec2:AssociateAddress</code>. Use Lambda to scan instances hourly. Use AWS Systems Manager Fleet Manager for visibility. Email alerts for non-compliance.</li>
+<li><input type="checkbox"> <strong>C)</strong> Use AWS Security Hub with EC2 findings. Use GuardDuty for public IP detection. Manually remediate via runbooks. Use CloudWatch dashboards per account.</li>
+<li><input type="checkbox"> <strong>D)</strong> Deploy a third-party CSPM tool. Use CloudTrail to detect EC2 launches. Use Lambda for remediation. Use a custom compliance dashboard in QuickSight.</li>
+
+</ul>
+<details>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>A</strong> — AWS Config Organization Rules with SSM Automation</p>
+auto-remediation
++ Config Aggregator for centralized dashboard.
+
+<p class="expl-item"><strong>Why it succeeds:</strong> <strong>AWS Config Organization Rules</strong> deploy a Config rule to all 50 accounts</p>
+from the management account or delegated admin — no per-account configuration needed. New
+accounts in the Organization automatically receive the rules. <strong>Config change-triggered
+evaluation</strong> (as opposed to periodic) fires within <strong>2 minutes</strong> of an EC2 instance entering
+the running state (constraint 5) — Config receives the <code>EC2:instance</code> configuration item
+change and immediately evaluates compliance. <strong>SSM Automation auto-remediation</strong> attached to
+the Config rule runs the specified document within <strong>minutes</strong> of a non-compliance finding —
+<code>AWS-DisassociatePublicIp</code> removes the public IP association; <code>AWS-InstallAndConfigureSSMAgent</code>
+installs SSM Agent. Total detection-to-remediation time is well within 10 minutes (constraint
+3). <strong>AWS Config Aggregator</strong> (Organization-level) aggregates compliance data from all 50
+accounts into the Security account — providing a single-pane compliance dashboard (constraint
+4) via the Config console or exported to S3/Athena for custom reporting.
+
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+- <strong>B)</strong> SCPs blocking <code>ec2:AssociateAddress</code> prevent associating Elastic IPs but do not
+prevent launching instances with <code>associatePublicIpAddress=true</code> in the subnet settings —
+the SCP would need to deny the launch call itself with conditions, which is complex and
+cannot target the <code>AssociatePublicIpAddress</code> parameter of <code>RunInstances</code> cleanly. Hourly
+Lambda scans violate constraint 5 (2-minute detection) and constraint 3 (10-minute
+remediation). SSM Fleet Manager provides visibility but not centralized compliance
+aggregation from a Config rules perspective.
+- <strong>C)</strong> Security Hub aggregates findings from Config, GuardDuty, Inspector — it is a
+consumer of compliance data, not a remediation engine. GuardDuty detects threats, not
+configuration compliance issues like public IPs or missing SSM Agent. Manual remediation
+via runbooks violates constraint 3 (automated remediation within 10 minutes).
+- <strong>D)</strong> Third-party CSPM tools are valid but the question asks for an AWS-native solution.
+CloudTrail-triggered Lambda with hourly scans cannot meet the 2-minute detection
+requirement — CloudTrail delivers events with a delay of up to 15 minutes for management
+events.
+
+</details>
+
+</div>
+
+<h3>Scenario 67: Domain 2 — Design for New Solutions</h3>
+
+A logistics company needs a <strong>serverless event-driven order fulfillment system</strong>. An order goes
+through states: `PLACED → PAYMENT_PROCESSING → PAYMENT_CONFIRMED → WAREHOUSE_ASSIGNED →
+PICKED → PACKED → SHIPPED → DELIVERED`. Requirements: (1) each state transition must be
+<strong>auditable</strong> with the exact timestamp and triggering event; (2) the workflow must support
+<strong>parallel processing</strong> — PICKED and PACKED can happen concurrently in sub-workflows; (3) if
+any step fails, the system must execute <strong>compensating transactions</strong> (e.g., release warehouse
+reservation if payment fails); (4) the workflow must be <strong>resumable</strong> — if a downstream
+service (warehouse API) is unavailable, the system must retry with <strong>exponential backoff</strong> up
+to 24 hours; (5) business analysts must be able to <strong>visualize workflow execution</strong> in a GUI
+without writing code; (6) total workflow duration can be up to <strong>90 days</strong> (delayed deliveries).
+
+<strong>Question:</strong> Which architecture BEST satisfies all six requirements?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> SQS queues chained with Lambda functions for each state. DynamoDB for state tracking. CloudWatch for visualization. Custom retry logic in Lambda. SNS for notifications.</li>
+<li><input type="checkbox"> <strong>B)</strong> AWS Step Functions <strong>Standard Workflow</strong> (supports execution duration up to 1 year — constraint 6). State machine with states for each order stage. <strong>Parallel state</strong> for PICKED/PACKED concurrent processing (constraint 2). <strong>Catch and Retry</strong> blocks with exponential backoff configuration (up to 24-hour retry window — constraint 4). <strong>Compensating transactions</strong> via dedicated rollback states triggered by <code>Catch</code> blocks (constraint 3). Step Functions <strong>execution history</strong> records every state transition with exact timestamps — full audit trail (constraint 1). <strong>Step Functions console visual workflow editor</strong> and execution visualization for business analysts (constraint 5).</li>
+<li><input type="checkbox"> <strong>C)</strong> AWS Step Functions <strong>Express Workflow</strong>. EventBridge for state transitions. Lambda for each step. S3 for audit logs. Custom visualization in QuickSight.</li>
+<li><input type="checkbox"> <strong>D)</strong> Apache Airflow on Amazon MWAA for workflow orchestration. DynamoDB for state. Lambda for each task. SNS for retry notifications. Custom dashboard for visualization.</li>
+
+</ul>
+<details>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>B</strong> — Step Functions Standard Workflow with Parallel states, Catch/</p>
+Retry blocks, compensating transaction states, execution history, and visual console.
+
+<p class="expl-item"><strong>Why it succeeds:</strong> <strong>AWS Step Functions Standard Workflow</strong> supports execution durations</p>
+of up to <strong>1 year</strong> — accommodating 90-day delayed deliveries (constraint 6). Express
+Workflows are limited to <strong>5 minutes</strong> and would fail this requirement. The <strong>Parallel state</strong>
+in Step Functions runs branches concurrently and waits for all to complete before proceeding —
+PICKED and PACKED sub-workflows run in parallel (constraint 2). <strong>Retry</strong> blocks with
+<code>IntervalSeconds</code>, <code>BackoffRate</code>, and <code>MaxAttempts</code> implement exponential backoff; combined
+with <strong>HeartbeatSeconds</strong> and <code>WaitForTaskToken</code> pattern for asynchronous callbacks, the
+system can retry warehouse API calls for up to 24 hours (constraint 4). <strong>Catch</strong> blocks
+transition to dedicated compensation states (e.g., <code>ReleaseWarehouseReservation</code>) when steps
+fail — implementing the Saga pattern for distributed transaction compensation (constraint 3).
+Step Functions <strong>execution history</strong> stores every state transition with exact timestamps,
+input/output, and event details — queryable via API or console (constraint 1). The <strong>Step
+Functions console</strong> provides a visual graph of the state machine with live execution tracking —
+business analysts can monitor order progress without code (constraint 5).
+
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+- <strong>A)</strong> Chained SQS + Lambda with custom retry logic and DynamoDB state tracking can
+implement this pattern but requires significant custom engineering for: parallel execution
+coordination, compensating transaction triggers, exponential backoff state management, and
+execution visualization. Step Functions provides all of this natively with less code.
+- <strong>C)</strong> <strong>Step Functions Express Workflows</strong> have a maximum duration of <strong>5 minutes</strong> —
+completely inadequate for a 90-day order fulfillment workflow. This is a fundamental
+constraint mismatch. Express Workflows are designed for high-volume, short-duration workflows.
+- <strong>D)</strong> Amazon MWAA (Apache Airflow) is a batch-oriented workflow orchestrator designed for
+data pipeline DAGs — it is not designed for event-driven, long-running transactional
+workflows with compensating transactions. Airflow DAGs run on a schedule or trigger, not
+per-order event. The operational overhead (Airflow environment cost, DAG management) is
+significantly higher than Step Functions for this use case.
+
+</details>
+
+</div>
+
+<h3>Scenario 68: Domain 3 — Migration Planning</h3>
+
+A company is performing a <strong>database migration assessment</strong> for 40 databases across their
+data center: Oracle 12c (15 databases), MySQL 5.7 (10 databases), Microsoft SQL Server 2016
+(8 databases), MongoDB 4.0 (5 databases), PostgreSQL 11 (2 databases). The migration team
+must: (1) <strong>assess schema complexity and migration effort</strong> for each database before committing
+to a migration path; (2) select the <strong>optimal AWS target database</strong> for each engine; (3) the
+migration must use <strong>continuous replication</strong> to minimize cutover downtime; (4) <strong>heterogeneous
+migrations</strong> (e.g., Oracle → Aurora PostgreSQL) must include automated schema conversion; (5)
+the MongoDB databases contain <strong>time-series data</strong> — the target must optimize for time-series
+queries; (6) all migrations must be tracked centrally.
+
+<strong>Question:</strong> Which toolchain and target mapping BEST satisfies all six requirements?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Use AWS DMS for all databases. Migrate all to Amazon RDS Multi-AZ. Use SCT for Oracle and SQL Server. Track in Migration Hub.</li>
+<li><input type="checkbox"> <strong>B)</strong> Use <strong>AWS Schema Conversion Tool (SCT)</strong> for assessment and conversion of heterogeneous migrations (Oracle → Aurora PostgreSQL, SQL Server → Aurora PostgreSQL — SCT generates assessment reports showing conversion complexity, manual action items, and estimated effort — constraint 1 and 4). Target mapping: Oracle → <strong>Aurora PostgreSQL</strong> (SCT + DMS CDC), MySQL → <strong>Aurora MySQL</strong> (homogeneous DMS migration — no SCT needed), SQL Server → <strong>RDS for SQL Server</strong> (homogeneous, preserve SQL Server features), MongoDB → <strong>Amazon Timestream</strong> (purpose-built time-series database — constraint 5), PostgreSQL → <strong>Aurora PostgreSQL</strong> (homogeneous). Use <strong>DMS with CDC</strong> for all migrations (constraint 3). Track via <strong>AWS Migration Hub</strong> (constraint 6).</li>
+<li><input type="checkbox"> <strong>C)</strong> Use SCT for Oracle only. Migrate MySQL to DynamoDB. Migrate SQL Server to Aurora MySQL. Migrate MongoDB to DocumentDB. Migrate PostgreSQL to RDS PostgreSQL. Use DMS for replication. Track in Migration Hub.</li>
+<li><input type="checkbox"> <strong>D)</strong> Migrate all databases to Amazon DynamoDB (single target for simplicity). Use DMS for replication. Use SCT for schema conversion. Track in Migration Hub.</li>
+
+</ul>
+<details>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>B</strong> — SCT for heterogeneous assessment + optimal per-engine target</p>
+mapping (Aurora PG, Aurora MySQL, RDS SQL Server, Timestream, Aurora PG) + DMS CDC + Migration
+Hub.
+
+<p class="expl-item"><strong>Why it succeeds:</strong> <strong>AWS SCT</strong> generates <strong>Database Migration Assessment Reports</strong> for each</p>
+source database — quantifying the number of objects that convert automatically vs require manual
+intervention, estimated migration effort in person-days, and a complexity rating (constraint 1).
+This informs the go/no-go decision before committing migration resources. The <strong>target mapping</strong>
+is architecturally optimal:
+- <strong>Oracle 12c → Aurora PostgreSQL</strong>: SCT converts DDL/stored procedures/packages; DMS CDC
+replicates data continuously (heterogeneous migration, constraints 3 and 4).
+- <strong>MySQL 5.7 → Aurora MySQL</strong>: Homogeneous migration — no schema conversion needed; DMS
+CDC handles continuous replication with near-zero downtime cutover.
+- <strong>SQL Server 2016 → RDS for SQL Server</strong>: Preserves SQL Server-specific features (T-SQL,
+Agent Jobs, linked servers) that would require significant refactoring to migrate to Aurora
+PostgreSQL. DMS CDC for replication.
+- <strong>MongoDB 4.0 (time-series) → Amazon Timestream</strong>: Timestream is AWS's purpose-built
+time-series database optimized for time-series ingestion and queries — orders of magnitude
+more cost-efficient than MongoDB for time-series workloads (constraint 5). DMS supports
+MongoDB as a source.
+- <strong>PostgreSQL 11 → Aurora PostgreSQL</strong>: Drop-in compatible homogeneous migration.
+Migration Hub tracks all DMS tasks centrally (constraint 6).
+
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+- <strong>A)</strong> Migrating all databases to RDS Multi-AZ is a valid target but misses the optimal
+engine selection: MySQL should go to Aurora MySQL (better performance, serverless option),
+MongoDB time-series should go to Timestream (not RDS). SCT for Oracle and SQL Server only
+— misses the assessment for all 40 databases (constraint 1 partially unmet).
+- <strong>C)</strong> Migrating MySQL to DynamoDB is a major re-architecture (relational → NoSQL, requires
+complete data model redesign). SQL Server to Aurora MySQL requires schema conversion (SCT
+needed, T-SQL → MySQL compatibility issues). MongoDB to DocumentDB is a valid choice but
+DocumentDB is not optimized for time-series queries — Timestream provides purpose-built
+time-series optimization (constraint 5 unmet).
+- <strong>D)</strong> Migrating all databases to DynamoDB requires complete re-architecture of every
+application that uses relational databases — this is not a migration, it's a modernization
+project. Relational schemas with joins, transactions, and stored procedures cannot be
+directly migrated to DynamoDB without significant redesign.
+
+</details>
+
+</div>
+
+<h3>Scenario 69: Domain 4 — Cost Control</h3>
+
+A company's <strong>AWS bill analysis</strong> reveals the following top cost drivers: (1) <strong>NAT Gateway</strong>
+data processing charges: $18,000/month — EC2 instances in private subnets are downloading
+S3 objects and calling DynamoDB, Secrets Manager, and SSM APIs through NAT Gateway; (2)
+<strong>Inter-AZ data transfer</strong>: $12,000/month — ECS tasks in AZ-a are calling an RDS read replica
+in AZ-b; (3) <strong>CloudWatch Logs ingestion</strong>: $9,000/month — application logs include DEBUG-
+level logs being shipped to CloudWatch in production; (4) <strong>Elastic Load Balancer</strong> idle costs:
+$4,000/month — 20 ALBs provisioned for microservices, most with <100 requests/day; (5) <strong>EC2 data
+transfer out</strong>: $7,000/month — all API responses are served via EC2 directly, bypassing
+CloudFront. Total targeted savings: <strong>$35,000/month (70% reduction)</strong>. <strong>Question:</strong> Which
+combination of fixes achieves the target? 
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Add NAT Gateway to each AZ. Enable VPC Flow Logs to analyze traffic. Reduce CloudWatch Logs retention. Consolidate ALBs. Enable CloudFront. - [ ] <strong>B)</strong> Replace NAT Gateway with VPC Endpoints for S3, DynamoDB, Secrets Manager, SSM. Use AZ-aware routing for ECS-to-RDS. Set application log level to INFO/WARN in production. Consolidate microservice ALBs onto a single ALB with path/host-based routing. Route API responses through CloudFront.</li>
+<li><input type="checkbox"> <strong>C)</strong> Deploy <strong>VPC Gateway Endpoints</strong> for S3 and DynamoDB (free — no data processing charges, routes traffic within AWS network — eliminates NAT Gateway charges for S3/DynamoDB traffic) + <strong>VPC Interface Endpoints</strong> for Secrets Manager and SSM (interface endpoint data processing: $0.01/GB vs NAT Gateway $0.045/GB — ~78% reduction). Enable <strong>ECS AZ-aware routing</strong> (ECS Service Connect or AWS Cloud Map with AZ-affinity routing — ensures tasks route to same-AZ RDS replica endpoint). Set <strong>CloudWatch Logs log level to INFO/WARN</strong> (DEBUG generates 10-100× more log lines — setting to INFO typically reduces log volume by 80-90%, reducing ingestion from $9K to ~$900-1,800). <strong>Consolidate 20 ALBs to 2-3 ALBs</strong> using ALB path-based and host-based routing rules (ALB fixed cost: ~$16/month + LCU charges — 20 ALBs at $16 each=$320 fixed + $3,680 LCU; consolidating to 3 ALBs saves ~$272 fixed + LCU savings). Enable</li>
+</ul>
+<strong>CloudFront</strong> for API responses (CloudFront data transfer out: ~$0.0085/GB vs EC2 data transfer
+out: $0.09/GB — 90% reduction on the $7,000 line item). 
+<ul class="options">
+<li><input type="checkbox"> <strong>D)</strong> Move all EC2 to a public subnet to avoid NAT Gateway. Use Aurora instead of RDS to eliminate AZ data transfer. Delete all CloudWatch Logs. Use NLB instead of ALB. <details></li>
+</ul>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+* <strong>Optimal Solution:</strong> <strong>C</strong> — VPC Gateway/Interface Endpoints + ECS AZ-aware routing +
+CloudWatch log level reduction + ALB consolidation + CloudFront.
+
+* <strong>Why it succeeds:</strong>
+<strong>NAT Gateway ($18K):</strong> VPC Gateway Endpoints for S3 and DynamoDB are <strong>completely free</strong>
+and route traffic within the AWS network — zero data processing charges. Interface Endpoints
+for Secrets Manager and SSM charge $0.01/GB data processing vs NAT Gateway's $0.045/GB —
+78% reduction. Eliminating S3/DynamoDB NAT traffic (typically 80%+ of NAT data volume)
+reduces NAT Gateway charges by ~$14,000-16,000.
+<strong>Inter-AZ transfer ($12K):</strong> ECS Service Connect with AZ-affinity or RDS reader endpoint
+with AZ-aware DNS routing ensures ECS tasks call the same-AZ read replica — eliminates
+cross-AZ transfer charges entirely → saves ~$12,000.
+<strong>CloudWatch Logs ($9K):</strong> DEBUG logs generate excessive volume. Setting log level to INFO
+in production reduces volume 80-90% → saves ~$7,200-8,100.
+<strong>ALB idle costs ($4K):</strong> Consolidating 20 ALBs to 3 using path/host routing reduces fixed
+ALB charges by 85% → saves ~$3,400.
+<strong>EC2 data transfer ($7K):</strong> CloudFront data transfer at $0.0085/GB vs EC2 $0.09/GB is a
+90% reduction → saves ~$6,300.
+<strong>Total saves: ~$43,000-45,000 — exceeds $35,000 target.</strong>
+
+* <strong>Why alternatives fail:</strong>
+- <strong>A)</strong> Adding NAT Gateway to each AZ reduces cross-AZ NAT traffic overhead but does not
+eliminate the S3/DynamoDB data processing charges — VPC Endpoints are required for that.
+VPC Flow Logs analysis helps understand traffic but does not reduce costs. This option
+correctly identifies the issues but proposes the wrong fixes.
+- <strong>B)</strong> Correct strategy but lacks specificity on VPC Endpoint types (Gateway vs Interface)
+— the distinction matters because Gateway Endpoints are free while Interface Endpoints have
+hourly + data charges. Also lacks quantification. Option C is more technically precise.
+- <strong>D)</strong> Moving EC2 to public subnets is a security anti-pattern — eliminating private
+subnets to avoid NAT Gateway costs exposes instances directly to the internet. Aurora instead
+of RDS does not eliminate inter-AZ data transfer charges — the charges come from the ECS-to-
+RDS traffic crossing AZs, not the database engine. Deleting all CloudWatch Logs removes
+operational visibility critical for a production system.
+
+</details>
+
+</div>
+
+<h3>Scenario 70: Domain 5 — Continuous Improvement for Existing Solutions</h3>
+
+A company's production <strong>three-tier web application</strong> (ALB → EC2 Auto Scaling → RDS MySQL)
+has the following Well-Architected review findings: (1) the <strong>RDS instance</strong> (<code>db.r5.4xlarge</code>)
+is at <strong>90% CPU</strong> during peak — queries are not optimized and no read replicas exist; (2) the
+<strong>EC2 Auto Scaling group</strong> takes <strong>8 minutes</strong> to scale out during traffic spikes — the AMI
+baking process for custom software installation takes 6 of those 8 minutes; (3) there is <strong>no
+circuit breaker</strong> between the web tier and a third-party payment API — when the payment API is
+slow (>5s), all web tier threads block, causing cascading failure; (4) <strong>RDS automated backups
+are disabled</strong> — a recent schema migration gone wrong caused 6 hours of downtime with no
+restore path; (5) CloudFormation templates are stored in <strong>S3 with public read access</strong> —
+a recent audit flagged potential credential exposure in template parameters.
+
+<strong>Question:</strong> Which set of improvements resolves ALL five findings?
+
+<ul class="options">
+<li><input type="checkbox"> <strong>A)</strong> Add RDS read replica. Reduce AMI size. Add ALB timeout for payment API. Enable RDS automated backups. Make S3 bucket private.</li>
+<li><input type="checkbox"> <strong>B)</strong> Add RDS read replica and Performance Insights. Pre-warm ASG. Implement retry logic in application for payment API. Enable RDS PITR. Enable S3 bucket versioning and encryption.</li>
+<li><input type="checkbox"> <strong>C)</strong> Add <strong>RDS read replica</strong> + enable <strong>RDS Performance Insights</strong> (identifies top SQL queries causing 90% CPU — enables query optimization; read replica offloads read traffic). Replace AMI baking with <strong>EC2 Launch Templates using EC2 Image Builder</strong> pipeline + store pre-baked AMI with all software installed (reduces ASG scale-out from 8min to ~2min — software pre-installed in AMI, only boot + health check time remaining). Implement <strong>AWS Lambda or Step Functions</strong> as an <strong>async wrapper</strong> for the payment API call — web tier enqueues payment request to SQS, Lambda calls payment API asynchronously; web tier returns <code>202 Accepted</code> immediately, preventing thread blocking (circuit breaker pattern via async decoupling). Enable <strong>RDS automated backups</strong> (1-35 day retention) + <strong>enable PITR</strong> — allows restore to any second within the retention window. <strong>Block S3 public access</strong> on the CloudFormation template bucket + migrate sensitive parameters to <strong>AWS Systems Manager Parameter Store</strong> (SecureString) or <strong>AWS Secrets Manager</strong> — reference in CloudFormation via dynamic references (<code>{{resolve:ssm-secure:...}}</code> or <code>{{resolve:secretsmanager:...}}</code>).</li>
+<li><input type="checkbox"> <strong>D)</strong> Migrate RDS to Aurora Serverless. Use Lambda for all compute. Replace payment API with internal service. Migrate to S3 encrypted storage. Rewrite CloudFormation in CDK.</li>
+
+</ul>
+<details>
+<summary>View Architectural Decision Record (Resolution)</summary>
+
+<strong>Architectural Decision Record (Resolution):</strong>
+
+<p class="expl-item"><strong>Optimal Solution:</strong> <strong>C</strong> — RDS read replica + Performance Insights + pre-baked AMI via</p>
+Image Builder + SQS async payment decoupling + RDS PITR + S3 block public access + SSM/
+Secrets Manager for parameters.
+
+<p class="expl-item"><strong>Why it succeeds:</strong></p>
+<strong>Issue 1 (RDS CPU 90%):</strong> RDS Performance Insights identifies the top N SQL queries by
+load — this enables targeted query optimization (add indexes, rewrite queries) without
+guessing. Adding a read replica offloads SELECT queries from the writer, directly reducing
+writer CPU. Combined approach addresses both the root cause (bad queries) and immediate relief
+(read scaling).
+<strong>Issue 2 (8-minute scale-out):</strong> Pre-baking the AMI with EC2 Image Builder (all application
+dependencies, runtime, configuration pre-installed) means new instances only need to boot and
+pass health checks — scale-out drops from 8 minutes to ~90 seconds. Launch Templates reference
+the latest Image Builder AMI automatically via SSM Parameter Store parameter.
+<strong>Issue 3 (Payment API blocking):</strong> Asynchronous decoupling via SQS + Lambda breaks the
+synchronous call chain — web tier threads are never blocked waiting for the payment API.
+SQS provides buffering; Lambda retries with exponential backoff; the payment API slowness is
+isolated behind the queue.
+<strong>Issue 4 (No backups):</strong> RDS automated backups with PITR enable restore to any second within
+the retention window — the schema migration scenario would have been recoverable in minutes
+by restoring to the timestamp before the migration.
+<strong>Issue 5 (Public S3 + credentials in parameters):</strong> S3 Block Public Access is a one-click
+fix. CloudFormation dynamic references to SSM Parameter Store (SecureString) or Secrets
+Manager replace hardcoded credentials in templates — the templates themselves no longer
+contain sensitive values.
+
+<p class="expl-item"><strong>Why alternatives fail:</strong></p>
+- <strong>A)</strong> "Add ALB timeout for payment API" (e.g., setting ALB idle timeout to 5 seconds)
+would cause the ALB to return a 504 timeout to users — this terminates the request but
+does not prevent thread exhaustion in the web tier if threads are blocked waiting for the
+ALB timeout. The circuit breaker must be in the application layer (async SQS pattern) or
+App Mesh/Envoy. "Make S3 bucket private" addresses the access control but doesn't fix
+credentials stored in template parameters — the credentials are still in S3, just not
+publicly readable.
+- <strong>B)</strong> "Pre-warm ASG" is not a defined AWS feature — ASG pre-warming requires scheduled
+scaling or predictive scaling, not fixing the root cause (AMI baking time). "Retry logic
+in application for payment API" improves resilience but still keeps synchronous threads
+blocked during retries — it does not implement a circuit breaker pattern. S3 versioning
+and encryption do not address public access or credential exposure in template parameters.
+- <strong>D)</strong> Migrating RDS to Aurora Serverless, Lambda for all compute, and rewriting
+CloudFormation in CDK constitutes a complete re-architecture — not a Well-Architected
+improvement of the existing system. These changes introduce significant migration risk and
+cost for problems solvable with targeted improvements.
+
+</details>
+
+</div>
+</body>
+</html>
