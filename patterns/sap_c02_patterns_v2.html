@@ -492,6 +492,236 @@ em { color: var(--label2); }
   background: none;
   border: none;
 }
+
+/* ─────────────────────────────────────────
+   READ TRACKING
+   ───────────────────────────────────────── */
+.read-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(52,199,89,0.15);
+  border-radius: 100px;
+  padding: 2px 8px;
+  margin-left: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.pattern-card.is-read > summary {
+  background: rgba(52,199,89,0.04);
+}
+.read-progress {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--label2);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.read-progress-bar {
+  width: 60px;
+  height: 4px;
+  background: var(--sep);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.read-progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+.read-timer-ring {
+  position: fixed;
+  bottom: 66px;
+  right: 20px;
+  z-index: 50;
+  width: 36px;
+  height: 36px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.read-timer-ring.active { opacity: 1; }
+.read-timer-ring svg { width: 36px; height: 36px; }
+.read-timer-ring circle {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100.53;
+  stroke-dashoffset: 100.53;
+  transform-origin: 18px 18px;
+  transform: rotate(-90deg);
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* ─────────────────────────────────────────
+   PROGRESS TRACKER SECTION
+   ───────────────────────────────────────── */
+.tracker-wrap {
+  background: var(--surface);
+  border-bottom: 1px solid var(--sep);
+  padding: 14px 24px 16px;
+}
+.tracker-inner { max-width: 960px; margin: 0 auto; }
+.tracker-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.tracker-heading { display: flex; align-items: center; gap: 8px; }
+.tracker-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--label2);
+}
+.tracker-deadline-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: rgba(52,199,89,0.12);
+  color: var(--green);
+  transition: background 0.3s, color 0.3s;
+}
+.tracker-deadline-badge.warn { background: rgba(255,149,0,0.12); color: var(--orange); }
+.tracker-deadline-badge.urgent { background: rgba(255,59,48,0.12); color: var(--red); }
+.sync-chip {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border: 1px solid var(--sep-strong);
+  border-radius: 100px;
+  background: var(--surface2);
+  color: var(--label2);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.sync-chip:hover { color: var(--blue); border-color: var(--blue); }
+.tracker-bar-wrap {
+  height: 6px;
+  background: var(--sep);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.tracker-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+.tracker-stats-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+.t-stat { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
+.t-val {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--label);
+  line-height: 1.1;
+}
+.t-lbl { font-size: 10px; color: var(--label2); margin-top: 2px; text-align: center; }
+.t-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--sep-strong);
+  margin: 0 4px;
+  align-self: center;
+}
+.t-val.urgent { color: var(--red); }
+.t-val.warn   { color: var(--orange); }
+.t-val.ok     { color: var(--green); }
+
+/* ─────────────────────────────────────────
+   GITHUB SYNC MODAL
+   ───────────────────────────────────────── */
+.sync-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.sync-panel {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.sync-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--label);
+  margin-bottom: 10px;
+}
+.sync-panel-desc {
+  font-size: 13px;
+  color: var(--label2);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.sync-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--sep-strong);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--label);
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sync-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
+.sync-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.sync-action {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--sep-strong);
+  background: var(--surface2);
+  color: var(--label2);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.sync-action:hover { color: var(--label); border-color: var(--label2); }
+.sync-action.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.sync-action.primary:hover { opacity: 0.9; }
+.sync-action.danger  { color: var(--red); border-color: rgba(255,59,48,0.3); }
+.sync-action.danger:hover  { background: rgba(255,59,48,0.08); }
+.sync-status {
+  font-size: 12px;
+  min-height: 18px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+@media (max-width: 600px) {
+  .tracker-stats-row { gap: 8px 14px; }
+  .t-divider { display: none; }
+  .tracker-wrap { padding: 12px 16px 14px; }
+}
 </style>
 </head>
 <body>
@@ -515,6 +745,49 @@ em { color: var(--label2); }
 <div class="page-hero">
   <h1>IF / WHEN / THEN / NOT Decision Patterns</h1>
   <p>Complete Exam Cheat Sheet · 100+ Patterns · All SAP-C02 Topics · SAP-C02</p>
+</div>
+
+<!-- TRACKER -->
+<div class="tracker-wrap">
+  <div class="tracker-inner">
+    <div class="tracker-row-top">
+      <div class="tracker-heading">
+        <span class="tracker-label">Exam Prep</span>
+        <span class="tracker-deadline-badge" id="t-deadline-badge">12 days left</span>
+      </div>
+      <button class="sync-chip" onclick="syncModal(true)" title="Sync progress to GitHub Gist">☁ GitHub Sync</button>
+    </div>
+    <div class="tracker-bar-wrap">
+      <div class="tracker-bar-fill" id="t-fill" style="width:0%"></div>
+    </div>
+    <div class="tracker-stats-row">
+      <div class="t-stat">
+        <div class="t-val" id="t-done">0</div>
+        <div class="t-lbl">done</div>
+      </div>
+      <div class="t-stat">
+        <div class="t-val" id="t-left">62</div>
+        <div class="t-lbl">remaining</div>
+      </div>
+      <div class="t-stat">
+        <div class="t-val" id="t-pct">0%</div>
+        <div class="t-lbl">complete</div>
+      </div>
+      <div class="t-divider"></div>
+      <div class="t-stat">
+        <div class="t-val urgency" id="t-days">12</div>
+        <div class="t-lbl">days left</div>
+      </div>
+      <div class="t-stat">
+        <div class="t-val" id="t-perday">5.2/day</div>
+        <div class="t-lbl">needed/day</div>
+      </div>
+      <div class="t-stat">
+        <div class="t-val" id="t-time">~26 min</div>
+        <div class="t-lbl">est. daily</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="wrapper">
@@ -1498,20 +1771,45 @@ Also use <strong>CloudFront OAC</strong> (Origin Access Control) to block direct
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 
+<!-- GitHub Sync Modal -->
+<div class="sync-overlay" id="sync-overlay" onclick="syncModal(false)" style="display:none">
+  <div class="sync-panel" onclick="event.stopPropagation()">
+    <div class="sync-panel-title">☁ GitHub Gist Sync</div>
+    <p class="sync-panel-desc">Store your read progress in a private GitHub Gist so it persists across devices. Create a token at <strong>github.com → Settings → Developer settings → Personal access tokens</strong> with <code>gist</code> scope only.</p>
+    <input id="gh-token" type="password" class="sync-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <div class="sync-btns">
+      <button class="sync-action primary" onclick="saveSync()">Save &amp; Sync Now</button>
+      <button class="sync-action" onclick="loadFromGist()">Load from GitHub</button>
+      <button class="sync-action danger" onclick="clearSync()">Clear Token</button>
+      <button class="sync-action" onclick="syncModal(false)">Close</button>
+    </div>
+    <div class="sync-status" id="sync-status"></div>
+  </div>
+</div>
+
+<!-- Reading timer ring (bottom-right, above scroll button) -->
+<div class="read-timer-ring" id="timer-ring">
+  <svg viewBox="0 0 36 36">
+    <circle cx="18" cy="18" r="16" stroke="var(--sep)" stroke-width="3" fill="none"/>
+    <circle id="timer-arc" cx="18" cy="18" r="16"/>
+  </svg>
+</div>
+
 <script>
+// ── THEME ────────────────────────────────────────────────────────────────────
 function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
+  var html = document.documentElement;
+  var isDark = html.getAttribute('data-theme') === 'dark';
   html.setAttribute('data-theme', isDark ? 'light' : 'dark');
   document.querySelector('.theme-btn').textContent = isDark ? '◐ Dark' : '◑ Light';
 }
 
-// Search
+// ── SEARCH ───────────────────────────────────────────────────────────────────
 document.getElementById('search').addEventListener('input', function() {
-  const q = this.value.toLowerCase().trim();
-  let visible = 0;
+  var q = this.value.toLowerCase().trim();
+  var visible = 0;
   document.querySelectorAll('.pattern-card').forEach(function(card) {
-    const show = !q || card.textContent.toLowerCase().includes(q);
+    var show = !q || card.textContent.toLowerCase().includes(q);
     card.style.display = show ? '' : 'none';
     if (show) visible++;
   });
@@ -1521,11 +1819,281 @@ document.getElementById('search').addEventListener('input', function() {
   document.getElementById('no-results').classList.toggle('show', visible === 0 && q.length > 0);
 });
 
-// Scroll-to-top
-const scrollBtn = document.getElementById('scroll-top');
+// ── SCROLL-TO-TOP ────────────────────────────────────────────────────────────
+var scrollBtn = document.getElementById('scroll-top');
 window.addEventListener('scroll', function() {
   scrollBtn.classList.toggle('show', window.scrollY > 300);
 }, { passive: true });
+
+// ── CORE LOGIC ───────────────────────────────────────────────────────────────
+(function() {
+  'use strict';
+
+  var READ_KEY   = 'sap_read_v2';
+  var TOKEN_KEY  = 'gh_token';
+  var GIST_KEY   = 'sap_gist_id';
+  var TOTAL      = 62;
+  var READ_DELAY = 60000;            // 1 min to mark as read
+  var DEADLINE   = new Date('2026-05-17T23:59:59');
+  var MINS_EACH  = 5;                // assumed minutes to study one pattern
+  var CIRC       = 2 * Math.PI * 16; // ~100.53
+
+  // DOM
+  var timerRing = document.getElementById('timer-ring');
+  var timerArc  = document.getElementById('timer-arc');
+  var tFill     = document.getElementById('t-fill');
+  var tDone     = document.getElementById('t-done');
+  var tLeft     = document.getElementById('t-left');
+  var tPct      = document.getElementById('t-pct');
+  var tDays     = document.getElementById('t-days');
+  var tPerDay   = document.getElementById('t-perday');
+  var tTime     = document.getElementById('t-time');
+  var tDeadline = document.getElementById('t-deadline-badge');
+
+  // ── State helpers ─────────────────────────────────────────────
+  function getSet() {
+    try { return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]')); }
+    catch(e) { return new Set(); }
+  }
+  function saveSet(s) {
+    localStorage.setItem(READ_KEY, JSON.stringify(Array.from(s)));
+  }
+  function cardKey(card) {
+    return card.querySelector('.summary-text').textContent.trim();
+  }
+
+  // ── Tracker ───────────────────────────────────────────────────
+  function daysLeft() {
+    return Math.max(0, Math.ceil((DEADLINE - new Date()) / 86400000));
+  }
+  function updateTracker() {
+    var done  = getSet().size;
+    var left  = TOTAL - done;
+    var pct   = Math.round(done / TOTAL * 100);
+    var days  = daysLeft();
+    var perDay = days > 0 ? (left / days) : left;
+    var mins   = days > 0 ? Math.ceil(perDay * MINS_EACH) : 0;
+
+    tFill.style.width  = pct + '%';
+    tDone.textContent  = done;
+    tLeft.textContent  = left;
+    tPct.textContent   = pct + '%';
+    tDays.textContent  = days;
+    tPerDay.textContent = perDay > 0 ? perDay.toFixed(1) + '/day' : '—';
+    tTime.textContent  = mins > 0 ? '~' + mins + ' min' : '—';
+
+    // Urgency color on days left
+    tDays.className = 't-val ' + (days <= 3 ? 'urgent' : days <= 6 ? 'warn' : 'ok');
+    tDeadline.className = 'tracker-deadline-badge' +
+      (days <= 3 ? ' urgent' : days <= 6 ? ' warn' : '');
+    tDeadline.textContent = days === 0 ? 'deadline today!' :
+      days === 1 ? '1 day left' : days + ' days left';
+  }
+
+  // ── Read UI ───────────────────────────────────────────────────
+  function applyReadUI(card) {
+    card.classList.add('is-read');
+    var sum = card.querySelector('summary');
+    if (sum.querySelector('.read-badge')) return;
+    var badge = document.createElement('span');
+    badge.className = 'read-badge';
+    badge.textContent = '✓';
+    badge.title = 'Click to mark as unread';
+    badge.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      removeReadUI(card);
+      var s = getSet(); s.delete(cardKey(card)); saveSet(s);
+      updateTracker();
+      scheduleGistSave();
+    });
+    sum.appendChild(badge);
+  }
+  function removeReadUI(card) {
+    card.classList.remove('is-read');
+    var badge = card.querySelector('.read-badge');
+    if (badge) badge.remove();
+  }
+
+  // ── Timer arc ─────────────────────────────────────────────────
+  var arcInterval = null;
+  function startArc() {
+    timerArc.style.transition = 'none';
+    timerArc.style.strokeDashoffset = CIRC;
+    timerRing.classList.add('active');
+    var start = Date.now();
+    clearInterval(arcInterval);
+    arcInterval = setInterval(function() {
+      var pct = Math.min((Date.now() - start) / READ_DELAY, 1);
+      timerArc.style.transition = 'stroke-dashoffset 1s linear';
+      timerArc.style.strokeDashoffset = CIRC * (1 - pct);
+      if (pct >= 1) clearInterval(arcInterval);
+    }, 500);
+  }
+  function stopArc() {
+    clearInterval(arcInterval);
+    timerArc.style.strokeDashoffset = CIRC;
+    timerRing.classList.remove('active');
+  }
+
+  // ── Accordion + read timer ────────────────────────────────────
+  var readTimer = null;
+
+  // Init badges from localStorage
+  var stored = getSet();
+  document.querySelectorAll('.pattern-card').forEach(function(card) {
+    if (stored.has(cardKey(card))) applyReadUI(card);
+  });
+  updateTracker();
+
+  document.querySelectorAll('.pattern-card').forEach(function(card) {
+    card.addEventListener('toggle', function() {
+      clearTimeout(readTimer); readTimer = null; stopArc();
+
+      if (card.open) {
+        // Accordion
+        document.querySelectorAll('.pattern-card').forEach(function(o) {
+          if (o !== card && o.open) o.open = false;
+        });
+        // 60-second read timer
+        var id = cardKey(card);
+        if (!getSet().has(id)) {
+          startArc();
+          readTimer = setTimeout(function() {
+            if (card.open) {
+              var s = getSet(); s.add(id); saveSet(s);
+              applyReadUI(card);
+              updateTracker();
+              scheduleGistSave();
+            }
+            stopArc();
+          }, READ_DELAY);
+        }
+      }
+    });
+  });
+
+  // ── GitHub Gist sync ─────────────────────────────────────────
+  var gistSaveTimer = null;
+  function scheduleGistSave() {
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    clearTimeout(gistSaveTimer);
+    gistSaveTimer = setTimeout(saveToGist, 2000);
+  }
+
+  function ghHeaders() {
+    return {
+      'Authorization': 'token ' + localStorage.getItem(TOKEN_KEY),
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json'
+    };
+  }
+
+  function saveToGist() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    var gistId = localStorage.getItem(GIST_KEY);
+    var body = JSON.stringify({
+      description: 'SAP-C02 read progress',
+      public: false,
+      files: { 'sap-c02-progress.json': { content: JSON.stringify(Array.from(getSet())) } }
+    });
+    fetch(
+      gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists',
+      { method: gistId ? 'PATCH' : 'POST', headers: ghHeaders(), body: body }
+    ).then(function(r) { return r.json(); })
+     .then(function(d) {
+       if (d.id) localStorage.setItem(GIST_KEY, d.id);
+       setSyncStatus('Synced to GitHub ✓', 'green');
+     })
+     .catch(function() { setSyncStatus('Sync failed — check token', 'red'); });
+  }
+
+  function loadFromGist() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    var gistId = localStorage.getItem(GIST_KEY);
+    if (!token) { setSyncStatus('Enter a GitHub token first', 'red'); return; }
+    if (!gistId) { setSyncStatus('No Gist yet — save first to create one', 'orange'); return; }
+    setSyncStatus('Loading…', '');
+    fetch('https://api.github.com/gists/' + gistId, { headers: ghHeaders() })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var f = d.files && d.files['sap-c02-progress.json'];
+        if (!f) { setSyncStatus('No data in Gist', 'orange'); return; }
+        var arr = JSON.parse(f.content);
+        var s = getSet();
+        arr.forEach(function(id) { s.add(id); });
+        saveSet(s);
+        document.querySelectorAll('.pattern-card').forEach(function(card) {
+          removeReadUI(card);
+          if (s.has(cardKey(card))) applyReadUI(card);
+        });
+        updateTracker();
+        setSyncStatus('Loaded from GitHub ✓', 'green');
+      })
+      .catch(function() { setSyncStatus('Load failed — check token/Gist ID', 'red'); });
+  }
+
+  // Auto-load on page start if already configured
+  (function autoLoad() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    var gistId = localStorage.getItem(GIST_KEY);
+    if (!token || !gistId) return;
+    fetch('https://api.github.com/gists/' + gistId, { headers: ghHeaders() })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d) return;
+        var f = d.files && d.files['sap-c02-progress.json'];
+        if (!f) return;
+        var arr = JSON.parse(f.content);
+        var s = getSet(); var changed = false;
+        arr.forEach(function(id) { if (!s.has(id)) { s.add(id); changed = true; } });
+        if (!changed) return;
+        saveSet(s);
+        document.querySelectorAll('.pattern-card').forEach(function(card) {
+          if (s.has(cardKey(card)) && !card.classList.contains('is-read')) applyReadUI(card);
+        });
+        updateTracker();
+      })
+      .catch(function() {});
+  })();
+
+  // ── Sync modal ────────────────────────────────────────────────
+  window.syncModal = function(show) {
+    var overlay = document.getElementById('sync-overlay');
+    overlay.style.display = show ? 'flex' : 'none';
+    if (show) {
+      var t = localStorage.getItem(TOKEN_KEY);
+      document.getElementById('gh-token').value = t || '';
+      var gistId = localStorage.getItem(GIST_KEY);
+      setSyncStatus(gistId ? 'Gist configured — ID: ' + gistId.slice(0,8) + '…' : 'No Gist yet', '');
+    }
+  };
+  window.saveSync = function() {
+    var token = document.getElementById('gh-token').value.trim();
+    if (!token) { setSyncStatus('Paste a GitHub token first', 'red'); return; }
+    localStorage.setItem(TOKEN_KEY, token);
+    setSyncStatus('Saving…', '');
+    saveToGist();
+  };
+  window.loadFromGist = loadFromGist;
+  window.clearSync = function() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(GIST_KEY);
+    document.getElementById('gh-token').value = '';
+    setSyncStatus('Token and Gist ID cleared', 'orange');
+  };
+
+  function setSyncStatus(msg, color) {
+    var el = document.getElementById('sync-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color === 'green' ? 'var(--green)'
+      : color === 'red'    ? 'var(--red)'
+      : color === 'orange' ? 'var(--orange)'
+      : 'var(--label2)';
+  }
+
+})();
 </script>
 </body>
 </html>
