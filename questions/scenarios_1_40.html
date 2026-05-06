@@ -101,6 +101,12 @@ ul.options input[type=checkbox] { margin-right: 12px; margin-top: 3px; flex-shri
 </style>
 </head>
 <body>
+<nav style="background:#003366;padding:10px 20px;margin-bottom:20px;display:flex;gap:20px;flex-wrap:wrap;">
+  <a href="sap_c02_scenarios_1_40.html" style="color:white;text-decoration:none;font-weight:bold;">Q 1–40</a>
+  <a href="scenarios_41_55.html" style="color:white;text-decoration:none;">Q 41–55</a>
+  <a href="scenarios_56_70.html" style="color:white;text-decoration:none;">Q 56–70</a>
+  <a href="../index.html" style="color:white;text-decoration:none;margin-left:auto;">← Hub</a>
+</nav>
 
 
 
@@ -124,11 +130,11 @@ subsidiary's instance-size requirement, and requiring the least ongoing operatio
 
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Move the subsidiary account under the root temporarily. Create an inline IAM permission boundary on the subsidiary's EC2 roles allowing <code>c5.4xlarge</code>. Remove the permission boundary after 6 months.</li>
-<li><input type="checkbox"> <strong>B)</strong> Create a temporary OU named <code>Onboarding</code>. Attach an SCP to <code>Onboarding</code> that explicitly <strong>allows</strong> <code>ec2:RunInstances</code> for <code>c5.4xlarge</code>. Move the subsidiary account into</li>
+<li><input type="checkbox"> <strong>B)</strong> Create a temporary OU named <code>Onboarding</code>. Attach an SCP to <code>Onboarding</code> that explicitly <strong>allows</strong> <code>ec2:RunInstances</code> for <code>c5.4xlarge</code>. Move the subsidiary account into <code>Onboarding</code>. After 6 months, move it to Production OU.</li>
 </ul>
   <code>Onboarding</code>. After 6 months, move it to Production OU.
 <ul class="options">
-<li><input type="checkbox"> <strong>C)</strong> Create a temporary OU named <code>Onboarding</code>. Attach an SCP to <code>Onboarding</code> that</li>
+<li><input type="checkbox"> <strong>C)</strong> Create a temporary OU named <code>Onboarding</code>. Attach an SCP to <code>Onboarding</code> that <strong>denies</strong> <code>ec2:RunInstances</code> for all instance types <strong>except</strong> <code>c5.4xlarge</code> and below. Move the subsidiary into <code>Onboarding</code>.</li>
 </ul>
   <strong>denies</strong> <code>ec2:RunInstances</code> for all instance types <strong>except</strong> <code>c5.4xlarge</code> and below. Move
   the subsidiary into <code>Onboarding</code>.
@@ -263,7 +269,7 @@ ALL operational constraints?
 
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Replace On-Demand instances with <strong>Reserved Instances</strong> (1-year, standard). Enable S3 Intelligent-Tiering on the raw uploads bucket. Implement CloudFront cache policies with longer TTLs.</li>
-<li><input type="checkbox"> <strong>B)</strong> Replace On-Demand with <strong>Spot Instances</strong> using a mixed instance policy across</li>
+<li><input type="checkbox"> <strong>B)</strong> Replace On-Demand with <strong>Spot Instances</strong> using a mixed instance policy across <code>c5.4xlarge</code>, <code>c5a.4xlarge</code>, <code>m5.4xlarge</code> pools. Enable S3 Lifecycle rules to transition objects to <strong>S3 Glacier Instant Retrieval</strong> after 7 days and <strong>S3 Glacier Deep Archive</strong> after 90 days. Purchase <strong>CloudFront Security Savings Bundle</strong>.</li>
 </ul>
   <code>c5.4xlarge</code>, <code>c5a.4xlarge</code>, <code>m5.4xlarge</code> pools. Enable S3 Lifecycle rules to transition
   objects to <strong>S3 Glacier Instant Retrieval</strong> after 7 days and <strong>S3 Glacier Deep Archive</strong>
@@ -583,7 +589,7 @@ member accounts must not be able to opt out of GuardDuty or leave the organizati
 
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Use AWS Config Rules deployed via CloudFormation StackSets to detect CloudTrail disablement. Enable GuardDuty via StackSets. Use Security Hub with a delegated admin account. Apply an SCP denying <code>guardduty:DeleteDetector</code> and <code>cloudtrail:StopLogging</code>.</li>
-<li><input type="checkbox"> <strong>B)</strong> Enable AWS Control Tower detective controls for CloudTrail. Use GuardDuty delegated admin in the Security account — enable auto-enable for new accounts. Set Security Hub delegated admin to the Security account with auto-enable. Apply SCPs denying <code>guardduty:DeleteDetector</code>,</li>
+<li><input type="checkbox"> <strong>B)</strong> Enable AWS Control Tower detective controls for CloudTrail. Use GuardDuty delegated admin in the Security account — enable auto-enable for new accounts. Set Security Hub delegated admin to the Security account with auto-enable. Apply SCPs denying <code>guardduty:DeleteDetector</code>, <code>cloudtrail:StopLogging</code>, and <code>organizations:LeaveOrganization</code>. Use Control Tower Account Factory to auto-enroll new accounts.</li>
 </ul>
   <code>cloudtrail:StopLogging</code>, and <code>organizations:LeaveOrganization</code>. Use Control Tower Account
   Factory to auto-enroll new accounts.

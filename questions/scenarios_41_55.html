@@ -5,118 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAP-C02 Scenarios 41–55</title>
 <style>
-  /* Pearson VUE Exam Authentic Styling */
-  body {
-    background-color: #f2f2f2;
-    font-family: Arial, Verdana, sans-serif;
-    color: #000000;
-    line-height: 1.5;
-    font-size: 16px;
-  }
-
-  .exam-container {
-    background-color: #ffffff;
-    margin: 30px auto;
-    max-width: 900px;
-    padding: 40px;
-    border: 1px solid #cccccc;
-    box-shadow: none;
-  }
-
-  .vue-header {
-    background-color: #003366;
-    color: #ffffff;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    margin: -40px -40px 30px -40px;
-    border-bottom: 2px solid #000000;
-  }
-
-  h3 {
-    font-size: 18px;
-    font-weight: bold;
-    color: #000000;
-    border: none;
-    margin-top: 0;
-    margin-bottom: 20px;
-  }
-
-  .question-prompt {
-    font-weight: normal;
-    background-color: transparent;
-    padding: 0;
-    border: none;
-    margin: 20px 0;
-  }
-
-  .question-prompt strong {
-    font-weight: bold;
-  }
-
-  ul,
-  ol {
-    list-style-type: none;
-    padding: 0;
-    margin: 20px 0;
-  }
-
-  li {
-    background-color: transparent;
-    border: none;
-    margin-bottom: 15px;
-    padding: 0;
-    transition: none;
-    display: flex;
-    align-items: flex-start;
-  }
-
-  input[type=checkbox] {
-    accent-color: initial;
-    transform: none;
-    margin-right: 15px;
-    margin-top: 4px;
-  }
-
-  li p,
-  li span {
-    margin: 0;
-  }
-
-  details {
-    background-color: #f9f9f9;
-    border: 1px solid #dddddd;
-    padding: 15px;
-    margin-top: 30px;
-    font-size: 14px;
-  }
-
-  summary {
-    font-weight: bold;
-    color: #333333;
-    cursor: pointer;
-  }
-</style>
-
-<style>
-.expl-item { margin: 10px 0 4px; font-weight: normal; }
-.expl-sub  { margin: 4px 0 4px 20px; }
-ul.options { list-style: none; padding: 0; margin: 20px 0; }
-ul.options li { display: flex; align-items: flex-start; margin-bottom: 14px; }
-ul.options input[type=checkbox] { margin-right: 12px; margin-top: 3px; flex-shrink: 0; }
+/* Pearson VUE Exam Authentic Styling */
+body { background-color: #f2f2f2; font-family: Arial, Verdana, sans-serif; color: #000000; line-height: 1.5; font-size: 16px; }
+.exam-container { background-color: #ffffff; margin: 30px auto; max-width: 900px; padding: 40px; border: 1px solid #cccccc; box-shadow: none; }
+.vue-header { background-color: #003366; color: #ffffff; padding: 10px 20px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; margin: -40px -40px 30px -40px; border-bottom: 2px solid #000000; }
+h3 { font-size: 18px; font-weight: bold; color: #000000; border: none; margin-top: 0; margin-bottom: 20px; }
+ul.options { list-style-type: none; padding: 0; margin: 20px 0; }
+ul.options li { margin-bottom: 15px; display: flex; align-items: flex-start; }
+ul.options li input[type=checkbox] { margin-right: 15px; margin-top: 4px; }
+details { background-color: #f9f9f9; border: 1px solid #dddddd; padding: 15px; margin-top: 30px; font-size: 14px; }
+summary { font-weight: bold; color: #333333; cursor: pointer; }
 </style>
 </head>
 <body>
-<nav style="background:#157878;padding:10px 20px;margin:-20px -20px 20px -20px;display:flex;gap:20px;flex-wrap:wrap;">
-  <a href="/" style="color:white;text-decoration:none;">Scenarios 1–40</a>
-  <a href="/scenarios_41_55.html" style="color:white;text-decoration:none;font-weight:bold;">Scenarios 41–55</a>
-  <a href="/scenarios_56_70.html" style="color:white;text-decoration:none;">Scenarios 56–70</a>
+<nav style="background:#003366;padding:10px 20px;margin-bottom:20px;display:flex;gap:20px;flex-wrap:wrap;">
+  <a href="sap_c02_scenarios_1_40.html" style="color:white;text-decoration:none;">Q 1–40</a>
+  <a href="scenarios_41_55.html" style="color:white;text-decoration:none;font-weight:bold;">Q 41–55</a>
+  <a href="scenarios_56_70.html" style="color:white;text-decoration:none;">Q 56–70</a>
+  <a href="../index.html" style="color:white;text-decoration:none;margin-left:auto;">← Hub</a>
 </nav>
-
-
-
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
 <h3>Scenario 41: Domain 1 — Design Solutions for Organizational Complexity</h3>
 
@@ -162,6 +71,10 @@ via two Direct Connect connections (active/active) with BGP; (5) the solution mu
 
 </div>
 
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 42: Domain 2 — Design for New Solutions</h3>
 
 A fintech company is building a fraud detection system. Requirements: (1) payment transactions
@@ -176,7 +89,7 @@ uses 47 real-time features derived from the last 30 days of customer transaction
 
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Kinesis Data Streams → Lambda (feature engineering + model inference via SageMaker Runtime) → DynamoDB (fraud signals) → SNS → Payment processor. S3 + Athena for 5-year audit. SageMaker endpoint blue/green for model swap.</li>
-<li><input type="checkbox"> <strong>B)</strong> Kinesis Data Streams (200K TPS ingestion) → Kinesis Data Analytics Flink (real-time feature computation from 30-day sliding window in DynamoDB) → SageMaker</li>
+<li><input type="checkbox"> <strong>B)</strong> Kinesis Data Streams (200K TPS ingestion) → Kinesis Data Analytics Flink (real-time feature computation from 30-day sliding window in DynamoDB) → <strong>SageMaker Asynchronous Inference Endpoint</strong> (model scoring) → EventBridge → Lambda (payment block API call). S3 Intelligent-Tiering + Athena for 5-year audit with DynamoDB transaction index.</li>
 </ul>
 <strong>Asynchronous Inference Endpoint</strong> (model scoring) → EventBridge → Lambda (payment block API
 call). S3 Intelligent-Tiering + Athena for 5-year audit with DynamoDB transaction index.
@@ -214,6 +127,10 @@ call). S3 Intelligent-Tiering + Athena for 5-year audit with DynamoDB transactio
 </details>
 
 </div>
+
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
 <h3>Scenario 43: Domain 3 — Migration Planning</h3>
 
@@ -265,6 +182,10 @@ visible to stakeholders.
 
 </div>
 
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 44: Domain 4 — Cost Control</h3>
 
 A SaaS company runs a multi-tenant platform on AWS. The architecture: Route 53 → CloudFront →
@@ -302,6 +223,10 @@ mandates a <strong>30% cost reduction</strong> with no SLA degradation and no re
 
 </div>
 
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 45: Domain 5 — Continuous Improvement for Existing Solutions</h3>
 
 A retail company's order processing system on AWS has the following production issues: (1)
@@ -319,7 +244,7 @@ the team doesn't detect issues until customers complain.
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Enable DynamoDB auto-scaling. Configure SQS visibility timeout increase. Increase Lambda memory to 3GB. Add Aurora read replicas. Reduce CloudWatch alarm period to 1 minute.</li>
 <li><input type="checkbox"> <strong>B)</strong> Switch DynamoDB to on-demand capacity. Replay DLQ messages. Use Lambda SnapStart for Java. Increase Aurora replica instance size. Enable CloudWatch detailed monitoring.</li>
-<li><input type="checkbox"> <strong>C)</strong> Add a <strong>write sharding suffix</strong> to hot DynamoDB partition keys (e.g., append</li>
+<li><input type="checkbox"> <strong>C)</strong> Add a <strong>write sharding suffix</strong> to hot DynamoDB partition keys (e.g., append <code>-shard-{1..N}</code> to SKU key, scatter-gather on reads). Configure an SQS <strong>Lambda Event Source Mapping</strong> with schema validation in Lambda with explicit <code>SQS.deleteMessage</code> on success. Enable <strong>Lambda SnapStart</strong> for Java. Enable <strong>Aurora write forwarding</strong> or route read queries to writer for inventory checks during peak. Enable <strong>CloudWatch high-resolution custom metrics</strong> (1-second granularity) with alarms on 10-second evaluation periods.</li>
 </ul>
 <code>-shard-{1..N}</code> to SKU key, scatter-gather on reads). Configure an SQS <strong>Lambda Event Source
 Mapping</strong> with a <strong>dead-letter queue redrive policy</strong> and add JSON schema validation in Lambda
@@ -375,7 +300,10 @@ DLQ for inspection. Enable <strong>Lambda SnapStart</strong> for Java (reduces c
 
   </div>
 
-  
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 46: Domain 1 — Design Solutions for Organizational Complexity</h3>
 
   A multinational corporation acquires a company with 15 AWS accounts using a <strong>separate AWS
@@ -431,7 +359,10 @@ DLQ for inspection. Enable <strong>Lambda SnapStart</strong> for Java (reduces c
 
   </div>
 
-  
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 47: Domain 2 — Design for New Solutions</h3>
 
   A logistics company is building a <strong>global parcel tracking platform</strong>. Requirements: (1) 50
@@ -480,7 +411,11 @@ DLQ for inspection. Enable <strong>Lambda SnapStart</strong> for Java (reduces c
       architecture is incomplete. - <strong>C)</strong> Athena for queries introduces query latency of seconds to minutes — this
       cannot support the 3-second global visibility SLA for parcel status (constraint 2). S3 Object Lock COMPLIANCE mode
       provides immutability but not the cryptographic audit proof required by "tamper-evident" regulatory compliance.
-      
+
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 48: Domain 3 — Migration Planning</h3>
 A bank is migrating its <strong>core banking application</strong> from
       on-premises to AWS. The application runs on WebSphere Application Server with an IBM Db2 database (12TB).
@@ -528,9 +463,10 @@ A bank is migrating its <strong>core banking application</strong> from
       (IBM Z, Unisys) — it does not support WebSphere Application Server or IBM Db2 migrations.
       This service is architecturally inappropriate for this use case.
 
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
-
-      
 <h3>Scenario 49: Domain 4 — Cost Control</h3>
 
       An e-commerce company runs the following on AWS: (1) <strong>3 environments</strong> (Production, Staging,
@@ -550,7 +486,7 @@ A bank is migrating its <strong>core banking application</strong> from
       
 <li><input type="checkbox"> <strong>B)</strong> Purchase 3-year Compute Savings Plans for the Production web tier. Use Spot for ML training. Schedule Redshift pause. Use Instance Scheduler for Staging/Dev. Purchase RDS Reserved Instances (1-year).</li>
       
-<li><input type="checkbox"> <strong>C)</strong> Purchase <strong>1-year Compute Savings Plans</strong> for the 200 <code>m5.xlarge</code> Production web tier (~30% saving). Use <strong>EC2 Spot Instances</strong> with <code>p3.2xlarge</code> mixed with <code>p3.8xlarge</code> pools for the ML training job (~70-90% saving on 6-hour nightly run). Enable <strong>Redshift pause/resume</strong> — cluster pauses after the 4-hour morning window, resumes next morning (saves ~83% of Redshift compute cost — paying only 4hrs/24hrs). Deploy <strong>AWS Instance Scheduler</strong> for Staging and Dev EC2 instances (run only 8am-6pm Mon-Fri = 50hrs/168hrs/week = 70% reduction in Staging/Dev compute). Purchase <strong>RDS Reserved Instance</strong> (1-year Multi-AZ</li>
+<li><input type="checkbox"> <strong>C)</strong> Purchase <strong>1-year Compute Savings Plans</strong> for the 200 <code>m5.xlarge</code> Production web tier (~30% saving). Use <strong>EC2 Spot Instances</strong> with <code>p3.2xlarge</code> mixed with <code>p3.8xlarge</code> pools for the ML training job (~70-90% saving on 6-hour nightly run). Enable <strong>Redshift pause/resume</strong> — cluster pauses after the 4-hour morning window, resumes next morning (saves ~83% of Redshift compute cost — paying only 4hrs/24hrs). Deploy <strong>AWS Instance Scheduler</strong> for Staging and Dev EC2 instances (run only 8am-6pm Mon-Fri = 50hrs/168hrs/week = 70% reduction in Staging/Dev compute). Purchase <strong>RDS Reserved Instance</strong> (1-year Multi-AZ <code>r5.4xlarge</code> ~40% saving).</li>
 </ul>
       <code>r5.4xlarge</code> ~40% saving).
       
@@ -596,7 +532,9 @@ re-architecture (schema changes, query rewrites, no Redshift-specific optimizati
 sort keys and distribution styles). This violates the "without removing any environment"
 constraint interpreted broadly as no re-architecture.
 
-
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
 <h3>Scenario 50: Domain 5 — Continuous Improvement for Existing Solutions</h3>
 
@@ -618,7 +556,7 @@ operational overhead?
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Request API Gateway throttle limit increase from AWS. Add SQS queue before risk-engine Lambda. Enable DynamoDB PITR. Cache compliance API response in ElastiCache. Use Lambda aliases with CodeDeploy for canary deployments.</li>
 <li><input type="checkbox"> <strong>B)</strong> Enable API Gateway <strong>Usage Plans with burst limits</strong> per API key. Add SQS FIFO queue between EventBridge and risk-engine Lambda. Enable DynamoDB PITR. Replace synchronous compliance API call with async via SQS + Lambda. Use Lambda <strong>weighted aliases</strong> with AWS CodeDeploy <code>LambdaCanary10Percent5Minutes</code> deployment config.</li>
-<li><input type="checkbox"> <strong>C)</strong> Deploy <strong>SQS queue</strong> in front of API Gateway using Lambda as a buffer. Use EventBridge Archive and Replay to manage risk-engine backlog. Enable DynamoDB PITR (1-day retention). Cache compliance API using API Gateway response caching. Deploy Lambda using</li>
+<li><input type="checkbox"> <strong>C)</strong> Deploy <strong>SQS queue</strong> in front of API Gateway using Lambda as a buffer. Use EventBridge Archive and Replay to manage risk-engine backlog. Enable DynamoDB PITR (1-day retention). Cache compliance API using API Gateway response caching. Deploy Lambda using <strong>weighted aliases</strong> (10% canary via <code>aws lambda update-alias --routing-config</code>). Add <strong>SQS queue between EventBridge and the risk-engine Lambda</strong> (decouple and buffer — SQS absorbs backpressure, Lambda scales independently, DLQ for persistent failures).</li>
 </ul>
 <strong>weighted aliases</strong> (10% canary via <code>aws lambda update-alias --routing-config</code>). Add
 <strong>SQS queue between EventBridge and the risk-engine Lambda</strong> (decouple and buffer — SQS
@@ -670,7 +608,9 @@ serverless integration, JWT authorizer, or API management features. Rewriting La
 addresses cold start and execution speed but not the root cause (synchronous external API
 call latency). This option re-architects rather than improves.
 
-
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
 <h3>Scenario 51: Domain 1 — Design Solutions for Organizational Complexity</h3>
 
@@ -689,49 +629,23 @@ objects</strong> as well as new uploads.
 <li><input type="checkbox"> <strong>A)</strong> Enable Amazon Macie in all accounts (delegated admin from Security account) for automatic PII/PHI classification. Apply S3 Object Tags based on Macie findings via EventBridge → Lambda. Apply SCP at Organization root: <code>Deny s3:GetObject if s3:ExistingObjectTag/ classification = PII and not aws:PrincipalArn matches approved role ARN pattern</code>. Enable S3 Server Access Logging to a central bucket. Enable Macie for existing objects via scheduled discovery jobs.</li>
 <li><input type="checkbox"> <strong>B)</strong> Use Lambda triggered by S3 Event Notifications for classification on upload. Apply S3 Object Tags manually. Use bucket policies for access control. Enable CloudTrail S3 data events to a central bucket. Run a one-time Lambda scan for existing objects.</li>
 <li><input type="checkbox"> <strong>C)</strong> Use Amazon Rekognition for object classification. Apply IAM policies for access control. Use S3 Access Points for role-based access. Enable VPC Flow Logs for access logging.</li>
-<li><input type="checkbox"> <strong>D)</strong> Enable Amazon Macie (delegated admin, Security account) with automated findings publishing to Security Hub. EventBridge rule on Macie findings → Lambda applies S3 Object Tags (<code>classification=PII</code>, <code>classification=PHI</code>, etc.). SCP at Organization root uses</li>
+<li><input type="checkbox"> <strong>D)</strong> Enable Amazon Macie (delegated admin, Security account) with automated findings publishing to Security Hub. EventBridge rule on Macie findings → Lambda applies S3 Object Tags (<code>classification=PII</code>, <code>classification=PHI</code>, etc.). SCP at Organization root uses <code>aws:ResourceTag</code> condition: <code>Deny s3:GetObject where s3:ExistingObjectTag/Classification = PII unless aws:PrincipalARN matches approved-pii-role</code>. S3 Object Lock on audit bucket (COMPLIANCE mode, 7-year retention) + S3 Server Access Logging → central immutable audit bucket. Macie scheduled discovery jobs scan existing objects and publish findings retroactively.</li>
 </ul>
-<code>aws:ResourceTag</code> condition: `Deny s3:GetObject where s3:ExistingObjectTag/Classification
-= PII unless aws:PrincipalARN matches approved-pii-role`. S3 Object Lock on audit bucket
-(COMPLIANCE mode, 7-year retention) + S3 Server Access Logging → central immutable audit
-bucket. Macie scheduled discovery jobs scan existing objects and publish findings retroactively.
 
+<details><summary>View Architectural Decision Record (Resolution)</summary>
+<p><strong>Optimal Solution: D</strong> — Macie delegated admin + EventBridge/Lambda tagging + SCP with resource tag conditions + S3 Object Lock audit bucket + Macie scheduled jobs for existing objects.</p>
+<p><strong>Why it succeeds:</strong> Amazon Macie is purpose-built for PII/PHI detection in S3 using ML models. Delegated admin from the Security account enables centralized Macie management across all 60 accounts. EventBridge rule on Macie finding events triggers Lambda to call s3:PutObjectTagging — applying classification tags within seconds. SCP with aws:ResourceTag / s3:ExistingObjectTag conditions enforces access control at the Organization level — individual account admins cannot override SCPs. S3 Server Access Logging to a central bucket with S3 Object Lock COMPLIANCE mode makes audit logs immutable. Macie scheduled discovery jobs retroactively classify existing objects, satisfying constraint 5.</p>
+<p><strong>Why alternatives fail:</strong></p>
+<ul>
+<li><strong>A)</strong> Omits S3 Object Lock on the audit bucket — without COMPLIANCE mode, a rogue admin can delete audit logs, violating the immutability requirement.</li>
+<li><strong>B)</strong> Lambda-based classification cannot perform deep content inspection for PII. Bucket policies are per-account and can be overridden by account admins — no SCP enforcement.</li>
+<li><strong>C)</strong> Amazon Rekognition classifies images and videos only — it does not detect PII or PHI in documents or structured data. VPC Flow Logs capture network-layer traffic, not S3 data access events.</li>
+</ul>
+</details>
 
-
-<strong>Architectural Decision Record (Resolution):</strong>
-
-<p class="expl-item"><strong>Optimal Solution:</strong> <strong>D</strong> — Macie delegated admin + EventBridge/Lambda tagging + SCP with</p>
-resource tag conditions + S3 Object Lock audit bucket + Macie scheduled jobs for existing
-objects.
-
-<p class="expl-item"><strong>Why it succeeds:</strong> <strong>Amazon Macie</strong> is purpose-built for PII/PHI detection in S3 using ML</p>
-models — it scans object content and metadata, publishing structured findings (constraint 1).
-Delegated admin from the Security account enables centralized Macie management across all 60
-accounts. <strong>EventBridge rule</strong> on Macie finding events triggers <strong>Lambda</strong> to call
-<code>s3:PutObjectTagging</code> — applying classification tags to matched objects within seconds of
-discovery. <strong>SCP with <code>aws:ResourceTag</code> / <code>s3:ExistingObjectTag</code> conditions</strong> enforces access
-control at the Organization level — individual account admins cannot override SCPs even with
-full IAM admin rights (constraint 3). S3 Server Access Logging to a central bucket with
-<strong>S3 Object Lock COMPLIANCE mode</strong> makes audit logs immutable — even the bucket owner cannot
-delete them within the retention period (constraint 4). <strong>Macie scheduled discovery jobs</strong>
-(configurable to scan all existing objects in a bucket) retroactively classify existing objects
-and publish findings, satisfying constraint 5.
-
-<p class="expl-item"><strong>Why alternatives fail:</strong></p>
-- <strong>A)</strong> Functionally similar to D but omits S3 Object Lock on the audit bucket — without
-COMPLIANCE mode Object Lock, a rogue admin can delete audit logs, violating constraint 4's
-immutability requirement. Also omits Security Hub integration for the security alert
-requirement in constraint 2.
-- <strong>B)</strong> Lambda-based classification using S3 event notifications cannot perform deep content
-inspection for PII (it would require building a custom ML classifier). Bucket policies for
-access control are per-account and can be overridden by account admins — violating constraint
-3. No SCP enforcement.
-- <strong>C)</strong> Amazon Rekognition classifies <strong>images and videos</strong> (faces, objects, scenes) — it
-does not detect PII or PHI in documents, text files, or structured data. This is the wrong
-service entirely. VPC Flow Logs capture network-layer traffic metadata, not S3 data access
-events.
-
-
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
 
 <h3>Scenario 52: Domain 2 — Design for New Solutions</h3>
 
@@ -780,7 +694,12 @@ limiting database connectivity. S3 for session state introduces latency of 10-50
 100K RPS this adds significant overhead, and S3 is not a session store. - <strong>D)</strong> Route 53 Geolocation
 routing has DNS TTL delay issues (constraint 5). Aurora Global Database has a single writer — all write
 traffic from three regions must reach the primary writer, creating a cross-region write bottleneck at 100K
-RPS. Sticky sessions prevent true active-active routing across regions. 
+RPS. Sticky sessions prevent true active-active routing across regions.
+
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 53: Domain 3 — Migration Planning</h3>
 A healthcare company must migrate <strong>10 petabytes</strong> of medical imaging data (DICOM
 files) from an on-premises storage array to Amazon S3. Constraints: (1) available internet bandwidth is
@@ -794,8 +713,24 @@ constraints?
 <ul class="options">
 <li><input type="checkbox"> <strong>A)</strong> Use DataSync with bandwidth throttling for the 10PB transfer. Deploy Storage Gateway File Gateway for PACS NFS access. Apply S3 Lifecycle for tiering. Use DataSync integrity verification. Encrypt with KMS CMK.</li>
 <li><input type="checkbox"> <strong>B)</strong> Order <strong>AWS Snowball Edge Storage Optimized</strong> devices (multiple shipments) for the bulk 10PB transfer. Use <strong>AWS DataSync</strong> for delta sync (changes made during Snowball transit) and final integrity verification. Deploy <strong>AWS Storage Gateway File Gateway</strong> for PACS NFS access post-migration. Apply S3 Lifecycle: Standard → Glacier Instant Retrieval at 2 years. Configure Snowball with <strong>KMS CMK encryption</strong> at rest; DataSync with TLS in transit + KMS CMK at S3 destination. - [ ] <strong>C)</strong> Use S3 Transfer Acceleration for the 10PB transfer over internet. Use Lambda for integrity checking. Deploy EFS for PACS NFS access. Apply S3 Intelligent-Tiering.</li>
-<li><input type="checkbox"> <strong>D)</strong> Use Direct Connect (10 Gbps dedicated) for the transfer. DataSync over Direct Connect for integrity and throttling. Storage Gateway for PACS. S3 Lifecycle for tiering. <strong>Architectural Decision Record (Resolution):</strong> * <strong>Optimal Solution:</strong> <strong>B</strong> — Snowball Edge for bulk 10PB + DataSync for delta + Storage Gateway File Gateway for PACS + S3 Lifecycle + KMS CMK encryption. * <strong>Why it succeeds:</strong> At 200 Mbps available bandwidth, transferring 10PB over the internet would take: 10PB=10 × 10^15 bytes / (200 × 10^6 bits/8)=<strong>~4.6 years</strong> — far beyond the 6-month deadline. <strong>Snowball Edge Storage Optimized</strong> (100TB usable per device) requires 100 devices for 10PB. With 2-week turnaround per batch and parallel shipments, this is achievable in 6 months. Snowball Edge encrypts data at rest with <strong>KMS CMK</strong> using 256-bit encryption natively (constraint 3). <strong>DataSync</strong> runs concurrently during Snowball shipments to sync delta changes (new/modified files), and performs <strong>end-to-end checksum verification</strong> at file transfer completion (constraint 6). <strong>Storage Gateway File Gateway</strong> presents S3 as NFS to the on-premises PACS system — transparent to the PACS application (constraint 4). S3 Lifecycle rule: <code>STANDARD</code> → <code>GLACIER_IR</code> after 730 days (2 years) — satisfying constraint 5. TLS in transit for DataSync delta sync satisfies constraint 3 in-transit. * <strong>Why alternatives fail:</strong> - <strong>A)</strong> DataSync with 200 Mbps throttle for 10PB takes ~4.6 years — impossible within 6 months. DataSync alone is the correct tool only when bandwidth is sufficient. For 10PB, physical transfer (Snowball) is the only viable path within the timeline. - <strong>C)</strong> S3 Transfer Acceleration uses CloudFront edge locations to optimize internet transfers — it does not change the fundamental bandwidth constraint of 200 Mbps. The same 4.6-year calculation applies. EFS is a managed NFS service within AWS — it cannot be mounted from on-premises without DataSync or Storage Gateway; it also cannot present the S3-stored images as NFS to the PACS system. - <strong>D)</strong> Provisioning a dedicated 10 Gbps Direct Connect connection takes 4-12 weeks for physical installation and is expensive (~$10,000-20,000/month). Even with 10 Gbps dedicated, 10PB transfer takes: 10PB / (10Gbps/8)=~89 days ≈ 3 months — feasible but the shared bandwidth constraint (200 Mbps during clinical operations) still applies. The question states only 1 Gbps internet is available — a separate 10 Gbps DX is not an option given the constraint.</li>
+<li><input type="checkbox"> <strong>D)</strong> Use Direct Connect (10 Gbps dedicated) for the transfer. DataSync over Direct Connect for integrity and throttling. Storage Gateway for PACS. S3 Lifecycle for tiering.</li>
 </ul>
+
+<details><summary>View Architectural Decision Record (Resolution)</summary>
+<p><strong>Optimal Solution: B</strong> — Snowball Edge for bulk 10PB + DataSync for delta + Storage Gateway File Gateway for PACS + S3 Lifecycle + KMS CMK encryption.</p>
+<p><strong>Why it succeeds:</strong> At 200 Mbps available bandwidth, transferring 10PB over the internet would take approximately 4.6 years — far beyond the 6-month deadline. Snowball Edge Storage Optimized (100TB usable per device) requires 100 devices for 10PB. With parallel shipments, achievable in 6 months. Snowball Edge encrypts at rest with KMS CMK natively. DataSync runs concurrently during Snowball shipments to sync delta changes and performs end-to-end checksum verification. Storage Gateway File Gateway presents S3 as NFS to the on-premises PACS system. S3 Lifecycle: Standard → Glacier Instant Retrieval after 730 days. TLS in transit for DataSync delta sync.</p>
+<p><strong>Why alternatives fail:</strong></p>
+<ul>
+<li><strong>A)</strong> DataSync with 200 Mbps throttle for 10PB takes ~4.6 years — impossible within 6 months.</li>
+<li><strong>C)</strong> S3 Transfer Acceleration uses CloudFront edge locations but does not change the fundamental 200 Mbps bandwidth constraint. EFS cannot be mounted from on-premises without Storage Gateway.</li>
+<li><strong>D)</strong> Provisioning a dedicated 10 Gbps Direct Connect takes 4-12 weeks and the shared bandwidth constraint still applies during clinical operations.</li>
+</ul>
+</details>
+
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 54: Domain 4 — Cost Control</h3>
 A startup has achieved product-market fit and is scaling from 10,000 to 1,000,000
 daily active users over 12 months. Current architecture: Route 53 → CloudFront → ALB → EC2 Auto Scaling
@@ -806,29 +741,24 @@ a redesign at each growth stage. The CTO's constraint: <strong>no Reserved Insta
 commitments</strong> (the startup may pivot). <strong>Question:</strong> Which architectural changes BEST optimize cost
 efficiency at scale without commitments? 
 <ul class="options">
-<li><input type="checkbox"> <strong>A)</strong> Migrate EC2 Auto Scaling to <strong>ECS Fargate</strong> (pay per task CPU/memory, no idle capacity). Migrate RDS MySQL to <strong>Aurora MySQL Serverless v2</strong> (scales from 0.5 ACU to 128 ACU, pay per ACU-hour). Upgrade ElastiCache to a <strong>cluster mode enabled</strong> Redis cluster (3 shards × 1 replica). Use <strong>CloudFront caching</strong> with aggressive TTLs to reduce ALB and origin hits. Enable</li>
+<li><input type="checkbox"> <strong>A)</strong> Migrate EC2 Auto Scaling to <strong>ECS Fargate</strong> (pay per task CPU/memory, no idle capacity). Migrate RDS MySQL to <strong>Aurora MySQL Serverless v2</strong> (scales from 0.5 ACU to 128 ACU, pay per ACU-hour). Upgrade ElastiCache to a <strong>cluster mode enabled</strong> Redis cluster (3 shards × 1 replica). Use <strong>CloudFront caching</strong> with aggressive TTLs to reduce ALB and origin hits. Enable <strong>S3 Intelligent-Tiering</strong> for static assets.</li>
 </ul>
-<strong>S3 Intelligent-Tiering</strong> for static assets. 
-<ul class="options">
-<li><input type="checkbox"> <strong>B)</strong> Keep EC2 Auto Scaling with Spot Instances (80% savings, no commitments). Migrate RDS to Aurora Serverless v2. Use ElastiCache cluster mode. Implement CloudFront caching.</li>
-<li><input type="checkbox"> <strong>C)</strong> Migrate to Lambda for compute (pay per invocation, true scale-to-zero). Use DynamoDB on-demand for database. Implement CloudFront. Keep ElastiCache single node.</li>
-<li><input type="checkbox"> <strong>D)</strong> Keep EC2 On-Demand. Migrate to RDS Aurora with read replicas. Add ElastiCache cluster. Use CloudFront. Purchase no commitments. <strong>Architectural Decision Record (Resolution):</strong> * <strong>Optimal Solution:</strong> <strong>A</strong> — ECS Fargate + Aurora Serverless v2 + ElastiCache cluster mode + CloudFront aggressive caching + S3 Intelligent-Tiering. * <strong>Why it succeeds:</strong> The core problem is designing for <strong>100× growth without commitments</strong> and without redesign at each stage. Each component must scale elastically and cost-proportionally: <strong>ECS Fargate</strong> charges per vCPU/memory per second — at 10K DAU the cost is minimal; at 1M DAU it scales proportionally. No EC2 idle capacity is paid during low-traffic periods. No RI or SP commitment required. <strong>Aurora Serverless v2</strong> scales from 0.5 ACU (minimum cost, ~$0.06/hr) to 128 ACU (high traffic) in <1 second — at 10K DAU cost is near-minimum; at 1M DAU it scales automatically. No instance type selection needed at each growth stage. Pay-per-ACU-hour with no commitment satisfies the CTO's constraint. <strong>ElastiCache cluster mode</strong> with 3 shards scales Redis horizontally — at 1M DAU, a single <code>r6g.large</code> node would be a bottleneck; cluster mode distributes keyspace across shards.</li>
+
+<details><summary>View Architectural Decision Record (Resolution)</summary>
+<p><strong>Optimal Solution: A</strong> — ECS Fargate + Aurora Serverless v2 + ElastiCache cluster mode + CloudFront aggressive caching + S3 Intelligent-Tiering.</p>
+<p><strong>Why it succeeds:</strong> ECS Fargate charges per vCPU/memory per second — scales proportionally with traffic, no idle capacity at low load, no RI or SP commitment required. Aurora Serverless v2 scales from 0.5 ACU (minimum cost) to 128 ACU in under 1 second — pay-per-ACU-hour with no commitment, auto-scales at each growth stage. ElastiCache cluster mode with 3 shards distributes keyspace horizontally — at 1M DAU a single node would be a bottleneck. CloudFront aggressive TTLs on static content reduce origin requests by 80-95% — as traffic scales 100x, CloudFront absorbs growth at edge. S3 Intelligent-Tiering optimizes static asset storage costs automatically.</p>
+<p><strong>Why alternatives fail:</strong></p>
+<ul>
+<li><strong>B)</strong> EC2 Spot for web API introduces interruption risk for customer-facing production traffic at 1M DAU — SLA obligations make Spot unacceptable for the web tier.</li>
+<li><strong>C)</strong> Lambda for web API introduces 15-minute max execution, cold start latency, and VPC cold start overhead. DynamoDB replacing RDS MySQL requires full re-architecture (NoSQL data model redesign).</li>
+<li><strong>D)</strong> EC2 On-Demand with read replicas requires manual resizing and re-architecture at each growth inflection — the anti-pattern the question asks to avoid.</li>
 </ul>
-<strong>CloudFront aggressive TTLs</strong> on static content (HTML, JS, CSS, images) reduce origin requests by 80-95%
-— as traffic scales 100×, CloudFront absorbs the growth at edge with marginal cost increase (CloudFront
-costs ~$0.0085/GB vs ALB + EC2 origin costs). S3 Intelligent-Tiering optimizes static asset storage costs
-automatically as asset age/access patterns evolve. * <strong>Why alternatives fail:</strong> - <strong>B)</strong> EC2 Spot
-Instances save 80% but introduce <strong>interruption risk</strong> — at 1M DAU with customer-facing traffic, Spot
-interruptions cause service disruptions. Spot is appropriate for stateless batch or fault-tolerant
-workloads, not production web serving at scale. The startup's SLA obligations at 1M DAU make Spot
-unacceptable for the web tier. - <strong>C)</strong> Lambda for web API compute can work but introduces architectural
-constraints: 15-minute max execution, cold start latency, 10GB memory limit, and VPC cold start overhead.
-For a traditional web application migrating from EC2, ECS Fargate is a lower-risk path to serverless
-compute. DynamoDB on-demand replacing RDS MySQL requires a full re-architecture (NoSQL data model
-redesign) — the CTO's constraint is no commitments, not re-architecture. - <strong>D)</strong> EC2 On-Demand with read
-replicas scales vertically at each growth stage — at each 10× growth inflection, the team must resize
-instances, add read replicas, and re-architect the caching layer manually. This is the anti-pattern the
-question is asking to avoid. 
+</details>
+
+</div>
+<div class="exam-container">
+<div class="vue-header"><span>AWS Certified Solutions Architect</span><span>Time Remaining: 130 minutes</span></div>
+
 <h3>Scenario 55: Domain 5 — Continuous Improvement for Existing Solutions</h3>
 A
 telecommunications company's AWS infrastructure has accumulated significant <strong>technical debt</strong> over 3
@@ -841,7 +771,7 @@ encryption</strong> — some use SSE-S3, some SSE-KMS, some have no encryption; 
 operating systems</strong> (Windows Server 2012, Amazon Linux 1) with critical CVEs unpatched. <strong>Question:</strong>
 Which combination of AWS-native services resolves ALL five issues most systematically? 
 <ul class="options">
-<li><input type="checkbox"> <strong>A)</strong> Run</li>
+<li><input type="checkbox"> <strong>A)</strong> Run <code>aws cloudformation detect-stack-drift</code> across all stacks. Use IAM Access Analyzer to find over-privileged roles. Aggregate CloudTrail to a central S3 bucket. Use S3 default encryption. Use SSM Patch Manager for OS patching.</li>
 </ul>
 <code>aws cloudformation detect-stack-drift</code> across all stacks. Use IAM Access Analyzer to find over-privileged
 roles. Aggregate CloudTrail to a central S3 bucket. Use S3 default encryption. Use SSM Patch Manager for
@@ -895,5 +825,8 @@ significant manual enrollment effort. GuardDuty detects anomalous IAM behavior a
 but does not identify or remediate over-privileged policies at rest. CloudWatch Logs
 Insights requires logs to already be in CloudWatch — the issue is that logs are in per-account
 S3 buckets, not CloudWatch Logs.
+
+</div>
+
 </body>
 </html>
