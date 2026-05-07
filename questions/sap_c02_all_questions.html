@@ -226,12 +226,205 @@
     font-size: 12px;
     color: #999;
   }
+
+  /* ── Tracker ──────────────────────────────────────────────── */
+  .tracker-wrap {
+    background: #fff;
+    border-bottom: 2px solid #e0e0e0;
+    padding: 12px 24px 14px;
+    position: sticky;
+    top: 40px;
+    z-index: 90;
+  }
+  .tracker-inner { max-width: 860px; margin: 0 auto; }
+  .tracker-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .tracker-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #555;
+  }
+  .tracker-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 100px;
+    background: rgba(4,120,87,0.1);
+    color: #047857;
+    margin-left: 8px;
+  }
+  .sync-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border: 1px solid #ccc;
+    border-radius: 100px;
+    background: #f5f5f7;
+    color: #555;
+    cursor: pointer;
+  }
+  .sync-chip:hover { color: #1a3a5c; border-color: #1a3a5c; }
+  .tracker-bar-wrap {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .tracker-bar-fill {
+    height: 100%;
+    background: #047857;
+    border-radius: 100px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .tracker-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .t-stat { display: flex; flex-direction: column; align-items: center; }
+  .t-val { font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1.1; }
+  .t-lbl { font-size: 10px; color: #888; margin-top: 2px; }
+  .t-divider { width: 1px; height: 28px; background: #e0e0e0; }
+
+  /* ── Nav button reviewed state ── */
+  .nav-btn.reviewed {
+    background: #047857 !important;
+    color: #fff !important;
+    border-color: #047857 !important;
+  }
+
+  /* ── Answered question highlight ── */
+  .exam-container.is-answered { border-top-color: #047857; }
+  .is-answered .q-num { background: #047857; }
+  .answered-badge {
+    display: inline-block;
+    background: rgba(4,120,87,0.15);
+    color: #047857;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 100px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── GitHub Sync Modal ───────────────────────────────────── */
+  .sync-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .sync-overlay.open { display: flex; }
+  .sync-panel {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .sync-panel h3 { margin: 0 0 10px; font-size: 16px; color: #1a1a1a; }
+  .sync-panel p { font-size: 13px; color: #555; line-height: 1.55; margin-bottom: 14px; }
+  .sync-input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    color: #1a1a1a;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  .sync-input:focus { border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26,58,92,0.12); }
+  .sync-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .sync-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #f5f5f7;
+    color: #555;
+    cursor: pointer;
+  }
+  .sync-btn:hover { color: #1a1a1a; border-color: #999; }
+  .sync-btn.primary { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  .sync-btn.primary:hover { opacity: 0.9; }
+  .sync-btn.danger { color: #b91c1c; border-color: rgba(185,28,28,0.3); }
+  .sync-btn.danger:hover { background: rgba(185,28,28,0.08); }
+  #sync-status { font-size: 12px; min-height: 18px; font-weight: 500; color: #555; }
+
+  /* ── Timer arc ring (fixed bottom-right) ── */
+  .review-ring {
+    position: fixed;
+    bottom: 66px;
+    right: 20px;
+    z-index: 50;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .review-ring.active { opacity: 1; }
+  .review-ring svg { width: 40px; height: 40px; }
+  .review-ring circle {
+    fill: none;
+    stroke: #047857;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 106.81;
+    stroke-dashoffset: 106.81;
+    transform-origin: 20px 20px;
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 0.5s linear;
+  }
+
+  /* ── Scroll to top ── */
+  .scroll-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 38px;
+    height: 38px;
+    background: #1a3a5c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 49;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    line-height: 1;
+  }
+  .scroll-top-btn.show { display: flex; }
+  .scroll-top-btn:hover { background: #0f2744; }
 </style>
 </head>
 <body>
 <div class="top-bar">
   <span>AWS Certified Solutions Architect – Professional (SAP-C02)</span>
-  <span class="timer">Time Remaining: 170:00</span>
+  <span class="timer" id="countdown" title="Click to reset timer" style="cursor:pointer">⏱ 170:00</span>
 </div>
 <div class="nav-bar">
   <span>Jump:</span>
@@ -243,6 +436,29 @@
   <a class="nav-btn" href="#q50">Q50</a>
   <a class="nav-btn" href="#q60">Q60</a>
   <a class="nav-btn" href="#q70">Q70</a>
+</div>
+
+<!-- Progress Tracker -->
+<div class="tracker-wrap">
+  <div class="tracker-inner">
+    <div class="tracker-top-row">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tracker-label">Question Progress</span>
+        <span class="tracker-badge" id="t-badge">0 / 70</span>
+      </div>
+      <button class="sync-chip" onclick="openSyncModal()">☁ GitHub Sync</button>
+    </div>
+    <div class="tracker-bar-wrap">
+      <div class="tracker-bar-fill" id="t-bar"></div>
+    </div>
+    <div class="tracker-stats">
+      <div class="t-stat"><div class="t-val" id="t-done">0</div><div class="t-lbl">reviewed</div></div>
+      <div class="t-divider"></div>
+      <div class="t-stat"><div class="t-val" id="t-left">70</div><div class="t-lbl">remaining</div></div>
+      <div class="t-divider"></div>
+      <div class="t-stat"><div class="t-val" id="t-pct">0%</div><div class="t-lbl">complete</div></div>
+    </div>
+  </div>
 </div>
 <div class="exam-container" id="q1">
   <div class="q-num">Question 1 of 70</div>
@@ -3568,14 +3784,323 @@ improvement of the existing system. These changes introduce significant migratio
 cost for problems solvable with targeted improvements.
 
 </details>
-
 </div>
 
-</div>
-
-</body>
-</html
-</div>
 <div class="footer">SAP-C02 Practice Exam · Questions 1–70 · All 5 Domains</div>
+
+<!-- GitHub Sync Modal -->
+<div class="sync-overlay" id="sync-overlay" onclick="if(event.target===this)closeSyncModal()">
+  <div class="sync-panel">
+    <h3>☁ GitHub Gist Sync</h3>
+    <p>Store your question progress in a private GitHub Gist so it persists across devices and sessions. Uses the same token as your patterns file. Create a token at <strong>github.com → Settings → Developer settings → Personal access tokens</strong> with <code>gist</code> scope only.</p>
+    <input id="gh-token" type="password" class="sync-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <div class="sync-btns">
+      <button class="sync-btn primary" onclick="saveSync()">Save &amp; Sync</button>
+      <button class="sync-btn" onclick="loadFromGist()">Load from GitHub</button>
+      <button class="sync-btn danger" onclick="clearSync()">Clear Token</button>
+      <button class="sync-btn" onclick="closeSyncModal()">Close</button>
+    </div>
+    <div id="sync-status"></div>
+  </div>
+</div>
+
+<!-- 15-second review arc ring (bottom-right, above scroll button) -->
+<div class="review-ring" id="review-ring">
+  <svg viewBox="0 0 40 40">
+    <circle id="review-arc" cx="20" cy="20" r="17"/>
+  </svg>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top-btn" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+(function() {
+  'use strict';
+
+  var TOTAL        = 70;
+  var TOKEN_KEY    = 'gh_token';
+  var GIST_KEY     = 'sap_gist_id';
+  var REVIEWED_KEY = 'sap_exam_reviewed';
+  var TIMER_KEY    = 'sap_exam_start';
+  var EXAM_SECS    = 170 * 60;
+  var READ_DELAY   = 15000;
+  var CIRC         = 2 * Math.PI * 17;
+
+  // ── State helpers ───────────────────────────────────────────
+  function getReviewed() {
+    try { return new Set(JSON.parse(localStorage.getItem(REVIEWED_KEY) || '[]')); }
+    catch(e) { return new Set(); }
+  }
+  function saveReviewed(s) {
+    localStorage.setItem(REVIEWED_KEY, JSON.stringify(Array.from(s)));
+  }
+  function getExamStart() {
+    var ts = localStorage.getItem(TIMER_KEY);
+    return ts ? parseInt(ts, 10) : null;
+  }
+
+  // ── Tracker UI ──────────────────────────────────────────────
+  function updateTracker() {
+    var done = getReviewed().size;
+    var left = TOTAL - done;
+    var pct  = Math.round(done / TOTAL * 100);
+    document.getElementById('t-bar').style.width  = pct + '%';
+    document.getElementById('t-done').textContent = done;
+    document.getElementById('t-left').textContent = left;
+    document.getElementById('t-pct').textContent  = pct + '%';
+    document.getElementById('t-badge').textContent = done + ' / ' + TOTAL;
+  }
+
+  // ── Mark question as reviewed in UI ─────────────────────────
+  function markReviewed(qId) {
+    var container = document.getElementById(qId);
+    if (!container) return;
+    container.classList.add('is-answered');
+    var qNum = container.querySelector('.q-num');
+    if (qNum && !qNum.querySelector('.answered-badge')) {
+      var badge = document.createElement('span');
+      badge.className = 'answered-badge';
+      badge.textContent = '✓ REVIEWED';
+      qNum.appendChild(badge);
+    }
+    var navBtn = document.querySelector('a.nav-btn[href="#' + qId + '"]');
+    if (navBtn) navBtn.classList.add('reviewed');
+  }
+
+  // Init from localStorage
+  var stored = getReviewed();
+  stored.forEach(function(qId) { markReviewed(qId); });
+  updateTracker();
+
+  // ── 15-second review arc ─────────────────────────────────────
+  var reviewRing = document.getElementById('review-ring');
+  var reviewArc  = document.getElementById('review-arc');
+  var arcTimer   = null;
+  var arcInterval = null;
+
+  function startArc() {
+    reviewArc.style.transition = 'none';
+    reviewArc.style.strokeDashoffset = CIRC;
+    reviewRing.classList.add('active');
+    var start = Date.now();
+    clearInterval(arcInterval);
+    arcInterval = setInterval(function() {
+      var pct = Math.min((Date.now() - start) / READ_DELAY, 1);
+      reviewArc.style.transition = 'stroke-dashoffset 0.5s linear';
+      reviewArc.style.strokeDashoffset = CIRC * (1 - pct);
+      if (pct >= 1) clearInterval(arcInterval);
+    }, 300);
+  }
+  function stopArc() {
+    clearInterval(arcInterval);
+    reviewArc.style.strokeDashoffset = CIRC;
+    reviewRing.classList.remove('active');
+  }
+
+  // ── Answer details → track review ────────────────────────────
+  document.querySelectorAll('.exam-container').forEach(function(container) {
+    var det = container.querySelector('details');
+    if (!det) return;
+    var qId = container.id;
+    if (!qId) return;
+    det.addEventListener('toggle', function() {
+      clearTimeout(arcTimer); stopArc();
+      ensureTimerStarted();
+      if (det.open && !getReviewed().has(qId)) {
+        startArc();
+        arcTimer = setTimeout(function() {
+          if (det.open) {
+            var s = getReviewed();
+            s.add(qId);
+            saveReviewed(s);
+            markReviewed(qId);
+            updateTracker();
+            scheduleGistSave();
+          }
+          stopArc();
+        }, READ_DELAY);
+      }
+    });
+  });
+
+  // ── Countdown timer (170 min) ─────────────────────────────────
+  var countdown = document.getElementById('countdown');
+  var timerStarted = !!getExamStart();
+
+  function formatTime(secs) {
+    if (secs <= 0) return '00:00';
+    var m = Math.floor(secs / 60);
+    var s = secs % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function tickCountdown() {
+    var start = getExamStart();
+    if (!start) {
+      countdown.textContent = '⏱ 170:00';
+      countdown.style.color = '';
+      return;
+    }
+    var elapsed   = Math.floor((Date.now() - start) / 1000);
+    var remaining = EXAM_SECS - elapsed;
+    if (remaining <= 0) {
+      countdown.textContent = '⏱ TIME UP';
+      countdown.style.color = '#f87171';
+      return;
+    }
+    countdown.textContent = '⏱ ' + formatTime(remaining);
+    countdown.style.color = remaining < 900 ? '#f87171' : remaining < 1800 ? '#fbbf24' : '#4ade80';
+  }
+  function ensureTimerStarted() {
+    if (timerStarted || getExamStart()) { timerStarted = true; return; }
+    timerStarted = true;
+    localStorage.setItem(TIMER_KEY, Date.now().toString());
+  }
+
+  countdown.addEventListener('click', function() {
+    if (confirm('Reset exam timer to 170:00?')) {
+      localStorage.removeItem(TIMER_KEY);
+      timerStarted = false;
+      tickCountdown();
+    }
+  });
+
+  setInterval(function() { tickCountdown(); }, 1000);
+  tickCountdown();
+
+  // ── Scroll to top ─────────────────────────────────────────────
+  var scrollBtn = document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll', function() {
+    scrollBtn.classList.toggle('show', window.scrollY > 300);
+  }, { passive: true });
+
+  // ── GitHub Gist sync ─────────────────────────────────────────
+  var gistSaveTimer = null;
+  function scheduleGistSave() {
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    clearTimeout(gistSaveTimer);
+    gistSaveTimer = setTimeout(saveToGist, 2000);
+  }
+  function ghHeaders() {
+    return {
+      'Authorization': 'token ' + localStorage.getItem(TOKEN_KEY),
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json'
+    };
+  }
+  function buildPayload() {
+    var data = { reviewed: Array.from(getReviewed()), timer_start: getExamStart() };
+    return JSON.stringify({
+      description: 'SAP-C02 exam progress',
+      public: false,
+      files: { 'sap-c02-exam-progress.json': { content: JSON.stringify(data) } }
+    });
+  }
+  function saveToGist() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    var gistId = localStorage.getItem(GIST_KEY);
+    fetch(
+      gistId ? 'https://api.github.com/gists/' + gistId : 'https://api.github.com/gists',
+      { method: gistId ? 'PATCH' : 'POST', headers: ghHeaders(), body: buildPayload() }
+    ).then(function(r) { return r.json(); })
+     .then(function(d) {
+       if (d.id) localStorage.setItem(GIST_KEY, d.id);
+       setSyncStatus('Synced to GitHub ✓', 'green');
+     })
+     .catch(function() { setSyncStatus('Sync failed — check token', 'red'); });
+  }
+  function loadFromGist() {
+    var token  = localStorage.getItem(TOKEN_KEY);
+    var gistId = localStorage.getItem(GIST_KEY);
+    if (!token)  { setSyncStatus('Enter a GitHub token first', 'red'); return; }
+    if (!gistId) { setSyncStatus('No Gist yet — save first to create one', 'orange'); return; }
+    setSyncStatus('Loading…', '');
+    fetch('https://api.github.com/gists/' + gistId, { headers: ghHeaders() })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var f = d.files && d.files['sap-c02-exam-progress.json'];
+        if (!f) { setSyncStatus('No exam data in Gist', 'orange'); return; }
+        var data = JSON.parse(f.content);
+        var s = getReviewed();
+        (data.reviewed || []).forEach(function(id) { s.add(id); });
+        saveReviewed(s);
+        if (data.timer_start && !getExamStart()) {
+          localStorage.setItem(TIMER_KEY, data.timer_start.toString());
+          timerStarted = true;
+          tickCountdown();
+        }
+        s.forEach(function(id) { markReviewed(id); });
+        updateTracker();
+        setSyncStatus('Loaded from GitHub ✓', 'green');
+      })
+      .catch(function() { setSyncStatus('Load failed — check token / Gist ID', 'red'); });
+  }
+
+  // Auto-load on page start if token+gist already configured
+  (function autoLoad() {
+    var token  = localStorage.getItem(TOKEN_KEY);
+    var gistId = localStorage.getItem(GIST_KEY);
+    if (!token || !gistId) return;
+    fetch('https://api.github.com/gists/' + gistId, { headers: ghHeaders() })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d) return;
+        var f = d.files && d.files['sap-c02-exam-progress.json'];
+        if (!f) return;
+        var data = JSON.parse(f.content);
+        var s = getReviewed(); var changed = false;
+        (data.reviewed || []).forEach(function(id) { if (!s.has(id)) { s.add(id); changed = true; } });
+        if (data.timer_start && !getExamStart()) {
+          localStorage.setItem(TIMER_KEY, data.timer_start.toString());
+          timerStarted = true;
+          tickCountdown();
+        }
+        if (!changed) return;
+        saveReviewed(s);
+        s.forEach(function(id) { markReviewed(id); });
+        updateTracker();
+      })
+      .catch(function() {});
+  })();
+
+  // ── Sync modal ────────────────────────────────────────────────
+  window.openSyncModal = function() {
+    var overlay = document.getElementById('sync-overlay');
+    overlay.classList.add('open');
+    document.getElementById('gh-token').value = localStorage.getItem(TOKEN_KEY) || '';
+    var gistId = localStorage.getItem(GIST_KEY);
+    setSyncStatus(gistId ? 'Gist configured — ID: ' + gistId.slice(0,8) + '…' : 'No Gist yet — save to create one', '');
+  };
+  window.closeSyncModal = function() {
+    document.getElementById('sync-overlay').classList.remove('open');
+  };
+  window.saveSync = function() {
+    var token = document.getElementById('gh-token').value.trim();
+    if (!token) { setSyncStatus('Paste a GitHub token first', 'red'); return; }
+    localStorage.setItem(TOKEN_KEY, token);
+    setSyncStatus('Saving…', '');
+    saveToGist();
+  };
+  window.loadFromGist = loadFromGist;
+  window.clearSync = function() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(GIST_KEY);
+    document.getElementById('gh-token').value = '';
+    setSyncStatus('Token and Gist ID cleared', 'orange');
+  };
+
+  function setSyncStatus(msg, color) {
+    var el = document.getElementById('sync-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color === 'green'  ? '#047857'
+                   : color === 'red'    ? '#b91c1c'
+                   : color === 'orange' ? '#c2410c'
+                   : '#555';
+  }
+
+})();
+</script>
 </body>
 </html>
