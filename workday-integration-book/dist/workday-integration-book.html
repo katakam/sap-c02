@@ -2349,6 +2349,7 @@ function renderPlaybooks(){
     $('#pbList').innerHTML=B.playbooks.filter(function(p){return !PB.area||p.area===PB.area}).map(function(p){
       return '<details class="pb" id="'+p.id+'"><summary><span class="at">'+esc(p.title)+'</span><span><span class="b">'+esc(p.area)+'</span></span></summary><div class="pbb">'+
        '<p><b>What you see.</b> '+esc(p.sym)+'</p>'+
+       '<div class="pbflow" data-pb="'+p.id+'"></div>'+
        '<h4>It might be (not sure yet)</h4><ul>'+li(p.may)+'</ul>'+
        '<h4>Safe checks first (read only)</h4><ol>'+li(p.check)+'</ol>'+
        '<h4>Evidence to collect</h4><ul>'+li(p.evid)+'</ul>'+
@@ -2356,6 +2357,28 @@ function renderPlaybooks(){
        '<p class="dont"><b>Do not.</b> '+esc(p.dont)+'</p></div></details>';
     }).join('');
   }
+  function cut(t,n){t=String(t);return t.length>n?t.slice(0,n-1).replace(/\s+\S*$/,'')+'...':t}
+  function flowSpec(p){
+    var nodes=[],edges=[],steps=[],y=16,W=280,H=62,G=20,i,prev=null;
+    function add(k,t,sub,c){nodes.push([k,t,sub,c,40,y,W,H]);if(prev)edges.push(['e'+k,prev,k]);prev=k;y+=H+G}
+    add('n0','What you see',cut(p.sym,70),'coral');
+    steps.push({t:'What you see',p:p.sym,k:'Stay calm. Do not change anything yet.',d:'It might be:\n- '+(p.may||[]).join('\n- '),on:['n0']});
+    (p.check||[]).forEach(function(c,j){
+      var k='n'+(j+1);add(k,'Check '+(j+1),cut(c,70),'teal');
+      steps.push({t:'Check '+(j+1),p:c,k:'Safe, read-only. If this explains it, stop here.',on:[k],ed:['e'+k]});
+    });
+    var ke='nE';add(ke,'Keep evidence',cut((p.evid||[]).join(', '),70),'amber');
+    steps.push({t:'Keep evidence',p:'Collect: '+(p.evid||[]).join('; ')+'.',k:'Evidence helps the next person and the RCA.',on:[ke],ed:['e'+ke]});
+    var kw='nW';add(kw,'Ask for help',cut(p.who,70),'gray');
+    steps.push({t:'Ask for help',p:p.who,k:'Do not: '+p.dont,on:[kw],ed:['e'+kw]});
+    return {title:p.title,sum:'Flow for: '+p.title,nodes:nodes,edges:edges,steps:steps};
+  }
+  root.addEventListener('toggle',function(ev){
+    var d=ev.target;if(!d.open||!d.classList||!d.classList.contains('pb'))return;
+    var h=d.querySelector('.pbflow');if(!h||h.dataset.done)return;h.dataset.done='1';
+    var p=B.playbooks.filter(function(x){return x.id===d.id})[0];
+    if(p&&window.Anim)window.Anim.mount(h,flowSpec(p));
+  },true);
   root.addEventListener('click',function(ev){var b=ev.target.closest('button[data-a]');if(b){PB.area=b.dataset.a;paint()}});
   paint();
 }
