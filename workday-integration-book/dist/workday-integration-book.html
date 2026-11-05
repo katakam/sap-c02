@@ -1318,6 +1318,67 @@ steps:[
 ]});
 })();
 
+/* ---- content/anims-4.js ---- */
+(function(){
+var A=BOOK.A;
+
+A({id:"a-req-to-report",title:"From requirement to report, step by step",sum:"How a new consultant turns a business request into a tested report.",part:"dl",tags:"requirement breakdown expectations select report build test debug new consultant step by step",
+nodes:[["r","1 Requirement","what the business asked","teal",15,16,150,50],["q","2 Ask questions","who, what, when, where, how","teal",195,16,150,50],["x","3 Expectations table","fields, rules, examples","amber",15,96,150,50],["s","4 SELECT in English","columns, source, filters","amber",195,96,150,50],["b","5 Build the report","one step at a time","indigo",15,176,150,50],["t","6 Test one employee","does the row match?","indigo",195,176,150,50],["d","7 Debug","find the first wrong step","coral",15,256,150,50],["e","8 Evidence and sign-off","keep proof","gray",195,256,150,50]],
+edges:[["e1","r","q"],["e2","q","x",{from:"b",to:"t"}],["e3","x","s"],["e4","s","b",{from:"b",to:"t"}],["e5","b","t"],["e6","t","d",{from:"b",to:"t"}],["e7","d","e"]],
+steps:[
+{t:"Read the requirement slowly",p:"Write the request in one sentence. Do not build anything yet.",k:"Requirement.",d:"\"Send payroll the active employees in Singapore with their jobs.\"",on:["r"]},
+{t:"Ask the six questions",p:"Who gets it? What data? When does it run? Where does the file go? How big? What does 'done' look like?",k:"Who, what, when, where, how many, done.",d:"Who: payroll team\nWhat: employee ID, name, job, org\nWhen: daily 02:10 SGT\nWhere: SFTP /outbound/\nHow many: about 5,000\nDone: counts match",on:["q"],ed:["e1"]},
+{t:"Write the expectations table",p:"One row per field: the name the receiver wants, where it comes from in Workday, the rule, and one example.",k:"Mapping sheet.",d:"Field | From Workday | Rule | Example\nEMP_ID | Employee ID | as is | E9001\nHIRE_DT | Hire Date | YYYY-MM-DD | 2024-01-15",on:["x"],ed:["e2"]},
+{t:"Say it as a SELECT in English",p:"Write what you want in the order: pick columns, from which data, only these rows, in this order.",k:"Report = select statement in words.",d:"SELECT employee ID, name, job, org\nFROM all active workers\nWHERE country is Singapore\nORDER BY employee ID",on:["s"],ed:["e3"]},
+{t:"Build the report",p:"Create the custom report. Add the data source, then columns, then filters, then sort, then prompts.",k:"Create Custom Report > Advanced > Data Source > Columns > Filter > Sort > Prompts.",on:["b"],ed:["e4"]},
+{t:"Test with one employee first",p:"Pick one dummy employee you know well. Does the row match what you see on the worker's screen?",k:"Unit test, one record.",d:"E9001: row matches the screen",on:["t"],ed:["e5"]},
+{t:"Debug in order",p:"If a row is wrong, check in order: is the person in the data, does a filter remove them, is the field empty, is the value wrong.",k:"First wrong step wins.",on:["d"],ed:["e6"]},
+{t:"Keep the evidence",p:"Save the table, the screenshots (masked), the counts and the sign-off.",k:"Test evidence.",on:["e"],ed:["e7"]}
+]});
+
+A({id:"a-select-english",title:"A report is a SELECT written in clicks",sum:"Each part of a SQL SELECT has a matching part in a Workday custom report.",part:"rp",tags:"select sql from where order by report translate english columns filter data source prompts join calculated field",
+nodes:[["s1","SELECT","which columns","gray",15,16,120,46],["w1","Columns tab","Field, heading","teal",225,16,120,46],["s2","FROM","which data","gray",15,78,120,46],["w2","Data source","e.g. All Workers","teal",225,78,120,46],["s3","WHERE","which rows","gray",15,140,120,46],["w3","Filter tab","Filter on Instances","teal",225,140,120,46],["s4","ORDER BY","the order","gray",15,202,120,46],["w4","Sort tab","sort fields","teal",225,202,120,46],["s5","Parameters","asked at run time","gray",15,264,120,46],["w5","Prompts tab","as-of date, org","teal",225,264,120,46],["s6","JOIN","use another table","gray",15,326,120,46],["w6","Related fields","other object","teal",225,326,120,46],["s7","Computed column","made from others","gray",15,388,120,46],["w7","Calculated field","made by function","amber",225,388,120,46]],
+edges:[["e1","s1","w1"],["e2","s2","w2"],["e3","s3","w3"],["e4","s4","w4"],["e5","s5","w5"],["e6","s6","w6"],["e7","s7","w7"]],
+steps:[
+{t:"Same idea, different words",p:"Workday has no place for you to type SQL. A report does the same job with clicks. This is a way to think, not a Workday feature.",k:"Author's analogy for learning.",on:["s1","s2","s3","s4","s5","s6","s7"]},
+{t:"SELECT = columns",p:"The columns you want to see. In the report, these are the Columns tab.",k:"Field and Column Heading Override.",d:"SELECT employee ID, name, hire date",on:["s1","w1"],ed:["e1"]},
+{t:"FROM = data source",p:"Where the rows come from. A data source holds the pool of records, like all workers.",k:"Report data source.",d:"FROM all workers",on:["s2","w2"],ed:["e2"]},
+{t:"WHERE = filter",p:"Which rows to keep. A filter removes the others.",k:"Filter on Instances: field, operator, value.",d:"WHERE worker status = active\nAND country = Singapore",on:["s3","w3"],ed:["e3"]},
+{t:"ORDER BY = sort",p:"The order of the rows in the file.",k:"Sort tab.",d:"ORDER BY employee ID",on:["s4","w4"],ed:["e4"]},
+{t:"Parameters = prompts",p:"Questions the report asks when it runs, like 'as of which date?'. Integrations pass the answers.",k:"Prompts tab; can be passed in the URL.",d:"AS OF date = today",on:["s5","w5"],ed:["e5"]},
+{t:"JOIN = related object",p:"A worker has a position, an org and a company. You reach them through related fields.",k:"Related business object.",d:"position ID from the worker's position",on:["s6","w6"],ed:["e6"]},
+{t:"Computed column = calculated field",p:"A new column made from other fields, like full name or a date in text.",k:"Create Calculated Field.",d:"Full name = last name, first name",on:["s7","w7"],ed:["e7"]},
+{t:"Put it all in one sentence",p:"Say it in order. If you can write the sentence, you can build the report.",k:"SELECT, FROM, WHERE, ORDER BY, prompts.",d:"SELECT employee ID, name, position ID, job profile, org, cost center\nFROM all workers\nWHERE active AND country = Singapore\nAS OF today\nORDER BY employee ID\nONE ROW PER POSITION",on:["s1","s2","s3","s4","s5"]}
+]});
+
+A({id:"a-debug-report",title:"Debug a report: find the first wrong step",sum:"Check the report in order, from the data in to the value out.",part:"dl",tags:"debug report wrong row missing employee blank value filter field check",
+nodes:[["a","1 Run for one employee","one known worker","teal",70,16,220,44],["b","2 Is the person in the data?","data source","teal",70,74,220,44],["c","3 Does a filter remove them?","Filter tab, prompts","amber",70,132,220,44],["d","4 Is the field empty?","or no access","amber",70,190,220,44],["e","5 Is the value wrong?","calculated field, as-of date","amber",70,248,220,44],["f","6 Compare with the screen","Workday worker page","indigo",70,306,220,44],["g","7 Fix, retest, note","evidence","gray",70,364,220,44]],
+edges:[["e1","a","b"],["e2","b","c"],["e3","c","d"],["e4","d","e"],["e5","e","f"],["e6","f","g"]],
+steps:[
+{t:"Start small",p:"Run the report for one employee whose data you know. Do not debug 5,000 rows.",k:"One record.",d:"Prompt: worker = E9001",on:["a"]},
+{t:"Is the person in the data?",p:"Run with no filters. If the person is not there, the data source does not hold them.",k:"Wrong data source, or worker type excluded.",on:["b"],ed:["e1"]},
+{t:"Does a filter remove them?",p:"Add filters back one by one. When the person disappears, that filter is the cause.",k:"Check each filter and each prompt value.",d:"Add filter 1: still there\nAdd filter 2: gone",on:["c"],ed:["e2"]},
+{t:"Is the field empty?",p:"A blank can mean the data is empty or you lack access. Run the report as a user who has access.",k:"Blank calculated fields can mean no access.",on:["d"],ed:["e3"]},
+{t:"Is the value wrong?",p:"Check the calculated field and the as-of dates. Wrong dates give old values.",k:"Effective date and entry moment.",on:["e"],ed:["e4"]},
+{t:"Compare with the screen",p:"Open the worker in Workday and compare each wrong value with the screen.",k:"Source of truth.",on:["f"],ed:["e5"]},
+{t:"Fix and prove it",p:"Fix one thing, re-run, and write down what you changed and why.",k:"Change log and evidence.",on:["g"],ed:["e6"]}
+]});
+
+A({id:"a-unit-test",title:"Unit test a worker report",sum:"A short ladder of dummy employees that finds most defects.",part:"dl",tags:"unit test employee two jobs back-dated terminated special characters empty test cases",
+nodes:[["t1","1 Normal worker","one job, active","teal",15,16,150,48],["t2","2 Two jobs","primary and additional","teal",195,16,150,48],["t3","3 Back-dated change","effective date in the past","amber",15,92,150,48],["t4","4 Terminated worker","last day passed","amber",195,92,150,48],["t5","5 Odd text","apostrophe, accents, long name","amber",15,168,150,48],["t6","6 Empty fields","no middle name","amber",195,168,150,48],["t7","7 Big volume","time and size","indigo",15,244,150,48],["t8","8 Evidence","table, screens, counts","gray",195,244,150,48]],
+edges:[["e1","t1","t2"],["e2","t2","t3",{from:"b",to:"t"}],["e3","t3","t4"],["e4","t4","t5",{from:"b",to:"t"}],["e5","t5","t6"],["e6","t6","t7",{from:"b",to:"t"}],["e7","t7","t8"]],
+steps:[
+{t:"Normal worker",p:"One active worker, one job. Every field must match the Workday screen.",k:"Happy path.",d:"E9001 Priya Test\nExpected: all fields match",on:["t1"]},
+{t:"Two jobs",p:"A worker with two jobs must give two rows if that is what was agreed.",k:"Rows = jobs.",d:"E9002: 2 jobs\nExpected: 2 rows",on:["t2"],ed:["e1"]},
+{t:"Back-dated change",p:"A change entered today with an old effective date. Does the report show it when asked as of today? Does a delta catch it?",k:"Effective date vs entry moment.",d:"Entered 5 Nov\nEffective 1 Oct",on:["t3"],ed:["e2"]},
+{t:"Terminated worker",p:"A worker whose last day has passed. Is the worker in or out as the requirement says?",k:"Termination is effective at the end of the last day.",on:["t4"],ed:["e3"]},
+{t:"Odd text",p:"Apostrophes, accents and long names often break files.",k:"Encoding, quoting, length.",d:"O'Neil, Zoë, a 60-character name",on:["t5"],ed:["e4"]},
+{t:"Empty fields",p:"Empty values should follow the agreed rule: blank or a default.",k:"Null vs empty.",on:["t6"],ed:["e5"]},
+{t:"Big volume",p:"Run for everyone. Check time, size and row count.",k:"Limits, timeouts.",d:"Expected rows = number of positions",on:["t7"],ed:["e6"]},
+{t:"Keep the evidence",p:"Table of tests: case, data, expected, actual, pass or fail, date, who. Screens with names masked.",k:"Test evidence for sign-off.",on:["t8"],ed:["e7"]}
+]});
+})();
+
 /* ---- content/support.js ---- */
 (function(){
 var P=BOOK.PB;
@@ -1438,6 +1499,74 @@ check:["Pick one route: report, Get_Workers web service, or Core Connector.","Fo
 evid:["Field names used","Dates used","Row count and job count"],who:"Your lead for report and field names in your tenant.",dont:"Do not trust a list of field names from a book. Check them in your own tenant.",tags:"positions staffing events multiple jobs how to"});
 })();
 
+/* ---- content/consultant.js ---- */
+(function(){
+var E=BOOK.E,P=BOOK.PB,T=BOOK.TP,C=BOOK.CK;
+var Z="New consultant: step by step";
+
+/* ---------- playbooks (steps are in order) ---------- */
+P({area:Z,title:"Step 1. Break down a requirement",sym:"You were given a request like 'send payroll the employee positions'. You do not know where to start.",
+may:["The request is short but has hidden details","Words like 'all' or 'active' mean different things to different people","The receiver's format is not known yet"],
+check:["Write the request in one sentence in your own words and send it back to confirm.","Ask the six questions: who gets it, what data, when it runs, where the file goes, how many records, what 'done' looks like.","Ask the meaning of each word: 'employee' (also contractors?), 'active' (on leave? future-dated hires?), 'all' (which companies and countries?).","Ask for the receiver's file spec and one sample file.","Ask for the as-of rule: today, or a date the user picks?","Write down what is out of scope.","Ask who will sign off."],
+evid:["The one-sentence requirement","Answers to the six questions","Sample file from the receiver"],who:"The person who raised the request, and the receiver.",dont:"Do not start building until the receiver's format and the meaning of 'active' are written down.",tags:"requirement breakdown questions start"});
+
+P({area:Z,title:"Step 2. Write the expectations table",sym:"You know what the business wants. You need a clear list of fields.",
+may:["Fields have different names in Workday and in the file","Some fields need rules (date format, codes, defaults)","Some fields come from related objects"],
+check:["Make a table with these columns: file field name, meaning, where it comes from in Workday, rule, example, can it be empty.","Fill one row per field from the receiver's spec.","For each row, find the Workday field. Use the Business Object Details report on the Worker object to list fields.","Write the rule: copy as is, format a date, translate a code, join text, default when empty.","Add one real example value (dummy) for each row.","Mark rows you are not sure about and ask.","Send the table back for sign-off before you build."],
+evid:["The expectations table","Sign-off message"],who:"Receiver for the file field list; HR or payroll for the meaning.",dont:"Do not guess a Workday field name. Check it in your tenant.",tags:"expectations mapping table fields rules"});
+
+P({area:Z,title:"Step 3. Write the SELECT in English",sym:"You have the table. You need to know how to say it as a report.",
+may:["You are not sure which data source to use","You are not sure what counts as one row"],
+check:["Write: SELECT (the columns), FROM (the data source), WHERE (the rules for which rows), ORDER BY (the order).","Write what one row means, for example 'one row per position'.","Write the prompts, for example 'as of date' and 'organization'.","Write the calculated fields you need and the rule for each.","Read the sentence to a teammate. Does it match the requirement?","Example: SELECT employee ID, name, position ID, job profile, org, cost center FROM all workers WHERE active AND country is Singapore AS OF today ORDER BY employee ID. ONE ROW PER POSITION."],
+evid:["The SELECT sentence"],who:"Your lead for review.",dont:"Do not say 'I will just build it and see'. A written sentence saves hours.",tags:"select sql english translate"});
+
+P({area:Z,title:"Step 4. Build the report",sym:"You have the SELECT sentence. You need to make the report in Workday.",
+may:["The data source does not have the field","A field is on a related object","You are not allowed to create reports"],
+check:["Check you have access to create custom reports (ask if the task is missing).","Run the Create Custom Report task. Give it a clear name. Choose Report Type Advanced and your Data Source.","If you can, copy a close standard report to a custom report first (Copy Standard Report to Custom Report).","Columns tab: add each field. Use Column Heading Override for the name the receiver wants.","Filter tab: add one filter at a time. Use 'Prompt the user for the value' when the value changes.","Sort tab: add the sort.","Prompts tab: set the labels and defaults.","Advanced tab: tick Enable As Web Service if an integration will read it, and choose the current Web Service API Version.","Share tab: share it with the right group.","Run it for one dummy employee."],
+evid:["Report name","Screenshots of each tab (mask data)","One sample output"],who:"Your lead; the report owner for existing reports.",dont:"Never use a standard report directly in an integration. Copy it first.",tags:"build report custom report steps"});
+
+P({area:Z,title:"Step 5. Check one employee has all the details",sym:"The report runs. You need to prove it is right for a real-looking employee.",
+may:["A field is empty because of access","A field is wrong because of the as-of date","Only the primary job appears"],
+check:["Pick a dummy employee with known data. Open the worker's pages in Workday.","Make a two-column list: 'On the Workday screen' and 'In the report'.","Run the report with the prompt set to that employee.","Compare each field. Mark match or not.","Check the job: does the report show every job or only the primary job?","Check dates: hire date, effective date, as-of date.","Check codes: are they the receiver's codes after translation?","Check empty fields: is it blank in Workday too?","Save the comparison."],
+evid:["Comparison table (masked)","Screenshots of both sides"],who:"HR operations for the real record if needed.",dont:"Do not use a real employee's data in tickets or chat.",tags:"check employee details compare one worker"});
+
+P({area:Z,title:"Step 6. Debug a report that is wrong",sym:"A row is missing, a value is wrong, or a column is blank.",
+may:["The person is not in the data source","A filter removes them","The field is empty or you lack access","The value is wrong from a calculated field or as-of date"],
+check:["Run for one employee only.","Remove all filters. Is the person there? If not, the data source is wrong.","Add filters back one at a time. The filter that removes the person is the cause.","Check access: run as a user with access, or ask the security administrator.","Check the calculated field inputs one by one.","Check the as-of effective date and entry moment.","Compare with the Workday screen.","Change one thing at a time and re-run.","Write what you changed."],
+evid:["Before and after output","The change you made"],who:"Your lead; security administrator for access.",dont:"Do not change many things at once. You will not know what fixed it.",tags:"debug report wrong blank missing"});
+
+P({area:Z,title:"Step 7. Unit test the report",sym:"You need to prove the report is ready for the next test.",
+may:["Happy path passes but edge cases fail"],
+check:["Make a test table: case, data, expected, actual, pass or fail, date, who.","Test 1: normal worker, one job.","Test 2: worker with two jobs.","Test 3: back-dated change.","Test 4: terminated worker.","Test 5: name with apostrophe, accent or long text.","Test 6: empty fields.","Test 7: full volume: row count equals the expected number, check run time.","Fix failures, re-run the failed tests and the neighbours.","Save the table and screenshots for sign-off."],
+evid:["Test table","Screenshots","Row counts"],who:"Your lead; the tester for SIT.",dont:"Do not skip the two-jobs and back-dated tests.",tags:"unit test cases edge evidence"});
+
+P({area:Z,title:"Worked example: 'positions of all active employees'",sym:"Requirement: 'Give payroll all positions for active employees in Singapore, daily.' All data here is dummy.",
+may:["'Active' might include people on leave","'Positions' might mean additional jobs too","'Daily' needs a time and time zone"],
+check:["Questions asked: is leave included? additional jobs included? time? file format? receiver?","Answers: leave included; all jobs; 02:10 SGT; CSV pipe-delimited; payroll vendor via SFTP.","Expectations table: EMP_ID, NAME, POSITION_ID, JOB_PROFILE, ORG, COST_CENTER, START_DT, PRIMARY_FLAG.","SELECT in English: employee ID, name, position ID, job profile, org, cost center, start date, primary flag FROM all workers WHERE active (including leave) AND country is Singapore AS OF today ORDER BY employee ID, one row per position.","Build the report. Check the fields that return all positions in Business Object Details.","Unit test: E9001 one job (1 row), E9002 two jobs (2 rows), E9003 back-dated, E9004 terminated yesterday, E9005 name O'Neil.","Count: expected rows = number of positions.","Wrap with an EIB or Core Connector, then schedule with an odd minute and the right time zone.","Reconcile with the receiver after the first run."],
+evid:["All the above"],who:"Your lead and the payroll contact.",dont:"Do not skip the questions. Most defects start with a wrong meaning of 'active'.",tags:"worked example positions active employees"});
+
+/* ---------- terms ---------- */
+function X(t,m,x,f,lv,k,tags,aka){return E("rp",t,m,x,f,lv||1,k||"g",tags,aka)}
+X("SELECT (in English)","Say which columns you want, written as a list.","SELECT employee ID, name, hire date.","In Workday you do this on the Columns tab of a report.",1,"g","select sql report");
+X("FROM (data source)","Say where the rows come from.","FROM all workers.","In a report this is the data source.",1,"g","select sql report");
+X("WHERE (filter)","Say which rows to keep.","WHERE active AND country = Singapore.","In a report this is the Filter tab.",1,"g","select sql report");
+X("ORDER BY (sort)","Say the order of the rows.","ORDER BY employee ID.","In a report this is the Sort tab.",1,"g","select sql report");
+X("JOIN (related fields)","Use data from another connected object.","Position ID from the worker's position.","In a report you pick fields from a related business object.",2,"g","select sql report");
+X("One row per what?","Decide what one row means before you build.","One row per worker, or one row per position.","The most important question for a file. Two jobs mean two rows if it is per position.",1,"g","select report row");
+X("Expectations table","A table that lists each output field, where it comes from, its rule and an example.","EMP_ID | Employee ID | as is | E9001.","Build it before the report. It is the same as a mapping sheet.",1,"g","expectations mapping requirement");
+X("Requirement breakdown","Turning a short request into questions, a table and a SELECT sentence.","Who, what, when, where, how many, done.","Do it in writing and get it confirmed.",1,"g","requirement breakdown");
+X("Definition of done","What must be true for the work to be accepted.","Counts match and payroll signs off.","Ask for it at the start.",1,"g","requirement");
+X("Acceptance criteria","A checklist the business uses to accept the work.","All active workers present; dates in YYYY-MM-DD.","Turn each criterion into a test.",2,"g","requirement test");
+X("Happy path","The normal case when everything is fine.","Active worker, one job.","Test it first, then the odd cases.",2,"g","test");
+X("Test table","A table of tests with expected and actual results.","Case, data, expected, actual, pass, date, who.","Keep it as evidence.",1,"g","test evidence");
+
+/* ---------- template and checklists ---------- */
+T({title:"Requirement breakdown sheet",when:"Start of any new integration or report.",body:"Requirement in one sentence:\n\nWho gets it:\nWhat data:\nWhen it runs (time and time zone):\nWhere it goes (folder, system):\nHow many records:\nDone means:\n\nMeaning of words:\n- employee =\n- active =\n- all =\nAs-of rule:\nOne row per:\nOut of scope:\nReceiver's spec and sample file:\nSign-off by:\n\nExpectations table:\nField | Meaning | From Workday | Rule | Example | May be empty\n\nSELECT in English:\nSELECT\nFROM\nWHERE\nORDER BY\nPrompts:\nCalculated fields:"});
+T({title:"Unit test table",when:"Testing a report or integration.",body:"Case | Data (dummy) | Expected | Actual | Pass or fail | Date | Who\n1 Normal worker, one job\n2 Worker with two jobs\n3 Back-dated change\n4 Terminated worker\n5 Name with apostrophe or accent\n6 Empty fields\n7 Full volume: rows = positions"});
+C({title:"Check one employee",items:["Pick a dummy employee with known data","Open the worker screens in Workday","Run the report for that employee","Compare each field with the screen","Check every job is present","Check dates and as-of values","Check codes after translation","Check empty fields match Workday","Save the comparison"]});
+C({title:"Report debug order",items:["Run for one employee","Remove filters: is the person there?","Add filters back one at a time","Check access to fields","Check calculated field inputs","Check as-of dates","Compare with the Workday screen","Change one thing at a time","Write down the change"]});
+})();
+
 /* ---- content/comms.js ---- */
 (function(){
 var H=BOOK.PH,T=BOOK.TP,C=BOOK.CK;
@@ -1522,6 +1651,7 @@ j("What you do","Work with HR, payroll, IT and vendors","Speak plainly and keep 
 j("What you do","Security, privacy and change management","Protect data and follow the change process.","security privacy change",[["Access","#a-security"],["Search PII","q:pii"],["Search change request","q:change request"]]);
 j("What you do","Multiple jobs per worker","Understand primary and additional jobs.","multiple jobs",[["Two jobs","#a-two-jobs"],["Search multiple jobs","q:multiple jobs"]]);
 j("What you do","Worker history and effective dating","Read history with two dates.","history effective entry",[["History","#a-worker-history"],["Time travel","#l-time"],["Back-dated","#a-backdated"]]);
+j("Skills to build","Break down a requirement and build the report","Turn a short request into questions, a table, a SELECT sentence, a report and tests.","requirement select report unit test debug",[["Step by step","#a-req-to-report"],["SELECT in English","#a-select-english"],["Debug","#a-debug-report"],["Unit test","#a-unit-test"],["Playbooks","#playbooks"]]);
 j("Skills to build","Read XML and XPath","Find a value in XML without help.","xml",[["Lab","#l-xpath"]]);
 j("Skills to build","Compare lists","Spot missing and extra IDs fast.","recon",[["Lab","#l-recon"],["Animation","#a-reconcile"]]);
 j("Skills to build","Check a CSV","Catch delimiter, quote and date problems.","csv",[["Lab","#l-csv"]]);

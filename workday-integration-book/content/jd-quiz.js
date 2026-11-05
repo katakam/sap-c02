@@ -15,6 +15,7 @@ j("What you do","Work with HR, payroll, IT and vendors","Speak plainly and keep 
 j("What you do","Security, privacy and change management","Protect data and follow the change process.","security privacy change",[["Access","#a-security"],["Search PII","q:pii"],["Search change request","q:change request"]]);
 j("What you do","Multiple jobs per worker","Understand primary and additional jobs.","multiple jobs",[["Two jobs","#a-two-jobs"],["Search multiple jobs","q:multiple jobs"]]);
 j("What you do","Worker history and effective dating","Read history with two dates.","history effective entry",[["History","#a-worker-history"],["Time travel","#l-time"],["Back-dated","#a-backdated"]]);
+j("Skills to build","Break down a requirement and build the report","Turn a short request into questions, a table, a SELECT sentence, a report and tests.","requirement select report unit test debug",[["Step by step","#a-req-to-report"],["SELECT in English","#a-select-english"],["Debug","#a-debug-report"],["Unit test","#a-unit-test"],["Playbooks","#playbooks"]]);
 j("Skills to build","Read XML and XPath","Find a value in XML without help.","xml",[["Lab","#l-xpath"]]);
 j("Skills to build","Compare lists","Spot missing and extra IDs fast.","recon",[["Lab","#l-recon"],["Animation","#a-reconcile"]]);
 j("Skills to build","Check a CSV","Catch delimiter, quote and date problems.","csv",[["Lab","#l-csv"]]);
