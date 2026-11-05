@@ -1,0 +1,64 @@
+(function(){
+var H=BOOK.PH,T=BOOK.TP,C=BOOK.CK;
+function ph(theme,say,means,fits,expect,ask,reply){H({theme:theme,say:say,means:means,fits:fits,expect:expect,ask:ask,reply:reply})}
+
+ph("Deadlines","Need this ASAP","Soon. No fixed time.","Urgent requests","A fast reply with a time.","What time and time zone do you need it by?","I will send it by 4 pm SGT today. I will tell you early if that changes.");
+ph("Deadlines","Please send it by EOD","By the end of your working day.","Daily tasks","A file or answer before you finish for the day.","End of which day and which time zone?","I will send it by 6 pm SGT.");
+ph("Deadlines","By COB tomorrow","Close of business tomorrow.","Same as EOD","An update tomorrow.","Shall I send it by 6 pm Singapore time?","Yes, I will send it by 6 pm SGT tomorrow.");
+ph("Deadlines","What is your ETA?","How long until you finish?","Fixes and tasks","A time estimate.","Is a range fine, for example 2 to 3 hours?","My ETA is 3 pm SGT. I will update you at 1 pm if it changes.");
+ph("Deadlines","Let us circle back","We will talk again later.","Meetings","A new date.","When shall we meet again?","Noted. I will set a reminder for Thursday.");
+ph("Deadlines","This is a hard stop","A fixed time with no extension.","Cut-offs","Be ready before then.","What happens if we miss it?","Understood. I will plan to finish a day before.");
+ph("Asking","Please revert","Please reply.","Emails","A written answer.","By when do you need the reply?","Replied below. Please confirm.");
+ph("Asking","Kindly do the needful","Please do what is required.","Requests","Action.","What exactly should I do?","I will do X and Y by Friday. Please tell me if I missed anything.");
+ph("Asking","Please confirm receipt","Say you got it.","Files and approvals","A short reply.","Anything else needed?","Received, thank you.");
+ph("Asking","Can you loop in Ravi?","Add Ravi to the email.","Threads","Ravi added.","Which email address should I use?","Looping in Ravi.");
+ph("Asking","Do you have bandwidth?","Do you have time?","Planning","An honest answer.","What is the size of the task?","I can take this after Wednesday. I am busy until then.");
+ph("Asking","Could you take this offline?","Discuss outside the meeting.","Long debates","A smaller chat later.","Who should join?","Yes. I will set up 20 minutes tomorrow.");
+ph("Asking","Please walk me through it","Explain step by step.","Reviews","A calm explanation.","Which part first?","Sure. I will share my screen and start from the file.");
+ph("Info","FYI","For your information.","Updates","Read it. Maybe reply.","Do I need to act?","Thanks for the FYI.");
+ph("Info","PFA the file","The file is attached.","Emails","Open it.","If missing: could you resend?","Received the attachment, thank you.");
+ph("Info","Heads-up","Early warning.","Changes","Note the change.","When and what is affected?","Thanks for the heads-up. I will check the impact.");
+ph("Info","Per my last email","I already told you.","Follow-ups","A reply with the answer.","Could you point me to the line?","Thanks. I re-read your last email. The answer is below.");
+ph("Info","Noted","I read it.","Many","Nothing more.","Is any action needed from me?","Noted.");
+ph("Info","TBC / TBD","Not decided / not confirmed.","Plans","A later answer.","Who will confirm and by when?","I will treat it as open until you confirm.");
+ph("Project","We are blocked","Cannot continue.","Status","Help.","What do you need to unblock?","We are blocked by X. We need Y from Z by Friday.");
+ph("Project","Out of scope","Not in the agreed work.","Change requests","A decision.","Who approves a change?","This looks out of scope. I will raise it with my lead.");
+ph("Project","Scope creep","Work keeps growing.","Projects","Control.","What is in and out?","I will note this as a request for review.");
+ph("Project","Go or no-go","Decision to go live.","Release","Evidence.","What are the criteria?","Here is the test summary and open items.");
+ph("Project","Can you sign off?","Formal yes.","Tests","Approval in writing.","What exactly am I approving?","Please reply 'Approved' with the date.");
+ph("Project","Raise a flag","Warn others.","Risks","Early warning.","What is the risk?","I am raising a flag on the cut-off date.");
+ph("Project","RAG status is amber","At risk.","Status reports","Reasons.","What is needed to turn green?","Amber because the vendor test file is late. I need it by Friday.");
+ph("Incident","What is the impact?","Who or what is hurt?","Incidents","Facts.","How many workers or files?","About 40 workers are not in today's file.");
+ph("Incident","Can you share a timeline?","List events with times.","Incidents","A time list.","Which time zone?","Timeline in SGT: 02:10 run, 02:12 failed.");
+ph("Incident","Do we have a workaround?","A temporary route.","Pressure moments","A plan B.","Who approves it?","Yes, a manual upload. It needs approval from payroll.");
+ph("Incident","Let us escalate","Pass to a senior person.","Serious","A senior join.","What facts do we give?","I will send a summary with impact and what I tried.");
+ph("Incident","RCA please","Find the root cause.","After fix","A written report.","By when?","I will share the draft RCA in two working days.");
+ph("Incident","P1 incident","Top priority.","Critical issue","Immediate attention.","What is the SLA?","I am on it. Next update in 30 minutes.");
+ph("Meetings","Take an action","You own a task.","Meetings","Do it by the date.","By when?","I will take it and update by Friday.");
+ph("Meetings","Parking lot","Later.","Meetings","A future talk.","Who owns it?","Added to the parking lot. I will follow up.");
+ph("Meetings","Quick sync","Short call.","Scheduling","15 minutes.","Agenda?","Yes. 3 pm works. I will send an agenda.");
+ph("Meetings","Stand-up","Daily 15 minutes.","Teams","Three lines.","What format?","Done: X. Doing: Y. Blocked: Z.");
+ph("Meetings","MoM please","Minutes of meeting.","After meetings","Notes.","Who sends?","I will send the MoM by end of day.");
+ph("Meetings","Hypercare","Extra support after go-live.","Go-live","Daily checks.","How long?","Two weeks. I will post daily status.");
+ph("Meetings","KT session","Knowledge transfer.","Handover","Teach and learn.","Recording?","I will record it and share notes.");
+ph("Meetings","OOO","Out of office.","Leave","Delay.","Backup?","Thanks. I will contact your backup.");
+ph("Meetings","Ping me","Message me.","Chat","A short chat.","Where?","Will ping you on chat.");
+ph("Meetings","Do we have buy-in?","Does everyone agree?","Decisions","A yes or no.","Who needs to agree?","HR and payroll agreed. IT has not replied.");
+
+T({title:"Daily status update",when:"Each day to your lead or team.",body:"Subject: Status {date} - {integration}\n\nHi {name},\n\nDone today:\n- \n\nDoing next:\n- \n\nBlocked / need help:\n- \n\nRisks:\n- \n\nThanks,\n{your name}"});
+T({title:"Ask for access (request)",when:"When you need access.",body:"Subject: Access request - {system} - {role}\n\nHi {name},\n\nPlease can I get {role} access to {system}.\nReason: {task / ticket}.\nPeriod: {until when}.\nApproved by: {manager}.\n\nI need only: {specific domain or folder}.\n\nThanks,\n{your name}"});
+T({title:"Incident: first update",when:"As soon as you know something is wrong.",body:"Subject: INCIDENT - {integration} - {symptom}\n\nTime noticed ({time zone}): \nImpact: \nWhat we know: \nWhat we are doing: \nNext update at: \nContact: "});
+T({title:"Incident: closing note",when:"When fixed.",body:"Subject: RESOLVED - {integration} - {symptom}\n\nStart and end ({time zone}): \nImpact: \nCause (short): \nFix: \nChecks done: \nFollow-up actions with owner and date: \nRCA by: "});
+T({title:"Ask the vendor for a log",when:"File sent but not loaded.",body:"Subject: Missing load - {file name} - {date}\n\nHi {vendor contact},\n\nWe sent {file name} at {time and time zone} to {folder}. Please confirm:\n1. Did you receive it?\n2. Did it load? How many rows?\n3. Any errors? Please send the log lines.\n\nThanks,\n{your name}"});
+T({title:"Handover note",when:"Passing work to another person or team.",body:"Integration: \nPurpose: \nSource and target: \nSchedule and time zone: \nFile name, folder, host: \nSecurity: ISU name, group, key expiry dates: \nChecks to do each run: \nKnown problems and fixes: \nContacts: \nWhere documents are: "});
+T({title:"RCA outline",when:"After a serious incident.",body:"1. Summary\n2. Impact\n3. Timeline ({time zone})\n4. Root cause (5 Whys)\n5. What worked / what did not\n6. Fix\n7. Preventive actions (owner, date)\n8. Evidence links"});
+T({title:"Meeting follow-up (MoM)",when:"Right after a meeting.",body:"Subject: MoM - {meeting} - {date}\n\nAttendees: \nDecisions:\n- \nActions (owner, date):\n- \nOpen questions:\n- \nNext meeting: "});
+T({title:"Request test data",when:"You need sample data.",body:"Subject: Request for dummy test data\n\nHi {name},\n\nI need dummy workers for testing: new hire, leaver, two jobs, back-dated change, name with apostrophe, long name. Please do not send real data.\n\nThanks,\n{your name}"});
+T({title:"Polite chase",when:"No reply after the date.",body:"Hi {name},\n\nGentle reminder on {topic}. We need your reply by {date and time zone} to keep {milestone}. Happy to help if anything is unclear.\n\nThanks,\n{your name}"});
+
+C({title:"Before go-live",items:["Requirement signed off","Mapping reviewed","SIT passed with evidence","UAT signed","Security: ISU, group, permissions activated","Keys and certificates dates noted","Schedule and time zone confirmed","Vendor ready and contact on call","Rollback plan written","Change request approved","Monitoring and alerts set","Runbook and handover written"]});
+C({title:"Daily monitoring",items:["Did each integration run?","Statuses: Completed, Warnings, Errors?","Delivery done?","Row counts as expected?","Vendor loaded the file?","Open errors cleared?","Anything in the log you cannot explain?","Daily log updated"]});
+C({title:"Incident call roles",items:["Lead: runs the call","Scribe: writes timeline and actions","Technical: investigates","Communicator: updates stakeholders","Time zone agreed","Next update time agreed","Actions have owner and date"]});
+C({title:"Before you build",items:["Who is the audience?","What is the source?","What is the target and its spec?","What is the schedule and time zone?","Full or delta?","Which workers are in scope?","Multiple jobs handled?","Back-dated changes handled?","Error handling agreed","Security and privacy checked","Test data planned"]});
+C({title:"Before sending an email",items:["Subject says what and when","One main ask","Date and time zone included","No real personal data","Right people on To and Cc","Attachment present"]});
+})();

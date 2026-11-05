@@ -1,0 +1,65 @@
+(function(){
+var J=BOOK.JD,Q=BOOK.Q;
+function j(area,item,plain,tags,go){J({area:area,item:item,plain:plain,tags:tags,go:go||[]})}
+
+j("What you do","Design, build and deploy inbound and outbound integrations","Move data into Workday and out of Workday and prove it works.","inbound outbound integration",[["Integrations","#t-integration"],["Animation","#a-flow"],["Inbound EIB","#a-eib-in"]]);
+j("What you do","Workday Studio, EIB, Core Connectors, Document Transformation, Workday Web Services","Know the five tools and when to use each.","studio eib connector",[["EIB","#a-eib-out"],["Core Connector","#a-core-connector"],["Studio","#a-studio"],["Search XSLT","q:xslt"]]);
+j("What you do","REST and SOAP APIs","Call or serve Workday data over the web.","rest soap",[["SOAP and REST","#a-api-types"],["HTTP codes","#a-http"]]);
+j("What you do","XML, XSLT, XPath, JSON, SFTP","Read and shape the formats; move the files.","xml xslt xpath json sftp",[["XPath lab","#l-xpath"],["SFTP","#a-sftp"],["Search JSON","q:json"]]);
+j("What you do","Custom Reports, RaaS, Calculated Fields","Build the reports that feed integrations.","report raas calc",[["Search RaaS","q:raas"],["Search calculated","q:calculated field"]]);
+j("What you do","Payroll integrations: PECI, PICOF, regional payroll providers","Send data to payroll vendors correctly and on time.","payroll peci picof",[["Payroll flow","#a-payroll-flow"],["Payroll data","#a-payroll-objects"],["Search PECI","q:peci"]]);
+j("What you do","SIT, UAT, deployment and support","Test, get approval, go live and keep it running.","sit uat support",[["Life cycle","#a-lifecycle"],["Environments","#a-environments"],["Troubleshoot","#a-troubleshoot"]]);
+j("What you do","Monitoring, RCA and incident calls","Watch runs, find root causes, and talk clearly under pressure.","monitoring rca incident",[["Playbooks","#playbooks"],["Search RCA","q:rca"],["Phrases","#meetings"]]);
+j("What you do","Specs, mappings and test evidence","Write down what you build and prove it works.","spec mapping evidence",[["Mapping lab","#l-map"],["Search mapping","q:mapping"]]);
+j("What you do","Work with HR, payroll, IT and vendors","Speak plainly and keep everyone informed.","stakeholders",[["Email words","q:revert"],["Templates","#meetings"]]);
+j("What you do","Security, privacy and change management","Protect data and follow the change process.","security privacy change",[["Access","#a-security"],["Search PII","q:pii"],["Search change request","q:change request"]]);
+j("What you do","Multiple jobs per worker","Understand primary and additional jobs.","multiple jobs",[["Two jobs","#a-two-jobs"],["Search multiple jobs","q:multiple jobs"]]);
+j("What you do","Worker history and effective dating","Read history with two dates.","history effective entry",[["History","#a-worker-history"],["Time travel","#l-time"],["Back-dated","#a-backdated"]]);
+j("Skills to build","Read XML and XPath","Find a value in XML without help.","xml",[["Lab","#l-xpath"]]);
+j("Skills to build","Compare lists","Spot missing and extra IDs fast.","recon",[["Lab","#l-recon"],["Animation","#a-reconcile"]]);
+j("Skills to build","Check a CSV","Catch delimiter, quote and date problems.","csv",[["Lab","#l-csv"]]);
+j("Skills to build","Mapping sheets","Write field-by-field maps.","mapping",[["Lab","#l-map"]]);
+j("Skills to build","Dates and time zones","Avoid off-by-one dates.","date",[["Lab","#l-dates"]]);
+j("Skills to build","Clear email","Short, specific, with dates and zones.","email",[["Templates","#meetings"],["Search FYI","q:fyi"]]);
+j("Skills to build","Calm incident handling","Facts, timeline, next update time.","incident",[["Search incident","q:incident"],["Playbooks","#playbooks"]]);
+
+function q(part,qq,o,a,w){Q({part:part,q:qq,o:o,a:a,w:w})}
+q("ac","What does PFA mean in an email?",["Please find attached","Please find a way","Payroll file approved","Pay from account"],0,"PFA means please find attached. The file is attached.");
+q("ac","'Reply by EOD'. What should you confirm?",["Which day and time zone","The font","Who is on leave","The file name"],0,"EOD is not exact. Ask for the day and time zone.");
+q("em","In many Asian offices, 'please revert' means:",["Undo your change","Please reply","Go back to the old version","Cancel"],1,"In this use, revert means reply.");
+q("if","What does a delta file contain?",["Everyone","Only changes since the last good run","Only errors","Only leavers"],1,"A delta sends only what changed.");
+q("if","Why is 'Completed' not proof the file arrived?",["Delivery is a separate step","Completed means failed","Files arrive later","It is only a label"],0,"Delivery to the destination is separate. Check both.");
+q("fm","In HTTP, what does 403 mean?",["Wrong address","Known user but no permission","Server busy","Success"],1,"403 is authorization failed.");
+q("fm","Which is true for Workday permissions?",["Get/Put apply to REST","Get/Put apply to SOAP; REST uses View/Modify","Only View exists","Permissions do not matter"],1,"Integration permissions (Get/Put) apply to SOAP.");
+q("fm","What is XPath for?",["Pointing at a part of XML","Sending files","Encrypting","Scheduling"],0,"XPath selects parts of an XML document.");
+q("hr","Which term do the Workday guides use for a second job?",["Concurrent employment","Additional job","Dual role","Shadow job"],1,"The guides say primary job and additional jobs.");
+q("hr","Where is the staffing model set?",["For the whole tenant","On each supervisory organization","On each report","On each worker"],1,"Staffing model is per supervisory organization.");
+q("hr","What are the two dates in worker history?",["Start and end","Effective date and entry moment","Hire and birth","Report and run"],1,"Effective date: when it counts. Entry moment: when it was typed.");
+q("hr","Where does a manager sit in the org tree?",["In the team they manage","In the organization above the team","Outside Workday","Nowhere"],1,"The manager belongs to the parent organization.");
+q("hr","What does Rescind do?",["Stops an in-progress process","Reverses a completed process","Deletes history","Edits in place"],1,"Rescind reverses a completed process. Cancel stops in-progress. Correct edits in place.");
+q("rp","Which report should an integration use?",["A standard report directly","A custom report enabled as a web service","Any screenshot","A saved search"],1,"Copy standard reports to a custom report and enable web service.");
+q("rp","A calculated field column is empty for an integration user. First check:",["The file name","Field access of the security group","The font","The time"],1,"Missing access gives blank or zero, not an error.");
+q("tl","EIB outbound allows how many data sources?",["One","Two","Any number","None"],0,"An EIB uses one data source and cannot pick fields.");
+q("tl","What does a Core Connector compare to find changes?",["Today with the last successful run","Two random files","Names only","Nothing"],0,"It compares this run with the last successful run.");
+q("tl","Where does a Studio integration run after you deploy it?",["On your PC","In the Workday cloud","In Excel","On the vendor server"],1,"Studio builds on your computer, runs in the Workday cloud.");
+q("py","Which is true about PICOF?",["It is a newer product than PECI","It is the Payroll Interface's output file format","It replaces PECI","It is a vendor"],1,"PICOF is the Payroll Interface Common Output File.");
+q("py","PECI vs PI: how does PECI differ?",["Sends every change in order","Sends only the final result","Sends nothing","Is only for contractors"],0,"PECI is full-stack; PI is top-of-stack.");
+q("py","Contingent workers and PECI/PI:",["Fully supported","Not supported; use WECI","Same as employees","Only in the US"],1,"Contingent workers cannot join pay groups; WECI is for them.");
+q("py","A back-dated change should be found by a delta using:",["Effective date only","Entry date","Name","Nothing"],1,"Use the entry date to catch late-entered changes.");
+q("py","'Payroll business objects' is:",["An official Workday list","A common phrase, not an official list","A report","A vendor"],1,"Show data sections and setup objects.");
+q("sc","Where do Get/Put permissions go?",["On the ISU only","On the security group the ISU belongs to","On the report","On the file"],1,"Permissions go to the group.");
+q("sc","After editing security, what is needed?",["Nothing","Activate Pending Security Policy Changes","Restart the laptop","A new report"],1,"Edits stay pending until activated.");
+q("sc","Which is safe in chat?",["A real national ID","A made-up dummy ID","A real password","A real bank number"],1,"Use dummy data.");
+q("dl","What is UAT?",["Tests by business users","Tests by the vendor","A report","A job title"],0,"User acceptance testing: business users approve.");
+q("dl","What is hypercare?",["Extra support after go-live","A medicine","A report type","A meeting"],0,"Extra support just after go-live.");
+q("dl","What is a good first step in an incident?",["Re-run everything","Collect facts: time, impact, logs","Blame someone","Wait"],1,"Facts first, then fix.");
+q("dl","RCA is:",["Root cause analysis","Report cache area","Remote call access","Run control area"],0,"Find the deepest cause.");
+q("em","'Take this offline' means:",["Turn off the computer","Discuss outside the meeting","Delete it","Cancel the project"],1,"Continue the talk elsewhere.");
+q("ac","'NRN' means:",["No reply needed","New report now","Next run number","Not ready now"],0,"No reply needed.");
+q("if","Why not re-run a failed primary run without checking?",["It can duplicate data or move the marker","It is free","It is illegal","It deletes Workday"],0,"Check the reason and approvals first.");
+q("hr","Which is true for contingent workers?",["They have pay groups","They cannot resign through resignation","They are always employees","They use the same ID type"],1,"They lack pay groups and resignation.");
+q("fm","What does a 401 mean?",["Authentication failed","Not found","Server error","OK"],0,"Login or token problem.");
+q("sc","Why use one ISU per integration?",["Easier tracing and least access","It is faster","It saves money","It is required by law"],0,"Traceability and least privilege.");
+q("rp","What does 'Enable as Web Service' do?",["Makes the report callable as a web service","Prints it","Deletes it","Hides it"],0,"It allows RaaS and EIB use.");
+q("py","Singapore CPF and IR8A details come from:",["The Workday guides we checked","Your payroll team and local rules","This quiz","The HTTP spec"],1,"The Workday guides we checked do not cover them.");
+})();

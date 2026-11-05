@@ -1,0 +1,11 @@
+BOOK.part("pc","1. Computer confidence","Files, folders, text, spreadsheets and staying safe. Start here if any of this feels shaky.");
+BOOK.part("ac","2. IT and office acronyms","Short forms you will see in every email and meeting: FYI, PFA, EOD, ETA and many more.");
+BOOK.part("em","3. Email and meeting words","The phrases people use at work. What they mean and how to answer.");
+BOOK.part("if","4. Integration foundations","What an integration is, and the ideas behind every one: source, target, files, schedules, errors.");
+BOOK.part("fm","5. Data formats and the web","CSV, XML, XPath, XSLT, JSON, dates, HTTP, SOAP and REST. The shapes data travels in.");
+BOOK.part("hr","6. Workday HR from zero","Workers, jobs, positions, organizations, history and business processes. The meaning behind the data.");
+BOOK.part("rp","7. Reports and data","Custom reports, calculated fields, prompts and Report as a Service (RaaS).");
+BOOK.part("tl","8. Workday integration tools","EIB, Core Connector, Document Transformation, Studio, web services and the integration system.");
+BOOK.part("py","9. Payroll","What payroll needs, the business objects behind it, PECI, cut-off dates, retro pay and checks.");
+BOOK.part("sc","10. Security and privacy","Who may do what, keys and certificates, and how to protect employee data.");
+BOOK.part("dl","11. Delivery and support","Requirements to go-live, testing, tickets, incidents, root cause and handover.");
