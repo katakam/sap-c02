@@ -81,4 +81,16 @@ steps:[
 {t:"5. Is the data right?",p:"Compare samples. Check dates, time zones, mappings, multiple jobs.",k:"Reconcile.",on:["e"],ed:["e4"]},
 {t:"Write it down",p:"Keep times, IDs, counts and logs. Then use the Playbooks tab for the exact symptom.",k:"Evidence helps RCA.",on:["x"],ed:["e5"]}
 ]});
+A({id:"a-positions",title:"How to get all positions from staffing events",sum:"Staffing events build the worker history. Each worker can have several jobs. Pick one route and make one row per job.",part:"hr",tags:"positions jobs staffing events history multiple jobs how to report get_workers connector",
+nodes:[["ev","Staffing events","Hire, Change Job, Transfer","teal",110,16,140,50],["hist","Worker history","every event has two dates","teal",110,96,140,50],["jobs","Jobs of one worker","primary + additional","amber",110,176,140,50],["rep","Route 1: Report","one row per job","indigo",15,266,100,60],["ws","Route 2: Web service","Get_Workers","indigo",130,266,100,60],["cc","Route 3: Connector","Include Multiple Positions","indigo",245,266,100,60],["out","Your list or file","check: rows = jobs","gray",110,366,140,50]],
+edges:[["e1","ev","hist"],["e2","hist","jobs"],["e3","jobs","rep",{from:"b",to:"t"}],["e4","jobs","ws",{from:"b",to:"t"}],["e5","jobs","cc",{from:"b",to:"t"}],["e6","rep","out",{from:"b",to:"t"}],["e7","ws","out",{from:"b",to:"t"}],["e8","cc","out",{from:"b",to:"t"}]],
+steps:[
+{t:"What is a staffing event?",p:"A staffing event is a change to a worker, such as Hire or Change Job. Workday saves each one.",k:"Each is a business process.",d:"Hire\nChange Job\nTransfer",on:["ev"],vis:["ev"]},
+{t:"Events make the history",p:"All the events together are the worker history. Each event has two dates: when it counts, and when it was typed.",k:"Effective date and entry moment.",d:"2024-01-15 Hire\n2025-07-01 Change Job",on:["hist"],ed:["e1"],vis:["ev","hist"]},
+{t:"A worker can have many jobs",p:"One worker can hold more than one job. One is primary. The others are additional.",k:"Positions.",d:"E9001\n Job 1: Data Analyst (primary)\n Job 2: Trainer",on:["jobs"],ed:["e2"],vis:["ev","hist","jobs"]},
+{t:"Pick one route",p:"Route 1 is a report. Route 2 is a web service call. Route 3 is a Core Connector. All three can give every job.",k:"Report needs fields for all positions. Check them in Business Object Details.",on:["rep","ws","cc"],ed:["e3","e4","e5"]},
+{t:"Watch the trap",p:"Most worker reports show only the primary job. If you do nothing, the other jobs are missing.",k:"Connector needs Include Multiple Positions (version 25 and above).",d:"Row: E9001, Data Analyst\n(Trainer is missing)",on:["jobs"],chip:["jobs","job 2 missing",true]},
+{t:"Make one row per job",p:"Write one row for each job. A worker with two jobs gives two rows.",k:"Row key: worker ID plus position ID.",d:"E9001, Data Analyst, primary\nE9001, Trainer, additional",on:["out"],ed:["e6","e7","e8"]},
+{t:"Check it",p:"Count the rows. They must equal the number of jobs, not the number of workers. Test with a worker who has two jobs.",k:"Also test back-dated and ended jobs.",on:["out"]}
+]});
 })();

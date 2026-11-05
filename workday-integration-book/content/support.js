@@ -111,4 +111,8 @@ P({area:"Judgement",title:"The vendor rejects the format",sym:"The vendor says t
 may:["Spec misunderstood","Header, trailer or delimiter wrong","Encoding or line ending","Field length or value not allowed"],
 check:["Ask for the exact error and line.","Compare the file with the spec.","Look at the first and last lines in a text editor.","Test a small file."],
 evid:["Vendor's message","File sample (dummy)"],who:"Vendor contact.",dont:"Do not guess new formats in Production.",tags:"vendor reject format"});
+P({area:"How do I...",title:"How do I get all positions from staffing events?",sym:"You need every job of every worker, using staffing events or worker history.",
+may:["Your report shows only the primary job","One row per worker hides extra jobs","Ended jobs are filtered out","Wrong as-of dates"],
+check:["Pick one route: report, Get_Workers web service, or Core Connector.","For a report: run Business Object Details on the Worker object and find the fields that return all positions.","For Get_Workers: set As_Of_Effective_Date and As_Of_Entry_DateTime yourself.","For a connector: turn on Include Multiple Positions.","Write one row per job.","Test with a worker who has two jobs. Count rows against jobs."],
+evid:["Field names used","Dates used","Row count and job count"],who:"Your lead for report and field names in your tenant.",dont:"Do not trust a list of field names from a book. Check them in your own tenant.",tags:"positions staffing events multiple jobs how to"});
 })();
