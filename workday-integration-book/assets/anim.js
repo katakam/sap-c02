@@ -46,7 +46,7 @@ function mount(host,spec){
     '<div class="pills" role="group" aria-label="Choose a step"></div>'+
     '<div class="cap" aria-live="polite"><h4></h4><p class="p"></p><p class="tech"></p></div>'+
     '<pre class="data" aria-label="Example data for this step"></pre>'+
-    '<div class="row"><button type="button" data-a="prev">Back</button><button type="button" data-a="next">Next</button><button type="button" data-a="play">Play</button></div>'+
+    '<div class="row"><button type="button" data-a="prev">Back</button><button type="button" data-a="next">Next</button><button type="button" data-a="play">Play</button><button type="button" data-a="listen" aria-pressed="false">Listen</button></div>'+
     '</div></div>';
   var sv=host.querySelector('.sv');
   var svg=S('svg',{viewBox:'0 0 360 '+H,role:'img','aria-label':spec.sum||spec.title,'class':'asvg'},sv);
@@ -115,8 +115,42 @@ function mount(host,spec){
   host.querySelector('[data-a=prev]').onclick=function(){stop();go(cur-1)};
   host.querySelector('[data-a=next]').onclick=function(){stop();go(cur+1)};
   playB.onclick=function(){if(timer)stop();else play()};
+  /* read aloud with the browser's own voice; no audio files needed */
+  var listenB=host.querySelector('[data-a=listen]'),listening=false,tok=0,SS=window.speechSynthesis;
+  if(!SS||!window.SpeechSynthesisUtterance){listenB.hidden=true}
+  function say(text,done){
+    var my=++tok;SS.cancel();
+    var u=new SpeechSynthesisUtterance(text);u.rate=0.95;u.lang='en-GB';
+    try{var vs=SS.getVoices()||[],v=null,i;
+      for(i=0;i<vs.length&&!v;i++)if(/^en[-_](IN|GB)/i.test(vs[i].lang))v=vs[i];
+      for(i=0;i<vs.length&&!v;i++)if(/^en/i.test(vs[i].lang))v=vs[i];
+      if(v){u.voice=v;u.lang=v.lang}}catch(e){}
+    var fin=false;function end(){if(fin||my!==tok)return;fin=true;done&&done()}
+    u.onend=end;u.onerror=end;
+    SS.speak(u);
+    setTimeout(end,Math.max(5000,text.length*95)+1500);
+  }
+  function spoken(i){var s=steps[i];return s.s||('Step '+(i+1)+'. '+s.t+'. '+(s.p||''))}
+  var _go=go;go=function(i){_go(i);if(listening)speakCur()};
+  function speakCur(){
+    if(!listening)return;
+    say(spoken(cur),function(){
+      if(!listening)return;
+      if(cur<steps.length-1){_go(cur+1);speakCur()}else stopListen();
+    });
+  }
+  function stopListen(){listening=false;tok++;if(SS)SS.cancel();listenB.textContent='Listen';listenB.setAttribute('aria-pressed','false')}
+  playB.onclick=function(){if(listening)stopListen();if(timer)stop();else play()};
+  listenB.onclick=function(){
+    if(listening){stopListen();return}
+    stop();listening=true;listenB.textContent='Stop listening';listenB.setAttribute('aria-pressed','true');speakCur();
+  };
+  steps.forEach(function(s,i){pills.children[i].onclick=function(){stop();go(i)}});
+  host.querySelector('[data-a=prev]').onclick=function(){stop();go(cur-1)};
+  host.querySelector('[data-a=next]').onclick=function(){stop();go(cur+1)};
+  window.addEventListener('hashchange',function(){if(listening)stopListen()});
   render();
-  return {go:go,stop:stop};
+  return {go:go,stop:function(){stop();stopListen()}};
 }
 window.Anim={mount:mount};
 })();
