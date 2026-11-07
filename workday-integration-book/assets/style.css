@@ -208,3 +208,4 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .quiz .opt{display:block;width:100%;text-align:left;margin-top:8px}
 .quiz .opt.right{border-color:var(--accent);background:var(--accent-soft)}
 .quiz .opt.wrong{border-color:var(--coral);background:var(--coral-bg)}
+#dvR small,#dvR b{display:block}#dvR>div{padding:6px 0;border-bottom:1px solid var(--line)}

@@ -12,6 +12,8 @@ B.L({id:'l-time',title:'Time travel: effective date and entry date',desc:'Move t
 B.L({id:'l-map',title:'Mapping table builder',desc:'Build the mapping table every integration needs. Copy it as CSV for Excel or a ticket.',tags:'mapping document template transformation field'});
 B.L({id:'l-dates',title:'Dates and time zones',desc:'See why 01/12/2026 is unsafe, and why a midnight date can move to the day before in another time zone.',tags:'date format iso 8601 time zone utc offset'});
 
+B.L({id:'l-division',title:'Division finder and test-data generator',desc:'Pick a scenario. See the dummy workers and events to create, the Workday steps, and the answer a correct report must give for any date.',tags:'division test data dummy future dated pending transfer level 1 2 3 as of query sql'});
+
 var BUILD={};
 
 /* ---------- csv ---------- */
@@ -250,6 +252,50 @@ BUILD['l-dates']=function(el){
     $('#zT',el).textContent=diff?'The calendar date is different in some zones. A system that reads the time in UTC or Pacific time may treat this effective date as the day before. Send plain dates (yyyy-mm-dd) for effective dates, and ask each side which time zone it uses for timestamps.':'The date is the same in every zone shown. Midday times are safer than midnight, but plain dates are safest.';
   }
   $('#dIn',el).oninput=d1;$('#zIn',el).oninput=d2;$('#zZ',el).onchange=d2;d1();d2();
+};
+
+
+/* ---------- division finder + test data ---------- */
+BUILD['l-division']=function(el){
+  var TREE={'Acme Group':null,'Technology':'Acme Group','Finance':'Acme Group','Data Team':'Technology','Platform Team':'Technology','Payroll Team':'Finance'};
+  function path(o){var a=[];while(o){a.unshift(o);o=TREE[o]}return a}
+  var SC={
+   future:{n:'Move approved, starts next month',ev:[['Hire Employee','2024-01-15','2024-01-10','Completed','Data Team'],['Transfer','2026-12-01','2026-10-20','Completed','Payroll Team']],asof:'2026-11-07',note:'Future-dated: completed, effective later.'},
+   pending:{n:'Move still waiting for approval',ev:[['Hire Employee','2024-01-15','2024-01-10','Completed','Data Team'],['Transfer','2026-12-01','2026-11-05','In progress','Payroll Team']],asof:'2026-12-02',note:'Pending: has not changed any data.'},
+   back:{n:'Back-dated move plus a future change',ev:[['Hire Employee','2024-01-15','2024-01-10','Completed','Data Team'],['Transfer','2026-09-01','2026-11-05','Completed','Platform Team'],['Change Job','2027-01-01','2026-11-05','Completed','Platform Team']],asof:'2026-10-01',note:'Back-dated: effective date is before the entry date.'},
+   two:{n:'Two moves in a row',ev:[['Hire Employee','2024-01-15','2024-01-10','Completed','Data Team'],['Transfer','2026-06-01','2026-05-20','Completed','Platform Team'],['Transfer','2026-12-01','2026-11-01','Completed','Payroll Team']],asof:'2026-07-01',note:'Pick the latest completed event on or before the date.'}
+  };
+  var STEP={'Hire Employee':'Start Hire Employee for a dummy worker. Choose the org, job profile and the hire date. Complete every step.','Transfer':'Start Transfer (or Move Worker). Choose the new org and the effective date. For completed: finish all approvals. For pending: stop before the last approval.','Change Job':'Start Change Job. Choose the effective date and the new org or job. Complete all steps.'};
+  el.innerHTML='<p class="muted">Dummy data only. Organization levels here are an example tree: Acme Group (1) > Technology or Finance (2) > team (3). Which level is your division? Decide with your lead.</p>'+
+   '<div class="row"><label class="note">Scenario <select id="dvS"></select></label><label class="note">As-of date <input type="text" id="dvD" size="11" style="font-family:var(--f-mono)"></label><button type="button" id="dvCp">Copy test data (CSV)</button></div>'+
+   '<h4>1. Dummy events to create</h4><div id="dvT"></div>'+
+   '<h4 style="margin-top:12px">2. Steps in the sandbox (in this order)</h4><ol id="dvSt" class="note"></ol>'+
+   '<h4 style="margin-top:12px">3. The query, in English</h4><pre id="dvQ" class="note" style="white-space:pre-wrap"></pre>'+
+   '<h4 style="margin-top:12px">4. What a correct report must show</h4><div id="dvR" class="list"></div>';
+  var sel=$('#dvS',el);sel.innerHTML=Object.keys(SC).map(function(k){return '<option value="'+k+'">'+esc(SC[k].n)+'</option>'}).join('');
+  function evs(){return SC[sel.value].ev.map(function(e){return {t:e[0],eff:e[1],ent:e[2],st:e[3],org:e[4]}})}
+  function run(){
+    var sc=SC[sel.value],E=evs(),d=$('#dvD',el).value.trim();
+    var h='<table class="tbl"><tr><th>#</th><th>Event type</th><th>Effective</th><th>Entered</th><th>Status</th><th>Org</th><th>Note</th></tr>';
+    E.forEach(function(e,i){var nt=[];if(e.eff>e.ent)nt.push('future-dated');if(e.eff<e.ent&&e.t!=='Hire Employee')nt.push('back-dated');if(e.st!=='Completed')nt.push('pending');h+='<tr><td>'+(i+1)+'</td><td>'+esc(e.t)+'</td><td>'+e.eff+'</td><td>'+e.ent+'</td><td>'+e.st+'</td><td>'+esc(e.org)+'</td><td>'+nt.join(', ')+'</td></tr>'});
+    $('#dvT',el).innerHTML=h+'</table><p class="note">'+esc(sc.note)+'</p>';
+    $('#dvSt',el).innerHTML='<li>Reuse or create: company, cost center, the orgs above, a job profile.</li>'+E.map(function(e){return '<li>'+esc(STEP[e.t])+' Effective '+e.eff+', org '+esc(e.org)+', status '+(e.st==='Completed'?'complete':'leave pending')+'.</li>'}).join('')+'<li>Write down the worker ID, the dates and the expected answers below.</li>';
+    $('#dvQ',el).textContent='SELECT organization, level 1, level 2, level 3\nFROM worker history events\nWHERE worker = the dummy worker\n  AND business process type IN (Hire Employee, Transfer, Change Job, Move Worker)\n  AND status = Completed\n  AND effective date <= as-of date\nORDER BY effective date DESC, entry moment DESC\nTAKE the first row; then climb the org tree.';
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){$('#dvR',el).innerHTML='<div><small>Date</small><b>Use yyyy-mm-dd</b></div>';return}
+    var ok=E.filter(function(e){return e.st==='Completed'&&e.eff<=d}).sort(function(a,b){return a.eff<b.eff?1:a.eff>b.eff?-1:(a.ent<b.ent?1:-1)})[0];
+    var r='';
+    if(!ok)r+='<div><small>As of '+d+'</small><b>No completed event yet: worker not hired</b></div>';
+    else{var p=path(ok.org);r+='<div><small>As of '+d+' (from '+esc(ok.t)+' effective '+ok.eff+')</small><b>'+esc(ok.org)+'</b><small>Level 1: '+esc(p[0])+' | Level 2: '+esc(p[1]||'-')+' | Level 3: '+esc(p[2]||'-')+'</small></div>'}
+    var fut=E.filter(function(e){return e.st==='Completed'&&e.eff>d}),pen=E.filter(function(e){return e.st!=='Completed'});
+    fut.forEach(function(e){var p=path(e.org);r+='<div><small>Future-dated (approved)</small><b>'+esc(e.org)+' from '+e.eff+'</b><small>Levels: '+p.map(esc).join(' > ')+'</small></div>'});
+    pen.forEach(function(e){var p=path(e.org);r+='<div><small>Pending (not approved, no data change)</small><b>'+esc(e.org)+' if approved, effective '+e.eff+'</b><small>Levels: '+p.map(esc).join(' > ')+'</small></div>'});
+    $('#dvR',el).innerHTML=r;
+  }
+  sel.onchange=function(){$('#dvD',el).value=SC[sel.value].asof;run()};
+  $('#dvD',el).oninput=run;
+  $('#dvCp',el).onclick=function(){var t='worker,event_type,effective,entered,status,organization,level1,level2,level3\n'+evs().map(function(e){var p=path(e.org);return ['E9001',e.t,e.eff,e.ent,e.st,e.org,p[0],p[1]||'',p[2]||''].join(',')}).join('\n');
+    try{navigator.clipboard.writeText(t)}catch(x){} this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy test data (CSV)'},1500)};
+  $('#dvD',el).value=SC.future.asof;run();
 };
 
 /* ---------- shell ---------- */

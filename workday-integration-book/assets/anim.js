@@ -120,17 +120,19 @@ function mount(host,spec){
   if(!SS||!window.SpeechSynthesisUtterance){listenB.hidden=true}
   function say(text,done){
     var my=++tok;SS.cancel();
-    var u=new SpeechSynthesisUtterance(text);u.rate=0.95;u.lang='en-GB';
-    try{var vs=SS.getVoices()||[],v=null,i;
-      for(i=0;i<vs.length&&!v;i++)if(/^en[-_](IN|GB)/i.test(vs[i].lang))v=vs[i];
-      for(i=0;i<vs.length&&!v;i++)if(/^en/i.test(vs[i].lang))v=vs[i];
+    var u=new SpeechSynthesisUtterance(text);u.rate=1;u.lang='en-GB';
+    try{var vs=SS.getVoices()||[],v=null,best=-1,i,sc;
+      for(i=0;i<vs.length;i++){if(!/^en/i.test(vs[i].lang))continue;sc=1;
+        if(/^en[-_](IN|GB|SG|AU)/i.test(vs[i].lang))sc+=2;else if(/^en[-_]US/i.test(vs[i].lang))sc+=1;
+        if(/natural|neural|online|premium|enhanced|google|siri|samantha|daniel|rishi|veena|neerja/i.test(vs[i].name))sc+=4;
+        if(sc>best){best=sc;v=vs[i]}}
       if(v){u.voice=v;u.lang=v.lang}}catch(e){}
     var fin=false;function end(){if(fin||my!==tok)return;fin=true;done&&done()}
     u.onend=end;u.onerror=end;
     SS.speak(u);
     setTimeout(end,Math.max(5000,text.length*95)+1500);
   }
-  function spoken(i){var s=steps[i];return s.s||('Step '+(i+1)+'. '+s.t+'. '+(s.p||''))}
+  function spoken(i){var s=steps[i];return s.s||((s.p||s.t||'')+'')}
   var _go=go;go=function(i){_go(i);if(listening)speakCur()};
   function speakCur(){
     if(!listening)return;
