@@ -1,0 +1,219 @@
+/* The integration movie: an auto-playing, looping, narrated film. No clicks needed. */
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+function S(t,a,p,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;if(p)p.appendChild(e);return e}
+function cl(x){return x<0?0:x>1?1:x}
+function ramp(u,a,b){return cl((u-a)/(b-a))}
+function ez(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2}
+var K={teal:['var(--accent-soft)','var(--accent)'],amber:['var(--amber-bg)','var(--amber)'],coral:['var(--coral-bg)','var(--coral)'],indigo:['var(--indigo-bg)','var(--indigo)'],gray:['var(--gray-bg)','var(--gray)']};
+var INK={teal:'var(--accent)',amber:'var(--amber)',coral:'var(--coral)',indigo:'var(--indigo)',gray:'var(--muted)'};
+
+function Ctx(g){
+  var it=[],c={};
+  c.upd=function(u){for(var i=0;i<it.length;i++)it[i](u)};
+  c.fn=function(f){it.push(f)};
+  c.show=function(n,a,b){b=b||a+.07;n.style.opacity=0;it.push(function(u){var r=ez(ramp(u,a,b));n.style.opacity=r;n.style.transform='translateY('+((1-r)*10)+'px)'});return n};
+  c.txt=function(x,y,s,sz,o){o=o||{};var t=S('text',{x:x,y:y,'text-anchor':o.an||'middle','font-size':Math.max(sz||16,14),'font-weight':o.w||400,'font-family':o.mono?'var(--f-mono)':(o.d?'var(--f-display)':'var(--f-body)')},g,s);t.style.fill=o.fill||'var(--ink)';if(o.a!=null)c.show(t,o.a);return t};
+  c.box=function(x,y,w,h,k,ti,su,a){var gr=S('g',{},g),r=S('rect',{x:x,y:y,width:w,height:h,rx:12},gr);r.style.fill=K[k][0];r.style.stroke=K[k][1];r.style.strokeWidth=2;
+    var t=S('text',{x:x+w/2,y:su?y+h/2-3:(h>100?y+30:y+h/2+6),'text-anchor':'middle','font-size':18,'font-weight':700,'font-family':'var(--f-display)'},gr,ti);t.style.fill='var(--ink)';
+    if(su){var s=S('text',{x:x+w/2,y:y+h/2+17,'text-anchor':'middle','font-size':15,'font-family':'var(--f-body)'},gr,su);s.style.fill='var(--muted)'}
+    if(a!=null)c.show(gr,a);gr.rect=r;return gr};
+  c.line=function(x1,y1,x2,y2,a,b,k){b=b||a+.08;var L=Math.hypot(x2-x1,y2-y1),p=S('path',{d:'M'+x1+' '+y1+'L'+x2+' '+y2,'stroke-width':3,fill:'none','stroke-linecap':'round'},g),ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI,hd=S('polygon',{points:'0,0 -11,-6 -11,6',transform:'translate('+x2+','+y2+') rotate('+ang+')'},g);
+    p.style.stroke=hd.style.fill=INK[k||'gray'];p.setAttribute('stroke-dasharray',L);p.style.strokeDashoffset=L;hd.style.opacity=0;
+    it.push(function(u){var r=ramp(u,a,b);p.style.strokeDashoffset=L*(1-r);hd.style.opacity=r>.97?1:0});return p};
+  c.type=function(x,y,s,sz,a,b,o){o=o||{};o.mono=1;o.an=o.an||'start';var t=c.txt(x,y,'',sz,o);it.push(function(u){t.textContent=s.slice(0,Math.round(s.length*ramp(u,a,b)))});return t};
+  c.pulse=function(n,a,b){it.push(function(u){var r=ramp(u,a,b);n.rect.style.strokeWidth=(r>0&&r<1)?2+4*Math.abs(Math.sin(r*Math.PI*3)):2})};
+  c.icon=function(x,y,ch,sz,a){var t=S('text',{x:x,y:y,'text-anchor':'middle','font-size':sz||34},g,ch);if(a!=null)c.show(t,a);return t};
+  return c;
+}
+function seg(pts,r){var n=pts.length-1,f=cl(r)*n,i=Math.min(n-1,Math.floor(f)),k=f-i;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*k,pts[i][1]+(pts[i+1][1]-pts[i][1])*k]}
+
+var SC=[
+{t:"The big picture",tr:"the plan",s:"Think of a Mumbai dabbawala. Lunch leaves the kitchen, gets sorted, packed, labelled, and carried by train to the office. A Workday integration is the same run. Data leaves Workday, becomes a report, gets packed, reshaped, named, and delivered. Let's ride along.",
+ rem:[["Outbound = data leaves Workday","teal"],["Inbound = data comes in","gray"]],
+ build:function(c){
+  c.txt(300,28,"An integration is a lunch-box run",22,{w:700,d:1,a:.02});
+  var B=[[20,54,'teal',"Data in Workday","the home kitchen",.08],[215,54,'teal',"Custom report","sorting the food",.18],[410,54,'indigo',"Integration","packing the tiffin",.28],[410,170,'amber',"Transform","the dish they like",.42],[215,170,'amber',"File name","label on the lid",.54],[20,170,'coral',"SFTP delivery","train to the office",.66]];
+  B.forEach(function(b){c.box(b[0],b[1],170,64,b[2],b[3],b[4],b[5])});
+  c.line(190,86,215,86,.14,.18);c.line(385,86,410,86,.24,.28);c.line(495,118,495,170,.36,.42);c.line(410,202,385,202,.5,.54);c.line(215,202,190,202,.62,.66);
+  var p=c.icon(0,0,"📦",34);var path=[[105,92],[300,92],[495,92],[495,208],[300,208],[105,208]];
+  c.fn(function(u){var q=seg(path,ramp(u,.1,.9));p.setAttribute('transform','translate('+q[0]+','+(q[1]-34)+')');p.style.opacity=u>.06?1:0});
+  c.txt(300,282,"Outbound: Workday to vendor. Inbound is the same road in reverse.",16,{fill:'var(--muted)',a:.8});
+ }},
+{t:"The kitchen: business objects",tr:"records",s:"First, the kitchen. Workday keeps everything as business objects: worker, position, organization. Every object has IDs, and a robot can only find an object by its ID, never by its name. The Workday ID is long and different in every tenant. A Reference ID is a type plus a value, and travels between tenants.",
+ rem:[["Business object","teal"],["Workday ID (WID)","gray"],["Reference ID","indigo"],["External ID","amber"]],
+ build:function(c){
+  var g=c.g,cy=S('g',{},g),e2=S('ellipse',{cx:90,cy:150,rx:62,ry:16},cy),rc=S('rect',{x:28,y:70,width:124,height:80},cy),e1=S('ellipse',{cx:90,cy:70,rx:62,ry:16},cy);
+  [e1,e2,rc].forEach(function(e){e.style.fill=K.teal[0];e.style.stroke=K.teal[1];e.style.strokeWidth=2});c.show(cy,.03);
+  c.txt(90,118,"Workday",20,{w:700,d:1,a:.05});
+  [[18,"Worker"],[86,"Position"],[154,"Organization"]].forEach(function(b,i){c.box(240,b[0],170,50,'teal',b[1],null,.12+i*.07);c.line(152,110,240,b[0]+25,.14+i*.07,.2+i*.07)});
+  var wk=c.box(240,18,170,50,'teal',"Worker",null,.12);c.pulse(wk,.45,.7);
+  c.icon(438,52,"🔍",30,.45);c.txt(458,58,"Vendor needs it",15,{an:'start',fill:'var(--muted)',a:.48});
+  c.box(10,232,180,58,'gray',"Workday ID","long, unique, auto",.6);c.box(210,232,180,58,'indigo',"Reference ID","type + value",.7);c.box(410,232,180,58,'amber',"External ID","system + value",.8);
+ }},
+{t:"Sorting: custom report and RaaS",tr:"report rows",s:"Next, sorting. You build a custom report with only the columns the vendor wants. Give every column an XML alias, because the outside world reads tags, not column titles. Then switch on Enable as Web Service. Now your report is a service. That is RaaS: report as a service.",
+ rem:[["Custom report","teal"],["XML alias","indigo"],["RaaS","amber"],["Advanced or Search report only","gray"]],
+ build:function(c){
+  [[20,"Employee ID"],[215,"Name"],[410,"Hire date"]].forEach(function(b,i){c.box(b[0],10,170,40,'gray',b[1],null,.04+i*.04)});
+  [[20,"<Employee_ID>"],[215,"<Name>"],[410,"<Hire_Date>"]].forEach(function(b,i){var x=c.box(b[0],64,170,36,'indigo',b[1],null,.22+i*.06)});
+  c.txt(300,118,"XML alias on every column (example names)",14,{fill:'var(--muted)',a:.3});
+  c.txt(20,152,"Enable as Web Service",18,{an:'start',w:700,a:.45});
+  var tr=S('rect',{x:250,y:132,width:64,height:30,rx:15},c.g),kn=S('circle',{cx:266,cy:147,r:11},c.g);kn.style.fill='#fff';tr.style.stroke='var(--accent)';tr.style.strokeWidth=2;c.show(tr,.45);c.show(kn,.45);
+  c.fn(function(u){var r=ez(ramp(u,.52,.62));tr.style.fill=r>.5?'var(--accent)':'var(--gray-bg)';kn.setAttribute('cx',266+32*r)});
+  c.txt(300,196,"Related action: View URLs shows",15,{fill:'var(--muted)',a:.64});
+  [[10,"Workday XML"],[160,"XSD"],[310,"WSDL"],[455,"Other formats"]].forEach(function(b,i){c.box(b[0],206,135,40,'teal',b[1],null,.68+i*.05)});
+  c.box(180,260,240,38,'amber',"Max response: 2 GB",null,.9);
+ }},
+{t:"Packing: choose the tool",tr:"tool + robot",s:"Now choose how to pack it. EIB is the simple tiffin: one source, one destination, no fancy logic. A Core Connector is the ready-made steel tiffin, with change detection built in. Studio is a custom kitchen for complex jobs. Whichever you choose, it runs as an integration system user, a robot with only the permissions it needs.",
+ rem:[["EIB","gray"],["Core Connector","teal"],["Workday Studio","indigo"],["ISU = Integration System User","coral"],["Get / Put access","amber"]],
+ build:function(c){
+  c.box(10,12,180,64,'gray',"EIB","simple",.05);c.txt(100,100,"1 source, 1 endpoint",14,{fill:'var(--muted)',a:.1});
+  var cc=c.box(210,12,180,64,'teal',"Core Connector","ready-made",.15);c.txt(300,100,"change detection built in",14,{fill:'var(--muted)',a:.2});c.pulse(cc,.4,.62);
+  c.box(410,12,180,64,'indigo',"Studio","fully custom",.25);c.txt(500,100,"complex, many files",14,{fill:'var(--muted)',a:.3});
+  c.line(300,112,300,160,.5,.58,'teal');
+  c.icon(110,214,"🤖",40,.58);
+  c.box(150,166,300,64,'coral',"Integration System User","a robot account, not a person",.58);
+  c.txt(300,268,"Its security group gives Get / Put access",16,{fill:'var(--muted)',a:.78});
+ }},
+{t:"Launch: the recipe card",tr:"running",s:"Time to launch. Run it now, or schedule it. Workday follows a recipe card called the integration process event. Step one, initiation. Step two, fire the integration. Then, if you want, transformation. Finally, document delivery. When it finishes, a notification can tell you.",
+ rem:[["Launch / Schedule","teal"],["Integration Process Event","indigo"],["Fire Integration","amber"],["Document Delivery","coral"]],
+ build:function(c){
+  c.icon(40,52,"⏰",34,.04);c.txt(70,58,"Run now, or schedule it",18,{an:'start',w:700,a:.06});
+  c.txt(300,98,"Integration Process Event: the recipe card",17,{w:700,fill:'var(--accent)',a:.18});
+  var X=[10,160,310,455],B=[['teal',"1 Initiation","starts it"],['indigo',"2 Fire","Fire Integration"],['amber',"3 Transform","optional"],['coral',"4 Delivery","sends the file"]],bx=[];
+  B.forEach(function(b,i){bx.push(c.box(X[i],112,135,70,b[0],b[1],b[2],.2+i*.07))});
+  [145,295,445].forEach(function(x,i){c.line(x,147,x+15,147,.3+i*.07,.34+i*.07)});
+  var p=c.icon(0,0,"📦",30);var ctr=[[77,100],[227,100],[377,100],[522,100]];
+  c.fn(function(u){var r=ramp(u,.3,.88),a=Math.min(3,Math.floor(r*4));bx.forEach(function(b,i){b.rect.style.strokeWidth=(u>.3&&i===a)?6:2});var q=seg(ctr,r);p.setAttribute('transform','translate('+q[0]+','+(q[1]-68)+')');p.style.opacity=u>.28?1:0});
+  c.icon(40,246,"🔔",32,.82);c.txt(70,252,"A notification tells people the status",17,{an:'start',a:.84});
+ }},
+{t:"Change detection and the XML file",tr:"XML file",s:"Here is the clever part. A Core Connector watches the transaction log, like a diary of everything that changed. It compares this run with the last successful run, and writes only what changed. Want everything instead? Turn on full file. The result is a plain XML file in Workday's own format.",
+ rem:[["Transaction log","gray"],["Last successful run","indigo"],["Full file","amber"],["Worker eligibility (true/false)","teal"]],
+ build:function(c){
+  c.box(10,14,175,150,'gray',"Transaction log",null,.04);["Hire","Change Job","Email changed"].forEach(function(s,i){c.txt(26,86+i*28,"• "+s,16,{an:'start',a:.1+i*.06})});
+  c.line(185,89,213,89,.26,.3);
+  c.box(215,14,170,150,'indigo',"Compare",null,.28);c.txt(300,80,"this run",16,{a:.34});c.txt(300,104,"versus",14,{fill:'var(--muted)',a:.38});c.txt(300,128,"last good run",16,{a:.42});c.txt(300,150,"= changes only",14,{fill:'var(--indigo)',w:700,a:.48});
+  c.line(385,89,413,89,.5,.54);
+  c.box(415,14,175,150,'teal',"worker.xml",null,.52);c.type(428,84,"<Worker>",14,.58,.64);c.type(428,106,"<Employee_ID>E9001",13,.64,.74);c.type(428,128,"</Worker>",14,.74,.8);
+  c.box(30,192,250,46,'teal',"Changed file (default)",null,.82);c.box(320,192,250,46,'amber',"Full file (everything)",null,.86);
+  c.txt(300,272,"One true/false field decides who is in",16,{fill:'var(--muted)',a:.9});
+ }},
+{t:"Re-shaping: Document Transformation",tr:"CSV file",s:"The vendor rarely wants Workday's XML. So we add a Document Transformation. An XSLT file is the recipe that turns XML into CSV, fixed length, or other formats. Special Workday helpers, called ETV and XTT, handle dates, padding and truncation. And remember, Workday will not check your XSLT for mistakes. You must test it.",
+ rem:[["XSLT","indigo"],["ETV","amber"],["XTT","amber"],["Document tag","teal"],["Workday does not validate XSLT","coral"]],
+ build:function(c){
+  c.box(10,20,200,130,'gray',"XML",null,.04);c.type(22,76,"<Name>Priya</Name>",13,.1,.28);c.type(22,100,"<Hire>2024-01-15</Hire>",13,.28,.46);
+  c.line(210,85,255,85,.4,.46);
+  var gear=c.icon(0,0,"⚙️",56);c.fn(function(u){var r=u>.42?(u*900):0;gear.setAttribute('transform','translate(300,102) rotate('+r+' 0 -20)');gear.style.opacity=u>.38?1:0});
+  c.txt(300,140,"XSLT",16,{w:700,fill:'var(--indigo)',a:.42});
+  c.line(345,85,390,85,.5,.56);
+  c.box(390,20,200,130,'teal',"CSV",null,.52);c.type(402,76,"id,name,hire",13,.58,.68);c.type(402,100,"E9001,PRIYA,15-01-2024",12,.68,.88);
+  [[10,"XSLT",'indigo'],[160,"ETV",'amber'],[310,"XTT",'amber'],[455,"Document tag",'teal']].forEach(function(b,i){c.box(b[0],184,135,44,b[2],b[1],null,.72+i*.05)});
+  c.txt(300,268,"Workday does not check your XSLT. Test it.",17,{w:700,fill:'var(--coral)',a:.92});
+ }},
+{t:"The label: file name sequence",tr:"named file",s:"Now the label on the lid. A sequence generator builds a new file name every run: a fixed word, the date, and a counter that goes up by one. Pad it with zeros. Once a sequence generator exists, Workday ignores the plain output filename. No more overwritten files.",
+ rem:[["Sequence generator","indigo"],["Padding with 0","gray"],["Restart every...","amber"],["Ignores static filename","coral"]],
+ build:function(c){
+  var P=[[20,"HCM_Workers_",'var(--muted)',"fixed word",128],[236,"20261108",'var(--amber)',"date",308],[380,"_001",'var(--indigo)',"counter",416],[452,".csv",'var(--accent)',"extension",488]];
+  P.forEach(function(p,i){var a=.08+i*.14;c.type(p[0],110,p[1],30,a,a+.1,{fill:p[2],w:700});c.txt(p[4],140,p[3],14,{fill:'var(--muted)',a:a+.1})});
+  c.txt(300,184,"next run",16,{fill:'var(--muted)',a:.68});
+  c.txt(20,224,"HCM_Workers_",30,{an:'start',mono:1,fill:'var(--muted)',w:700,a:.7});c.txt(236,224,"20261109",30,{an:'start',mono:1,fill:'var(--amber)',w:700,a:.7});c.txt(380,224,"_002",30,{an:'start',mono:1,fill:'var(--indigo)',w:700,a:.74});c.txt(452,224,".csv",30,{an:'start',mono:1,fill:'var(--accent)',w:700,a:.7});
+  c.txt(300,272,"Padding with 0:  1  becomes  001",16,{fill:'var(--muted)',a:.88});
+ }},
+{t:"The train: SFTP delivery",tr:"sent",s:"Now the train. Document Delivery sends the file to an SFTP server both sides can reach. You enter the address, the folder, and how to log in. If the vendor needs it, lock the file first with PGP. Use Test Transport: connect, list files, deliver a test file, before you trust it.",
+ rem:[["SFTP","indigo"],["Document Delivery step","coral"],["PGP","amber"],["Test Transport","teal"],["Output document tag","gray"]],
+ build:function(c){
+  c.icon(40,98,"📄",40,.04);c.icon(130,98,"🔒",34,.14);c.txt(130,124,"PGP, if needed",13,{fill:'var(--muted)',a:.16});
+  c.line(170,86,230,86,.2,.26);
+  c.box(232,30,170,100,'indigo',"SFTP server","shared folder",.24);
+  c.line(402,80,436,80,.34,.4);
+  c.box(438,30,152,100,'teal',"Vendor","picks it up",.38);
+  c.box(10,160,285,130,'gray',"Transport settings",null,.5);
+  c.txt(24,218,"Address: vendor SFTP host",14,{an:'start',a:.56});c.txt(24,242,"Directory: /inbound/",14,{an:'start',a:.62});c.txt(24,266,"Login: user ID + password",14,{an:'start',a:.68});
+  c.box(315,160,275,36,'teal',"✓ Connect",null,.7);c.box(315,204,275,36,'teal',"✓ List Files",null,.78);c.box(315,248,275,36,'teal',"✓ Deliver File",null,.86);
+ }},
+{t:"Receipt: monitor and notify",tr:"checked",s:"When the run finishes, check three things. The background process says Completed. The audit files tell you what happened, including a diagnostic file for errors. And notifications reach the right people. But remember, completed does not mean delivered. Check both.",
+ rem:[["Integration event","teal"],["Audit files","gray"],["Notifications","indigo"],["Completed is not delivered","coral"]],
+ build:function(c){
+  c.box(10,14,280,66,'teal',"Background process","Status: Completed",.04);
+  c.box(10,96,280,70,'indigo',"Notification","email or inbox, with a link",.5);
+  [["Data changes audit",'gray'],["Diagnostic audit",'coral'],["Schema XSD",'gray'],["Messages audit (zip)",'gray']].forEach(function(b,i){c.box(312,14+i*44,278,38,b[1],b[0],null,.16+i*.08)});
+  c.box(10,200,580,76,'amber',"Completed is not delivered","Also check the SFTP folder and the vendor's receipt",.78);
+ }},
+{t:"Inbound: the same road, backwards",tr:"inbound",s:"Inbound is the same road, backwards. Retrieve the file from SFTP, transform it if needed, then hand it to a Workday web service that loads the data. The file must match what the web service expects, or the transformation fixes it first.",
+ rem:[["Document Retrieval","coral"],["Web service operation","indigo"],["Inbound = retrieve, transform, load","teal"]],
+ build:function(c){
+  c.txt(300,28,"Same road, opposite direction",20,{w:700,d:1,a:.03});
+  var X=[10,160,310,455],B=[['coral',"Vendor file","on SFTP"],['amber',"Transform","if needed"],['indigo',"Web service","the loader"],['teal',"Workday","data loaded"]];
+  B.forEach(function(b,i){c.box(X[i],86,135,70,b[0],b[1],b[2],.1+i*.1)});
+  [145,295,445].forEach(function(x,i){c.line(x,121,x+15,121,.2+i*.1,.25+i*.1)});
+  var p=c.icon(0,0,"📦",30),ctr=[[77,80],[227,80],[377,80],[522,80]];
+  c.fn(function(u){var q=seg(ctr,ramp(u,.15,.85));p.setAttribute('transform','translate('+q[0]+','+(q[1]-22)+')');p.style.opacity=u>.12?1:0});
+  c.txt(300,214,"The file must look like the web service request,",16,{fill:'var(--muted)',a:.8});c.txt(300,238,"or the transformation fixes it first.",16,{fill:'var(--muted)',a:.84});
+ }},
+{t:"Recap",tr:"done",s:"That's the whole journey. Business objects, report, integration system, launch, change detection, transformation, file name, delivery, and monitoring. Remember the stickers, and you can explain any integration out loud. Press play again, or go test yourself in the quiz.",
+ rem:[["Now try the Quiz","teal"]],
+ build:function(c){
+  var T=["Business objects","Custom report","Integration tool","Launch + events","Change detection","Transformation","File name","SFTP delivery","Audit + notify"],K2=['teal','teal','indigo','indigo','amber','amber','amber','coral','gray'];
+  T.forEach(function(t,i){c.box(10+(i%3)*195,14+Math.floor(i/3)*72,185,58,K2[i],(i+1)+". "+t,null,.05+i*.08)});
+  c.txt(300,266,"Now test yourself in the Quiz",20,{w:700,fill:'var(--accent)',a:.9});
+ }}
+];
+
+function words(s){return s.split(/\s+/).length}
+function sentences(s){return s.match(/[^.!?]+[.!?]+/g)||[s]}
+function dur(i){return Math.max(12,words(SC[i].s)/2.35+2)}
+
+function mount(host){
+  var SW=640,N=SC.length;
+  host.innerHTML='<div class="mv"><div class="mv-top"><span class="mv-ch" aria-live="polite"></span><span class="mv-ctl"><button type="button" data-c="pp">Pause</button><button type="button" data-c="ls" aria-pressed="false">Listen</button><button type="button" data-c="rs">Restart</button></span></div>'+
+   '<svg class="mv-svg" viewBox="0 0 600 372" role="img" aria-label="Animated film of a Workday integration from data to delivery"></svg>'+
+   '<p class="mv-cap"></p><div class="mv-rem"><b>Remember</b><div class="mv-chips"></div></div><p class="note mv-hint">It plays by itself and loops. Sound is off. Press Listen to hear the voice.</p></div>';
+  var svg=host.querySelector('svg'),cap=host.querySelector('.mv-cap'),chips=host.querySelector('.mv-chips'),chE=host.querySelector('.mv-ch'),ppB=host.querySelector('[data-c=pp]'),lsB=host.querySelector('[data-c=ls]'),rsB=host.querySelector('[data-c=rs]');
+  var cam=S('g',{},svg),ctx=[];
+  SC.forEach(function(s,i){var g=S('g',{transform:'translate('+(i*SW)+',0)'},cam),c=Ctx(g);s.build(c);ctx.push(c)});
+  /* track */
+  var tx0=40,tx1=560,ty=336,TX=function(i){return tx0+i*(tx1-tx0)/(N-1)};
+  var tg=S('g',{},svg),tl=S('line',{x1:tx0,y1:ty,x2:tx1,y2:ty,'stroke-width':4,'stroke-linecap':'round'},tg);tl.style.stroke='var(--line)';
+  var pl=S('line',{x1:tx0,y1:ty,x2:tx0,y2:ty,'stroke-width':4,'stroke-linecap':'round'},tg);pl.style.stroke='var(--accent)';
+  var dots=[];for(var i=0;i<N;i++){var d=S('circle',{cx:TX(i),cy:ty,r:6},tg);d.style.fill='var(--surface)';d.style.stroke='var(--line)';d.style.strokeWidth=2;dots.push(d)}
+  var par=S('text',{'text-anchor':'middle','font-size':26,y:ty-12},tg,"📦"),ptx=S('text',{'text-anchor':'middle','font-size':14,y:ty+28},tg,'');ptx.style.fill='var(--muted)';
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur=0,el=0,paused=!!reduce,vis=true,listening=false,sdone=true,camX=0,camFrom=0,camTo=0,last=0,SS=window.speechSynthesis,tok=0,subI=-1,sub=[];
+  if(!SS||!window.SpeechSynthesisUtterance){lsB.hidden=true}
+  if(reduce){ppB.textContent='Play';}
+  function say(text,done){var my=++tok;SS.cancel();var u=new SpeechSynthesisUtterance(text);u.rate=1;u.lang='en-GB';
+    try{var vs=SS.getVoices()||[],v=null,best=-1,i,sc;for(i=0;i<vs.length;i++){if(!/^en/i.test(vs[i].lang))continue;sc=1;if(/^en[-_](IN|GB|SG|AU)/i.test(vs[i].lang))sc+=2;else if(/^en[-_]US/i.test(vs[i].lang))sc+=1;if(/natural|neural|online|premium|enhanced|google|siri|samantha|daniel|rishi|veena|neerja/i.test(vs[i].name))sc+=4;if(sc>best){best=sc;v=vs[i]}}if(v){u.voice=v;u.lang=v.lang}}catch(e){}
+    var fin=false;function end(){if(fin||my!==tok)return;fin=true;done&&done()}u.onend=end;u.onerror=end;SS.speak(u);setTimeout(end,Math.max(6000,text.length*110)+2000)}
+  function start(i,noSpeak){
+    cur=i;el=0;ctx[i].upd(0);camFrom=camX;camTo=-i*SW;subI=-1;sub=sentences(SC[i].s);
+    chE.textContent='Part '+(i+1)+' of '+N+': '+SC[i].t;
+    chips.innerHTML=SC[i].rem.map(function(r,k){return '<span class="mv-chip" data-k="'+r[1]+'" style="opacity:0">'+r[0].replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>'}).join('');
+    par.setAttribute('x',TX(i));ptx.textContent=SC[i].tr;ptx.setAttribute('x',TX(i));
+    for(var k=0;k<N;k++){dots[k].style.fill=k<=i?'var(--accent)':'var(--surface)';dots[k].style.stroke=k<=i?'var(--accent)':'var(--line)'}
+    pl.setAttribute('x2',TX(i));
+    if(listening&&!noSpeak){sdone=false;say(SC[i].s,function(){sdone=true})}else sdone=true;
+  }
+  function frame(now){
+    requestAnimationFrame(frame);
+    var dt=Math.min(.1,(now-last)/1000)*(window.Movie.speed||1);last=now;if(paused||!vis)return;
+    el+=dt;var D=dur(cur);
+    var cr=ez(ramp(el,0,.9));camX=camFrom+(camTo-camFrom)*cr;cam.setAttribute('transform','translate('+camX+',0)');
+    var u=ramp(el,.7,D-.5);ctx[cur].upd(u);
+    var tt=cl(el/D),w=words(SC[cur].s),acc=0,si=0;for(var k=0;k<sub.length;k++){acc+=words(sub[k]);if(tt*w<=acc){si=k;break}si=k}
+    if(si!==subI){subI=si;cap.textContent=sub[si].trim()}
+    var cs=chips.children;for(var k=0;k<cs.length;k++)cs[k].style.opacity=ez(ramp(u,.3+k*.1,.4+k*.1));
+    if(el>=D&&(sdone||el>D*2.2)){var n=(cur+1)%N;start(n)}
+  }
+  function jump(i){tok++;if(SS)SS.cancel();ctx.forEach(function(c){c.upd(0)});start(i)}
+  ppB.onclick=function(){paused=!paused;ppB.textContent=paused?'Play':'Pause';if(paused&&SS){tok++;SS.cancel()}else if(!paused&&listening){sdone=false;say(SC[cur].s,function(){sdone=true})}};
+  rsB.onclick=function(){ctx.forEach(function(c){c.upd(0)});camX=0;cam.setAttribute('transform','translate(0,0)');paused=false;ppB.textContent='Pause';start(0)};
+  lsB.onclick=function(){listening=!listening;lsB.setAttribute('aria-pressed',listening);lsB.textContent=listening?'Stop listening':'Listen';if(listening){paused=false;ppB.textContent='Pause';el=0;ctx[cur].upd(0);sdone=false;say(SC[cur].s,function(){sdone=true})}else{tok++;if(SS)SS.cancel();sdone=true}};
+  try{var io=new IntersectionObserver(function(es){vis=es[0].isIntersecting;if(!vis&&SS){tok++;SS.cancel();if(listening)sdone=true}},{threshold:.15});io.observe(host)}catch(e){}
+  document.addEventListener('visibilitychange',function(){if(document.hidden&&SS){tok++;SS.cancel();sdone=true}});
+  window.addEventListener('hashchange',function(){if(SS){tok++;SS.cancel()}});
+  start(0,true);ctx[0].upd(0);requestAnimationFrame(function(t){last=t;requestAnimationFrame(frame)});
+  window.Movie.api={jump:jump,at:function(i,uu){jump(i);paused=true;camX=camTo;cam.setAttribute('transform','translate('+camX+',0)');ctx[i].upd(uu);var cs=chips.children;for(var k=0;k<cs.length;k++)cs[k].style.opacity=1}};return {jump:jump};
+}
+window.Movie={mount:mount,scenes:SC};
+})();

@@ -26,7 +26,7 @@ function hl(text,toks){
 }
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
 
-var TABS=[['start','Start'],['library','Library'],['animations','Animations'],['playbooks','Playbooks'],['meetings','Meetings and email'],['labs','Labs'],['jobmap','Job map'],['quiz','Quiz']];
+var TABS=[['start','Start'],['library','Library'],['movie','Movie'],['animations','Animations'],['playbooks','Playbooks'],['meetings','Meetings and email'],['labs','Labs'],['jobmap','Job map'],['quiz','Quiz']];
 var cur='start',rendered={};
 var S={q:'',part:'',lv:0,kd:'',hide:false,open:false,sort:'chapter',known:new Set(store.get('known',[]))};
 var PN={},PI={};
@@ -74,7 +74,7 @@ function renderStart(){
   root.innerHTML=
    '<div style="display:flex;flex-direction:column;gap:10px"><span class="b lv1" style="align-self:flex-start">Plain English. Short sentences.</span><h1>Workday Integration Book</h1>'+
    '<p class="lead">Every word you will hear in Workday integration work, explained from zero. Search any word. Watch it move. Then try it with dummy data.</p>'+
-   '<div class="row"><button class="on" id="goSearch">Search the book</button><a href="#library" class="b lv1" style="padding:9px 14px;font-size:15px;text-decoration:none">Open the Library</a><a href="#animations" class="b lv3" style="padding:9px 14px;font-size:15px;text-decoration:none">Watch animations</a></div></div>'+
+   '<div class="row"><button class="on" id="goSearch">Search the book</button><a href="#library" class="b lv1" style="padding:9px 14px;font-size:15px;text-decoration:none">Open the Library</a><a href="#movie" class="b lv3" style="padding:9px 14px;font-size:15px;text-decoration:none">Watch the integration movie</a><a href="#animations" class="b lv3" style="padding:9px 14px;font-size:15px;text-decoration:none">More animations</a></div></div>'+
    '<div class="grid3" style="grid-template-columns:repeat(2,minmax(0,1fr))">'+
     [[tot,'terms explained'],[B.anims.length,'animations'],[B.playbooks.length,'fix-it playbooks'],[B.phrases.length+B.templates.length+B.checks.length,'phrases, emails, checklists']].map(function(s){return '<div class="card stat"><b>'+s[0]+'</b><span class="muted">'+s[1]+'</span></div>'}).join('')+'</div>'+
    '<div class="card"><h2>How to use this book</h2><ol style="margin:10px 0 0;padding-left:22px;display:grid;gap:4px">'+
@@ -210,6 +210,13 @@ function bindLibrary(root){
       if(S.hide)libUpdate();
     }
   });
+}
+
+/* ---------- movie ---------- */
+function renderMovie(){
+  var root=$('#v-movie');
+  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">A short film of one whole integration: data, report, tool, launch, XML, transformation, file name, SFTP, monitoring. It plays by itself. Stickers show the words to remember.</p></div><div id="mvHost"></div>';
+  window.Movie.mount($('#mvHost',root));
 }
 
 /* ---------- animations ---------- */
@@ -441,7 +448,7 @@ document.addEventListener('click',function(ev){
 });
 
 /* ---------- router ---------- */
-var R={start:renderStart,library:renderLibrary,animations:renderAnims,playbooks:renderPlaybooks,meetings:renderMeetings,labs:renderLabs,jobmap:renderJobmap,quiz:renderQuiz};
+var R={start:renderStart,library:renderLibrary,movie:renderMovie,animations:renderAnims,playbooks:renderPlaybooks,meetings:renderMeetings,labs:renderLabs,jobmap:renderJobmap,quiz:renderQuiz};
 function show(tab,focus){
   cur=tab;
   TABS.forEach(function(t){$('#v-'+t[0]).hidden=t[0]!==tab});
