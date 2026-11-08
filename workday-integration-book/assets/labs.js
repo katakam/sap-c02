@@ -14,6 +14,8 @@ B.L({id:'l-dates',title:'Dates and time zones',desc:'See why 01/12/2026 is unsaf
 
 B.L({id:'l-division',title:'Division finder and test-data generator',desc:'Pick a scenario. See the dummy workers and events to create, the Workday steps, and the answer a correct report must give for any date.',tags:'division test data dummy future dated pending transfer level 1 2 3 as of query sql'});
 
+B.L({id:'l-xslt',title:'XSLT playground',desc:'Workday-style XML in, a stylesheet in the middle, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
+
 var BUILD={};
 
 /* ---------- csv ---------- */
@@ -296,6 +298,46 @@ BUILD['l-division']=function(el){
   $('#dvCp',el).onclick=function(){var t='worker,event_type,effective,entered,status,organization,level1,level2,level3\n'+evs().map(function(e){var p=path(e.org);return ['E9001',e.t,e.eff,e.ent,e.st,e.org,p[0],p[1]||'',p[2]||''].join(',')}).join('\n');
     try{navigator.clipboard.writeText(t)}catch(x){} this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy test data (CSV)'},1500)};
   $('#dvD',el).value=SC.future.asof;run();
+};
+
+
+/* ---------- XSLT playground ---------- */
+BUILD['l-xslt']=function(el){
+  var XML='<wd:Report_Data xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9001</wd:Employee_ID>\n    <wd:Legal_Name>Priya Nair</wd:Legal_Name>\n    <wd:Hire_Date>2024-01-15</wd:Hire_Date>\n    <wd:Org>Data Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9002</wd:Employee_ID>\n    <wd:Legal_Name>Arun Menon</wd:Legal_Name>\n    <wd:Hire_Date>2023-06-01</wd:Hire_Date>\n    <wd:Org>Payroll Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9003</wd:Employee_ID>\n    <wd:Legal_Name>Meera Iyer</wd:Legal_Name>\n    <wd:Hire_Date>2025-03-10</wd:Hire_Date>\n    <wd:Org>Platform Team</wd:Org>\n  </wd:Report_Entry>\n</wd:Report_Data>';
+  var H='<xsl:stylesheet version="1.0"\n  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"\n  xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n';
+  var P={
+   csv:{n:'1. XML to CSV',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name,Hire Date,Org&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Org"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['output method="text": the result is plain text, no tags.','template match: start at the root, Report_Data.','The first xsl:text writes the header line. &#10; means new line.','for-each: run the next lines once for every Report_Entry.','value-of picks one field. xsl:text writes the comma.','The last xsl:text on each pass ends the line.']},
+   pipe:{n:'2. Pipe file, upper-case name, date as DD-MM-YYYY',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="translate(wd:Legal_Name,\'abcdefghijklmnopqrstuvwxyz\',\'ABCDEFGHIJKLMNOPQRSTUVWXYZ\')"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="concat(substring(wd:Hire_Date,9,2),\'-\',substring(wd:Hire_Date,6,2),\'-\',substring(wd:Hire_Date,1,4))"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['The separator is | now, so only the xsl:text changes.','translate swaps each lower-case letter for its capital.','substring(text, start, length) cuts a piece of the date.','concat joins the pieces: day, dash, month, dash, year.','Workday also has ETV and XTT helpers for this kind of formatting.']},
+   xml:{n:'3. XML to another XML (rename + filter)',x:H.replace('version="1.0"','version="1.0" exclude-result-prefixes="wd"')+'  <xsl:output method="xml" indent="yes"/>\n  <xsl:template match="/wd:Report_Data">\n    <Workers>\n      <xsl:for-each select="wd:Report_Entry[wd:Org != \'Payroll Team\']">\n        <Worker id="{wd:Employee_ID}">\n          <Name><xsl:value-of select="wd:Legal_Name"/></Name>\n          <Start><xsl:value-of select="wd:Hire_Date"/></Start>\n        </Worker>\n      </xsl:for-each>\n    </Workers>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['output method="xml": the result is XML.','Plain tags in the stylesheet (Workers, Worker, Name) are copied to the output as they are.','The square brackets [ ] are a filter: skip Payroll Team.','id="{...}" puts a value inside an attribute.','exclude-result-prefixes="wd" keeps the wd: label out of the new XML.']},
+   sort:{n:'4. Sort by hire date and number the rows',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:sort select="wd:Hire_Date"/>\n      <xsl:value-of select="position()"/><xsl:text>. </xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text> (</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>)&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['xsl:sort goes first inside for-each. Oldest hire date first.','position() is the row number after sorting.','Break it: change the sort field to wd:Legal_Name.']},
+   bad:{n:'5. Break it: wrong namespace (no output)',x:H.replace('Demo_Workers_Report','Wrong_Report')+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['The wd: address here does not match the XML, so the template never matches.','Result: the values run together as plain text with no commas, because no rule matched. No error is shown. This is a very common mistake.','Fix: copy the namespace address from the XML exactly.']}
+  };
+  el.innerHTML='<p class="muted">Dummy data only. This runs in your browser using plain XSLT 1.0. Workday ETV and XTT helpers are Workday-only, so they are not run here.</p>'+
+   '<div class="row"><label class="note">Example <select id="xsP"></select></label><button type="button" id="xsR">Run</button><button type="button" id="xsC">Copy output</button></div>'+
+   '<div class="row" style="align-items:stretch"><label class="note" style="flex:1 1 280px">1. XML in (Workday style)<textarea id="xsX" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label><label class="note" style="flex:1 1 280px">2. Stylesheet (the rules)<textarea id="xsS" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label></div>'+
+   '<h4>3. Output</h4><pre id="xsO" class="note" style="white-space:pre-wrap;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:10px"></pre><p id="xsM" class="note"></p>'+
+   '<h4>How this example works</h4><ol id="xsE" class="note"></ol>';
+  var sel=$('#xsP',el);sel.innerHTML=Object.keys(P).map(function(k){return '<option value="'+k+'">'+esc(P[k].n)+'</option>'}).join('');
+  function load(){var p=P[sel.value];$('#xsX',el).value=XML;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
+  function run(){
+    var out=$('#xsO',el),msg=$('#xsM',el);msg.textContent='';
+    try{
+      var dp=new DOMParser(),xd=dp.parseFromString($('#xsX',el).value,'application/xml'),sd=dp.parseFromString($('#xsS',el).value,'application/xml');
+      if(xd.getElementsByTagName('parsererror').length){out.textContent='';msg.textContent='The XML is not well-formed: a tag is not closed or a character is wrong.';return}
+      if(sd.getElementsByTagName('parsererror').length){out.textContent='';msg.textContent='The stylesheet is not well-formed XML: check closing tags and quotes.';return}
+      var pr=new XSLTProcessor();pr.importStylesheet(sd);var fr=pr.transformToFragment(xd,document),txt=/method\s*=\s*["']text["']/.test($('#xsS',el).value);
+      out.textContent=txt?fr.textContent:new XMLSerializer().serializeToString(fr);
+      if(!out.textContent.trim())msg.textContent='Empty output. Common causes: wrong namespace address, wrong match path, or a filter that removes every row.';
+    }catch(e){out.textContent='';msg.textContent='Could not run: '+e.message}
+  }
+  sel.onchange=load;$('#xsR',el).onclick=run;
+  $('#xsC',el).onclick=function(){try{navigator.clipboard.writeText($('#xsO',el).textContent)}catch(x){}this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy output'},1400)};
+  load();
 };
 
 /* ---------- shell ---------- */

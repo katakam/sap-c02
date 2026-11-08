@@ -1670,6 +1670,30 @@ Q({part:"dl",q:"Which ID is the same in Sandbox and Production but different in 
 Q({part:"dl",q:"What does Edit Environment Restrictions do?",o:["Deletes a report","Limits which environment a scheduled process may run in","Encrypts a file","Resets a password"],a:1,w:"It keeps a scheduled integration from firing in the wrong tenant."});
 })();
 
+/* ---- content/xslt.js ---- */
+(function(){
+var P=BOOK.PB,E=BOOK.E,Q=BOOK.Q,J=BOOK.JD;
+E("fm","Stylesheet (XSLT)","The XSLT file: a list of rules saying what to write when a part of the XML is found.","payroll_to_csv.xsl","You may not write it from scratch, but you must be able to read it and test it.",1,"w","xslt stylesheet rules xsl");
+E("fm","xsl:for-each","An XSLT instruction that repeats its lines once for every matching item.","One pass per Report_Entry.","This is why three workers give three lines.",1,"w","xslt for-each loop repeat");
+E("fm","xsl:value-of","An XSLT instruction that copies the value of a field into the output.","value-of select Legal_Name.","If the field name or namespace is wrong, you get an empty value.",1,"w","xslt value-of select field");
+E("fm","xsl:text","An XSLT instruction that writes fixed text, such as a comma, a pipe or a new line.","The comma between columns.","New line is written as &#10;.",2,"w","xslt text comma newline");
+E("fm","xsl:output","An XSLT line that sets the result type: text, xml, html.","method=\"text\" for a CSV.","Pick text for flat files and xml for another XML.",2,"w","xslt output method text xml");
+E("fm","Match pattern (xsl:template match)","The part of a rule that says which XML part the rule is for.","match=\"/wd:Report_Data\".","Wrong path or namespace means the rule never fires.",2,"w","xslt template match");
+E("fm","Well-formed XML","XML where every tag is closed, nested properly and quoted correctly.","<a><b/></a>","The XML and the stylesheet must both be well-formed.",1,"w","xml well-formed valid");
+E("fm","XSLT 1.0","The older, widely supported version of XSLT used by most integration tools.","translate, substring, concat.","Functions available depend on the version. Check what your tool supports.",3,"w","xslt version 1.0 functions");
+
+P({area:"Run problems",title:"XSLT gives empty output or wrong columns",sym:"The transformation completes but the file is empty, or a column is blank or in the wrong place.",
+may:["Namespace address in the stylesheet does not match the XML","Match path is wrong","Field name is misspelled","A filter removes every row","Date or number format is not what the receiver expects","The input XML changed shape after a report change"],
+check:["Open a small sample of the XML and the stylesheet side by side.","Compare the namespace address (xmlns:wd) in both, character by character.","Check the match path and each value-of path against the XML.","Remove the filter and see if rows come back.","Check one row end to end against the Workday screen.","Run the same XSLT in the XSLT playground in this book with the sample XML.","Remember Workday does not validate your XSLT. Test before go-live."],
+evid:["Sample XML (masked)","Stylesheet version","Output sample"],who:"The integration developer; your lead for approval of any change.",dont:"Do not edit the stylesheet in Production without a change request.",tags:"xslt empty output namespace columns transformation"});
+
+Q({part:"fm",q:"What does xsl:for-each do?",o:["Deletes rows","Repeats its lines for every matching item","Encrypts the file","Sends the file"],a:1,w:"Three entries give three passes, so three lines."});
+Q({part:"fm",q:"You get empty output and no error. A common cause is:",o:["The wrong namespace address","A slow network","A long file name","A missing password"],a:0,w:"If the namespace does not match, the rule never fires."});
+Q({part:"fm",q:"Which output method gives a CSV?",o:["method=\"xml\"","method=\"text\"","method=\"html\"","method=\"pdf\""],a:1,w:"Text means plain text, with no tags left."});
+Q({part:"fm",q:"ETV and XTT: what is the difference?",o:["ETV gives XML, XTT gives text","They are the same","ETV encrypts","XTT sends emails"],a:0,w:"ETV keeps XML. XTT turns the result into text such as delimited or fixed length."});
+J({area:"Skills to build",item:"Read and test an XSLT transformation",plain:"Understand how XML becomes CSV or another XML, and spot common mistakes.",tags:"xslt xml csv transform",go:[["XSLT film","#movie"],["XSLT playground","#l-xslt"],["Search XSLT","q:xslt"]]});
+})();
+
 /* ---- content/support.js ---- */
 (function(){
 var P=BOOK.PB;
@@ -2396,6 +2420,89 @@ FILMS.refresh=[
  }}
 ];
 
+FILMS.xslt=[
+{t:"Why we need a translator",tr:"XML in",s:"Workday speaks XML. Your vendor reads CSV. It is like a Hindi speaker and a Tamil speaker who need someone in the middle. That translator is called XSLT, and its rule book is called a stylesheet.",
+ rem:[["XML","teal"],["XSLT = the translator","indigo"],["Stylesheet = the rule book","amber"]],
+ build:function(c){
+  c.box(10,40,170,100,'teal',"Workday XML","tags and tree",.05);
+  c.box(215,40,170,100,'indigo',"XSLT","rule book",.3);
+  c.box(420,40,170,100,'amber',"Vendor CSV","commas and rows",.55);
+  c.line(180,90,215,90,.2,.28);c.line(385,90,420,90,.45,.53);
+  c.icon(300,34,"🗣️",30,.3);
+  c.txt(300,200,"Same facts. Different shape.",20,{w:700,d:1,a:.7});
+  c.txt(300,240,"Hindi speaker  +  translator  +  Tamil speaker",16,{fill:'var(--muted)',a:.8});
+ }},
+{t:"XML is a family tree",tr:"the tree",s:"First, understand the input. XML is a family tree. At the top is the root. Under it, one entry for each worker. Under each entry, the fields: employee ID, name, hire date. And an XPath is just the address of a field in that tree.",
+ rem:[["Element","teal"],["Parent and child","gray"],["XPath = the address","indigo"],["Namespace prefix wd:","amber"]],
+ build:function(c){
+  c.box(210,8,180,40,'teal',"Report_Data","the root",.04);c.box(210,78,180,40,'indigo',"Report_Entry","one per worker",.14);
+  c.line(300,48,300,78,.1,.14);
+  [[10,"Employee_ID","E9001"],[215,"Legal_Name","Priya Nair"],[420,"Hire_Date","2024-01-15"]].forEach(function(b,i){c.box(b[0],146,170,56,'gray',b[1],b[2],.26+i*.08);c.line(300,118,b[0]+85,146,.22+i*.08,.28+i*.08)});
+  c.txt(300,236,"XPath:",15,{fill:'var(--muted)',a:.6});c.type(240,262,"Report_Entry/Legal_Name",18,.62,.82,{fill:'var(--indigo)',w:700,an:'middle'});
+  c.txt(300,286,"(the wd: prefix is hidden here to keep it simple)",13,{fill:'var(--muted)',a:.86});
+ }},
+{t:"XSLT is a rule book",tr:"the rules",s:"Now the rule book. Every rule says, when you see this, do that. When you see a report entry, write one line. Pick the name. Write a comma. That's all. A few small instructions, repeated.",
+ rem:[["xsl:template match","indigo"],["xsl:for-each","amber"],["xsl:value-of","teal"],["xsl:text","gray"]],
+ build:function(c){
+  c.txt(300,26,"Each rule: when you see THIS, do THAT",20,{w:700,d:1,a:.03});
+  [["WHEN you see Report_Entry","WRITE one line",'xsl:template / for-each',.12],["PICK the Legal_Name","COPY its value",'xsl:value-of',.34],["WRITE a comma","between the values",'xsl:text',.56]].forEach(function(r,i){var y=54+i*72;c.box(10,y,250,56,'gray',r[0],null,r[3]);c.line(260,y+28,330,y+28,r[3]+.04,r[3]+.1,'indigo');c.box(330,y,260,56,'teal',r[1],r[2],r[3]+.06)});
+  c.txt(300,282,"Just a few small instructions, repeated for every entry",16,{fill:'var(--muted)',a:.82});
+ }},
+{t:"Watch it work: XML to CSV",tr:"CSV file",s:"Watch it work. The engine reads the first entry. It picks the employee ID, writes a comma, picks the name, writes a comma, picks the date, and ends the line. Then the same rules run for the next entry, and the next. Three entries, three lines, plus a header on top.",
+ rem:[["for-each repeats the rules","amber"],["value-of picks a value","teal"],["Header line","gray"]],
+ build:function(c){
+  c.box(10,10,250,150,'gray',"Workday XML",null,.04);
+  ["<Report_Entry>","  <Employee_ID>E9001","  <Legal_Name>Priya Nair","  <Hire_Date>2024-01-15","</Report_Entry>"].forEach(function(l,i){c.txt(22,68+i*20,l,13,{an:'start',mono:1,a:.08+i*.03})});
+  var gear=c.icon(300,86,"⚙️",44,.2),cn=c.txt(300,128,"",14,{fill:'var(--amber)',w:700});
+  c.fn(function(u){gear.style.transformOrigin='300px 76px';cn.textContent=u<.3?'':(u<.5?1:u<.7?2:3)+' of 3'});
+  c.box(340,10,250,150,'teal',"CSV",null,.3);
+  c.type(352,68,"Employee ID,Name,Hire Date",12,.32,.4,{});c.type(352,90,"E9001,Priya Nair,2024-01-15",12,.42,.52,{});c.type(352,112,"E9002,Arun Menon,2023-06-01",12,.56,.66,{});c.type(352,134,"E9003,Meera Iyer,2025-03-10",12,.7,.8,{});
+  c.txt(300,200,"value-of picks a value.  text writes a comma.",17,{w:700,a:.55});
+  c.txt(300,232,"for-each repeats the same rules for every entry.",16,{fill:'var(--muted)',a:.66});
+  c.txt(300,266,"A header line goes in before the for-each.",16,{fill:'var(--muted)',a:.78});
+ }},
+{t:"Text out, or XML out",tr:"output choice",s:"One setting decides the shape of the result. Output method text gives you plain text, like CSV, with no tags left. Output method xml gives you another XML, shaped the way the next system likes it.",
+ rem:[["xsl:output method=text","teal"],["xsl:output method=xml","indigo"]],
+ build:function(c){
+  c.box(10,24,280,60,'teal','method="text"',"plain text, CSV, pipe file",.05);c.box(310,24,280,60,'indigo','method="xml"',"another XML",.15);
+  c.box(10,106,280,114,'gray',"Result",null,.35);c.txt(24,156,"E9001,Priya Nair",14,{an:'start',mono:1,a:.38});c.txt(24,180,"E9002,Arun Menon",14,{an:'start',mono:1,a:.42});c.txt(24,204,"E9003,Meera Iyer",14,{an:'start',mono:1,a:.46});
+  c.box(310,106,280,114,'gray',"Result",null,.45);c.txt(324,156,'<Worker id="E9001">',13,{an:'start',mono:1,a:.5});c.txt(324,180,"  <Name>Priya Nair</Name>",13,{an:'start',mono:1,a:.54});c.txt(324,204,"</Worker>",13,{an:'start',mono:1,a:.58});
+  c.txt(300,250,"One line in the stylesheet picks the result type",16,{fill:'var(--muted)',a:.8});
+ }},
+{t:"XML to XML: rename, filter, reorder",tr:"new XML",s:"You can also go from XML to XML. Rename the tags to the names the receiver expects. Filter, so only some workers go through. And reorder, so the list comes out sorted. Same idea: rules, applied to a tree.",
+ rem:[["Rename","teal"],["Filter: xsl:if","amber"],["Sort: xsl:sort","indigo"]],
+ build:function(c){
+  c.box(10,14,260,110,'gray',"Before",null,.04);c.txt(24,76,"<Legal_Name>Priya Nair",13,{an:'start',mono:1,a:.1});c.txt(24,98,"<Org>Payroll Team",13,{an:'start',mono:1,a:.14});
+  c.line(270,70,330,70,.3,.38,'indigo');
+  c.box(330,14,260,110,'teal',"After",null,.36);c.txt(344,76,"<Name>Priya Nair",13,{an:'start',mono:1,a:.42});c.txt(344,98,"<Department>Payroll",13,{an:'start',mono:1,a:.46});
+  c.box(10,160,180,60,'teal',"Rename","Legal_Name to Name",.54);c.box(210,160,180,60,'amber',"Filter","only some workers",.64);c.box(410,160,180,60,'indigo',"Sort","by hire date",.74);
+  c.txt(300,262,"Rules applied to a tree, again",16,{fill:'var(--muted)',a:.86});
+ }},
+{t:"Workday's helpers: ETV and XTT",tr:"ETV + XTT",s:"Workday adds two helpers inside the stylesheet. ETV keeps the output as XML, and validates, formats and maps values. XTT turns the output into text, with delimiters, fixed length and truncation, and strips the tags for you. Keep them in separate steps. Chain the Document Transformation after your Core Connector, and the file flows through.",
+ rem:[["ETV = XML out","indigo"],["XTT = text out","amber"],["Separate steps","gray"],["Chain after Core Connector","teal"]],
+ build:function(c){
+  c.box(10,14,285,86,'indigo',"ETV","XML out: validate, format, map",.04);c.box(305,14,285,86,'amber',"XTT","text out: delimiters, fixed length",.14);
+  c.box(10,150,150,64,'teal',"Core Connector","XML file",.4);c.box(178,150,244,64,'indigo',"Document Transformation","XSLT + XTT",.52);c.box(440,150,150,64,'amber',"Vendor file","CSV or fixed",.64);
+  c.line(160,182,178,182,.46,.52);c.line(422,182,440,182,.58,.64);
+  c.txt(300,252,"Best practice: keep ETV and XTT in two separate steps",16,{fill:'var(--muted)',a:.8});
+ }},
+{t:"You may not write it, but you must read it",tr:"review",s:"These days you may not write a stylesheet from scratch. A template or a helper gives you a draft. Your job is to read it, test it with a small sample, and catch the usual mistakes. The wrong namespace. A missing tag. A date in the wrong order. And remember, Workday does not check your XSLT for you.",
+ rem:[["Namespace must match","coral"],["Well-formed XML","gray"],["Test with a small file","teal"],["Workday does not validate XSLT","coral"]],
+ build:function(c){
+  c.box(10,14,180,60,'teal',"1 Read it","what does each rule do?",.04);c.box(210,14,180,60,'indigo',"2 Test it","small sample first",.16);c.box(410,14,180,60,'amber',"3 Spot mistakes","the usual suspects",.28);
+  ["Wrong namespace: no output at all","Missing tag: empty column","Date format: 15-01 vs 01-15","Extra space or blank line","Special character in a name"].forEach(function(t,i){c.box(60,100+i*34,480,28,'gray',t,null,.4+i*.08)});
+  c.txt(300,286,"Workday does not check your XSLT. You must.",16,{w:700,fill:'var(--coral)',a:.88});
+ }},
+{t:"Recap",tr:"done",s:"So that is XSLT. XML goes in. A few rules say when you see this, write that. Text or XML comes out. Workday's helpers ETV and XTT add the formatting. Now open the XSLT playground in the labs, change a rule, and watch the output change.",
+ rem:[["Try the XSLT playground in Labs","teal"]],
+ build:function(c){
+  c.box(10,40,170,80,'teal',"XML in",null,.05);c.box(215,40,170,80,'indigo',"Rules (XSLT)",null,.2);c.box(420,40,170,80,'amber',"CSV or XML out",null,.35);
+  c.line(180,80,215,80,.12,.2);c.line(385,80,420,80,.27,.35);
+  c.txt(300,184,"Open Labs, then XSLT playground",20,{w:700,fill:'var(--accent)',a:.7});
+  c.txt(300,220,"Change a rule. Watch the output change.",16,{fill:'var(--muted)',a:.8});
+ }}
+];
+
 function words(s){return s.split(/\s+/).length}
 function sentences(s){return s.match(/[^.!?]+[.!?]+/g)||[s]}
 
@@ -2470,6 +2577,8 @@ B.L({id:'l-map',title:'Mapping table builder',desc:'Build the mapping table ever
 B.L({id:'l-dates',title:'Dates and time zones',desc:'See why 01/12/2026 is unsafe, and why a midnight date can move to the day before in another time zone.',tags:'date format iso 8601 time zone utc offset'});
 
 B.L({id:'l-division',title:'Division finder and test-data generator',desc:'Pick a scenario. See the dummy workers and events to create, the Workday steps, and the answer a correct report must give for any date.',tags:'division test data dummy future dated pending transfer level 1 2 3 as of query sql'});
+
+B.L({id:'l-xslt',title:'XSLT playground',desc:'Workday-style XML in, a stylesheet in the middle, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
 
 var BUILD={};
 
@@ -2755,6 +2864,46 @@ BUILD['l-division']=function(el){
   $('#dvD',el).value=SC.future.asof;run();
 };
 
+
+/* ---------- XSLT playground ---------- */
+BUILD['l-xslt']=function(el){
+  var XML='<wd:Report_Data xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9001</wd:Employee_ID>\n    <wd:Legal_Name>Priya Nair</wd:Legal_Name>\n    <wd:Hire_Date>2024-01-15</wd:Hire_Date>\n    <wd:Org>Data Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9002</wd:Employee_ID>\n    <wd:Legal_Name>Arun Menon</wd:Legal_Name>\n    <wd:Hire_Date>2023-06-01</wd:Hire_Date>\n    <wd:Org>Payroll Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9003</wd:Employee_ID>\n    <wd:Legal_Name>Meera Iyer</wd:Legal_Name>\n    <wd:Hire_Date>2025-03-10</wd:Hire_Date>\n    <wd:Org>Platform Team</wd:Org>\n  </wd:Report_Entry>\n</wd:Report_Data>';
+  var H='<xsl:stylesheet version="1.0"\n  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"\n  xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n';
+  var P={
+   csv:{n:'1. XML to CSV',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name,Hire Date,Org&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Org"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['output method="text": the result is plain text, no tags.','template match: start at the root, Report_Data.','The first xsl:text writes the header line. &#10; means new line.','for-each: run the next lines once for every Report_Entry.','value-of picks one field. xsl:text writes the comma.','The last xsl:text on each pass ends the line.']},
+   pipe:{n:'2. Pipe file, upper-case name, date as DD-MM-YYYY',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="translate(wd:Legal_Name,\'abcdefghijklmnopqrstuvwxyz\',\'ABCDEFGHIJKLMNOPQRSTUVWXYZ\')"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="concat(substring(wd:Hire_Date,9,2),\'-\',substring(wd:Hire_Date,6,2),\'-\',substring(wd:Hire_Date,1,4))"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['The separator is | now, so only the xsl:text changes.','translate swaps each lower-case letter for its capital.','substring(text, start, length) cuts a piece of the date.','concat joins the pieces: day, dash, month, dash, year.','Workday also has ETV and XTT helpers for this kind of formatting.']},
+   xml:{n:'3. XML to another XML (rename + filter)',x:H.replace('version="1.0"','version="1.0" exclude-result-prefixes="wd"')+'  <xsl:output method="xml" indent="yes"/>\n  <xsl:template match="/wd:Report_Data">\n    <Workers>\n      <xsl:for-each select="wd:Report_Entry[wd:Org != \'Payroll Team\']">\n        <Worker id="{wd:Employee_ID}">\n          <Name><xsl:value-of select="wd:Legal_Name"/></Name>\n          <Start><xsl:value-of select="wd:Hire_Date"/></Start>\n        </Worker>\n      </xsl:for-each>\n    </Workers>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['output method="xml": the result is XML.','Plain tags in the stylesheet (Workers, Worker, Name) are copied to the output as they are.','The square brackets [ ] are a filter: skip Payroll Team.','id="{...}" puts a value inside an attribute.','exclude-result-prefixes="wd" keeps the wd: label out of the new XML.']},
+   sort:{n:'4. Sort by hire date and number the rows',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:sort select="wd:Hire_Date"/>\n      <xsl:value-of select="position()"/><xsl:text>. </xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text> (</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>)&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['xsl:sort goes first inside for-each. Oldest hire date first.','position() is the row number after sorting.','Break it: change the sort field to wd:Legal_Name.']},
+   bad:{n:'5. Break it: wrong namespace (no output)',x:H.replace('Demo_Workers_Report','Wrong_Report')+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
+    e:['The wd: address here does not match the XML, so the template never matches.','Result: the values run together as plain text with no commas, because no rule matched. No error is shown. This is a very common mistake.','Fix: copy the namespace address from the XML exactly.']}
+  };
+  el.innerHTML='<p class="muted">Dummy data only. This runs in your browser using plain XSLT 1.0. Workday ETV and XTT helpers are Workday-only, so they are not run here.</p>'+
+   '<div class="row"><label class="note">Example <select id="xsP"></select></label><button type="button" id="xsR">Run</button><button type="button" id="xsC">Copy output</button></div>'+
+   '<div class="row" style="align-items:stretch"><label class="note" style="flex:1 1 280px">1. XML in (Workday style)<textarea id="xsX" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label><label class="note" style="flex:1 1 280px">2. Stylesheet (the rules)<textarea id="xsS" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label></div>'+
+   '<h4>3. Output</h4><pre id="xsO" class="note" style="white-space:pre-wrap;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:10px"></pre><p id="xsM" class="note"></p>'+
+   '<h4>How this example works</h4><ol id="xsE" class="note"></ol>';
+  var sel=$('#xsP',el);sel.innerHTML=Object.keys(P).map(function(k){return '<option value="'+k+'">'+esc(P[k].n)+'</option>'}).join('');
+  function load(){var p=P[sel.value];$('#xsX',el).value=XML;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
+  function run(){
+    var out=$('#xsO',el),msg=$('#xsM',el);msg.textContent='';
+    try{
+      var dp=new DOMParser(),xd=dp.parseFromString($('#xsX',el).value,'application/xml'),sd=dp.parseFromString($('#xsS',el).value,'application/xml');
+      if(xd.getElementsByTagName('parsererror').length){out.textContent='';msg.textContent='The XML is not well-formed: a tag is not closed or a character is wrong.';return}
+      if(sd.getElementsByTagName('parsererror').length){out.textContent='';msg.textContent='The stylesheet is not well-formed XML: check closing tags and quotes.';return}
+      var pr=new XSLTProcessor();pr.importStylesheet(sd);var fr=pr.transformToFragment(xd,document),txt=/method\s*=\s*["']text["']/.test($('#xsS',el).value);
+      out.textContent=txt?fr.textContent:new XMLSerializer().serializeToString(fr);
+      if(!out.textContent.trim())msg.textContent='Empty output. Common causes: wrong namespace address, wrong match path, or a filter that removes every row.';
+    }catch(e){out.textContent='';msg.textContent='Could not run: '+e.message}
+  }
+  sel.onchange=load;$('#xsR',el).onclick=run;
+  $('#xsC',el).onclick=function(){try{navigator.clipboard.writeText($('#xsO',el).textContent)}catch(x){}this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy output'},1400)};
+  load();
+};
+
 /* ---------- shell ---------- */
 window.Labs={render:function(root){
   root.innerHTML='<div><h2>Labs</h2><p class="muted">Small tools with dummy data. They run in your browser. Nothing is uploaded. Never paste real employee data.</p></div><div class="list" id="labList"></div>';
@@ -2987,8 +3136,8 @@ function bindLibrary(root){
 /* ---------- movie ---------- */
 function renderMovie(){
   var root=$('#v-movie');
-  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">Short films that play by themselves. Stickers show the words to remember. Press Listen for the voice.</p></div><h3>1. One whole integration, data to delivery</h3><div id="mvHost"></div><h3 style="margin-top:22px">2. After a sandbox refresh: do not send test files to the real vendor</h3><div id="mvHost2"></div>';
-  window.Movie.mount($('#mvHost',root),'integration');window.Movie.mount($('#mvHost2',root),'refresh');
+  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">Short films that play by themselves. Stickers show the words to remember. Press Listen for the voice.</p></div><h3>1. One whole integration, data to delivery</h3><div id="mvHost"></div><h3 style="margin-top:22px">2. After a sandbox refresh: do not send test files to the real vendor</h3><div id="mvHost2"></div><h3 style="margin-top:22px">3. XSLT in plain English: turn Workday XML into CSV or another XML</h3><div id="mvHost3"></div><p class="note">Try it yourself: <a href="#l-xslt">Labs, XSLT playground</a>.</p>';
+  window.Movie.mount($('#mvHost',root),'integration');window.Movie.mount($('#mvHost2',root),'refresh');window.Movie.mount($('#mvHost3',root),'xslt');
 }
 
 /* ---------- animations ---------- */

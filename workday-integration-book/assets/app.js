@@ -215,8 +215,8 @@ function bindLibrary(root){
 /* ---------- movie ---------- */
 function renderMovie(){
   var root=$('#v-movie');
-  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">Short films that play by themselves. Stickers show the words to remember. Press Listen for the voice.</p></div><h3>1. One whole integration, data to delivery</h3><div id="mvHost"></div><h3 style="margin-top:22px">2. After a sandbox refresh: do not send test files to the real vendor</h3><div id="mvHost2"></div>';
-  window.Movie.mount($('#mvHost',root),'integration');window.Movie.mount($('#mvHost2',root),'refresh');
+  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">Short films that play by themselves. Stickers show the words to remember. Press Listen for the voice.</p></div><h3>1. One whole integration, data to delivery</h3><div id="mvHost"></div><h3 style="margin-top:22px">2. After a sandbox refresh: do not send test files to the real vendor</h3><div id="mvHost2"></div><h3 style="margin-top:22px">3. XSLT in plain English: turn Workday XML into CSV or another XML</h3><div id="mvHost3"></div><p class="note">Try it yourself: <a href="#l-xslt">Labs, XSLT playground</a>.</p>';
+  window.Movie.mount($('#mvHost',root),'integration');window.Movie.mount($('#mvHost2',root),'refresh');window.Movie.mount($('#mvHost3',root),'xslt');
 }
 
 /* ---------- animations ---------- */
