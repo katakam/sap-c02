@@ -1645,6 +1645,31 @@ Q({part:"dl",q:"When making a test worker, what do you build first?",o:["The wor
 Q({part:"hr",q:"Is 'division' the same in every company?",o:["Yes","No, it is your company's word for a level or organization type","Only in Singapore","Only for contractors"],a:1,w:"Always ask which level or type of organization is meant."});
 })();
 
+/* ---- content/refresh.js ---- */
+(function(){
+var P=BOOK.PB,E=BOOK.E,Q=BOOK.Q;
+E("dl","Tenant refresh","Workday copies Production into a non-Production tenant such as Sandbox.","Sandbox refreshed from Production.","Integrations, schedules and notifications may come with the copy. Check them.",1,"w","refresh sandbox production tenant","sandbox refresh");
+E("dl","Sandbox Preview","A non-Production tenant that Workday refreshes from Production for testing upcoming releases.","Update Sandbox Preview.","Settings you predefine can be kept each time it is refreshed.",2,"w","sandbox preview refresh");
+E("dl","Edit Environment Restrictions","A related action on a scheduled process that picks the environment it may run in.","Run only in Production.","Use it so a nightly integration does not also fire in the sandbox.",2,"w","scheduled environment restriction preview only");
+E("dl","Email restriction (disable or redirect)","A tenant setting that disables email notifications or redirects them to a test address.","Redirect to a test mailbox.","Set it when nothing is running. Setting it in Production before a refresh also carries it across.",2,"w","notification email restriction refresh");
+E("dl","Configuration Change Tracker","A tool to collect your changes into a package for a project.","Package the sandbox work before a refresh.","The guide suggests package, extract, refresh, reload.",3,"w","configuration package refresh");
+E("dl","Configuration Extract","A file made from a configuration package so you can reload it into a refreshed or another tenant.","Extract before the refresh, reload after.","Saves sandbox work that a refresh would overwrite.",3,"w","configuration extract migrate refresh");
+
+P({area:"How do I...",title:"What do I check after a sandbox refresh?",sym:"Production was copied into the sandbox. Integrations may still point to real vendors and real people.",
+may:["The delivery endpoint is still the real vendor","Scheduled runs fire in the sandbox","Notifications go to real people","Credentials from Production do not work in the sandbox","The last successful run or file counter came from Production"],
+check:["Open every delivery step and change the endpoint to a test server. Use Test Transport with the small test file.","Check scheduled processes and use Edit Environment Restrictions so they run only where intended.","Add an email restriction to disable or redirect notifications. Do it when nothing is running.","Reconfigure credentials that Workday does not carry over. The guide names eSignature. Check your integration logins too.","Prefer Reference IDs over Workday IDs. A WID is the same in Sandbox as Production but different in other tenants.","Check the launch defaults (last successful run) and the file name counter. Run a full file once if you need a clean baseline.","Before the next refresh, save your sandbox work with a configuration package and extract, then reload it."],
+evid:["List of integrations checked","Old and new endpoints (no passwords)","Screenshot of the restriction"],who:"Your tenant administrator; the vendor for test endpoints.",dont:"Do not run an integration in the sandbox until endpoints and notifications are checked.",tags:"sandbox refresh production endpoint schedule notification checklist"});
+
+P({area:"Run problems",title:"A test run in the sandbox reached the real vendor",sym:"The vendor or employees received a test file or test emails from the sandbox.",
+may:["Endpoint was copied from Production","Scheduled run fired in the sandbox","No email restriction after the refresh"],
+check:["Stop scheduled runs that point to the vendor.","Tell the vendor and your lead right away, with the time and file name.","Ask the vendor to ignore or delete the test file.","Fix the endpoint, scheduled restriction and email restriction.","Write a short RCA with prevention: the after-refresh checklist."],
+evid:["Run time, file name, delivery event","Who was told and when"],who:"Your lead; vendor contact; security or privacy team if personal data was sent.",dont:"Do not hide it. Report early.",tags:"sandbox refresh wrong vendor test file incident"});
+
+Q({part:"dl",q:"After a sandbox refresh, what should you check first?",o:["The font","Delivery endpoints and notifications","The report name","The quiz"],a:1,w:"The copy may still point to real vendors and real people."});
+Q({part:"dl",q:"Which ID is the same in Sandbox and Production but different in other tenants?",o:["Reference ID","Workday ID (WID)","Employee name","File name"],a:1,w:"Use Reference IDs so integrations move between tenants."});
+Q({part:"dl",q:"What does Edit Environment Restrictions do?",o:["Deletes a report","Limits which environment a scheduled process may run in","Encrypts a file","Resets a password"],a:1,w:"It keeps a scheduled integration from firing in the wrong tenant."});
+})();
+
 /* ---- content/support.js ---- */
 (function(){
 var P=BOOK.PB;
@@ -2154,12 +2179,15 @@ function Ctx(g){
     it.push(function(u){var r=ramp(u,a,b);p.style.strokeDashoffset=L*(1-r);hd.style.opacity=r>.97?1:0});return p};
   c.type=function(x,y,s,sz,a,b,o){o=o||{};o.mono=1;o.an=o.an||'start';var t=c.txt(x,y,'',sz,o);it.push(function(u){t.textContent=s.slice(0,Math.round(s.length*ramp(u,a,b)))});return t};
   c.pulse=function(n,a,b){it.push(function(u){var r=ramp(u,a,b);n.rect.style.strokeWidth=(r>0&&r<1)?2+4*Math.abs(Math.sin(r*Math.PI*3)):2})};
+  c.cyl=function(cx,cy,w,h,k,label,a){var gr=S('g',{},g),e2=S('ellipse',{cx:cx,cy:cy+h/2,rx:w/2,ry:14},gr),rc=S('rect',{x:cx-w/2,y:cy-h/2,width:w,height:h},gr),e1=S('ellipse',{cx:cx,cy:cy-h/2,rx:w/2,ry:14},gr);
+    [e1,e2,rc].forEach(function(e){e.style.fill=K[k][0];e.style.stroke=K[k][1];e.style.strokeWidth=2});var t=S('text',{x:cx,y:cy+6,'text-anchor':'middle','font-size':19,'font-weight':700,'font-family':'var(--f-display)'},gr,label);t.style.fill='var(--ink)';if(a!=null)c.show(gr,a);return gr};
   c.icon=function(x,y,ch,sz,a){var t=S('text',{x:x,y:y,'text-anchor':'middle','font-size':sz||34},g,ch);if(a!=null)c.show(t,a);return t};
   return c;
 }
 function seg(pts,r){var n=pts.length-1,f=cl(r)*n,i=Math.min(n-1,Math.floor(f)),k=f-i;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*k,pts[i][1]+(pts[i+1][1]-pts[i][1])*k]}
 
-var SC=[
+var FILMS={};
+FILMS.integration=[
 {t:"The big picture",tr:"the plan",s:"Think of a Mumbai dabbawala. Lunch leaves the kitchen, gets sorted, packed, labelled, and carried by train to the office. A Workday integration is the same run. Data leaves Workday, becomes a report, gets packed, reshaped, named, and delivered. Let's ride along.",
  rem:[["Outbound = data leaves Workday","teal"],["Inbound = data comes in","gray"]],
  build:function(c){
@@ -2290,14 +2318,92 @@ var SC=[
  }}
 ];
 
+FILMS.refresh=[
+{t:"What a refresh does",tr:"Production",s:"Imagine photocopying a whole shop into a practice shop, including the phone numbers on the speed dial. That is a sandbox refresh. Production is copied into the sandbox, and your integrations come along, including where they deliver.",
+ rem:[["Tenant refresh","teal"],["Production","coral"],["Sandbox","amber"]],
+ build:function(c){
+  c.txt(300,24,"A refresh copies Production into the sandbox",20,{w:700,d:1,a:.02});
+  c.cyl(80,150,120,90,'coral',"Production",.06);c.cyl(520,150,120,90,'amber',"Sandbox",.12);
+  c.line(150,150,450,150,.2,.3,'gray');
+  ["data","settings","integrations"].forEach(function(t,i){var b=c.box(150+i*125,50,116,34,'gray',t,null,.34+i*.1)});
+  c.txt(300,232,"Integrations come along: endpoints, schedules, notifications",17,{fill:'var(--muted)',a:.7});
+  c.txt(300,266,"Workday also offers Sandbox Preview tenants",15,{fill:'var(--muted)',a:.82});
+ }},
+{t:"The danger",tr:"risk",s:"Here is the danger. If the sandbox still points to the real vendor, a test run sends test files to a real server. And if notifications still go to real people, they get test emails. Same settings as Production means real people see test data.",
+ rem:[["Integration endpoint","coral"],["Scheduled processes","amber"],["Notifications","indigo"]],
+ build:function(c){
+  c.box(10,110,150,70,'amber',"Sandbox","a test run",.05);c.icon(85,96,"⚠️",34,.3);
+  c.line(160,135,262,68,.2,.34,'coral');c.line(160,155,262,222,.34,.48,'coral');
+  c.box(266,34,170,64,'coral',"Real vendor SFTP","gets a test file",.3);c.box(266,192,170,64,'coral',"Real employees","get test emails",.46);
+  c.txt(300,282,"Same settings as Production = real people see test data",16,{fill:'var(--coral)',w:700,a:.7});
+ }},
+{t:"Fix 1: the endpoint",tr:"endpoint",s:"Fix one. After every refresh, open the delivery step and change the endpoint to a test server. The guide says to change integration endpoints in the refreshed tenant. Then use Test Transport with the small test file. Connect, list files, deliver.",
+ rem:[["Change endpoint after refresh","coral"],["Document Delivery step","indigo"],["Test Transport","teal"]],
+ build:function(c){
+  c.box(10,24,300,170,'gray',"Document Delivery step",null,.04);
+  var a1=c.txt(26,92,"Address: vendor PRODUCTION host",15,{an:'start',fill:'var(--coral)',a:.08}),a2=c.txt(26,92,"Address: vendor TEST host",15,{an:'start',fill:'var(--accent)',w:700});
+  c.fn(function(u){var r=ramp(u,.35,.5);a1.style.opacity=u<.08?0:1-r;a2.style.opacity=r});
+  c.txt(26,124,"Directory: test folder",15,{an:'start',a:.14});c.txt(26,156,"Login: test account",15,{an:'start',a:.2});
+  c.box(330,24,260,40,'teal',"1 Connect",null,.5);c.box(330,74,260,40,'teal',"2 List Files",null,.6);c.box(330,124,260,40,'teal',"3 Deliver File (10 KB test)",null,.7);
+  c.txt(300,244,"Never test with a real full file on the real address",16,{fill:'var(--muted)',a:.82});
+ }},
+{t:"Fix 2: scheduled runs",tr:"schedules",s:"Fix two. Scheduled runs come across too. A nightly integration will fire in the sandbox at the same time as Production. Use Edit Environment Restrictions on the scheduled process, so it runs only in the environment you choose. There is even a Preview Only box.",
+ rem:[["Scheduled process","amber"],["Edit Environment Restrictions","indigo"],["Preview Only","gray"]],
+ build:function(c){
+  c.icon(40,52,"⏰",34,.04);c.txt(70,58,"Scheduled runs copied from Production",18,{an:'start',w:700,a:.06});
+  [["Daily 02:10  worker file",.14],["Weekly  payroll file",.24],["Monthly  benefits file",.34]].forEach(function(r,i){c.box(10,84+i*54,360,44,'gray',r[0],null,r[1])});
+  [0,1,2].forEach(function(i){c.box(390,84+i*54,200,44,'indigo',"Production only",null,.5+i*.1)});
+  c.txt(300,262,"Related action: Edit Environment Restrictions",16,{w:700,fill:'var(--indigo)',a:.84});
+ }},
+{t:"Fix 3: notifications",tr:"emails",s:"Fix three. Notifications. Add an email restriction to disable them, or to redirect them to a test mailbox. One warning from the guide: do this when nothing is running, or a message can slip out to the real person. A neat trick is to set the restriction in Production, then refresh.",
+ rem:[["Disable or redirect email","indigo"],["Nothing running when you change it","coral"]],
+ build:function(c){
+  c.icon(50,70,"✉️",40,.04);c.txt(90,76,"Email restriction",20,{an:'start',w:700,a:.06});
+  c.box(10,110,270,60,'indigo',"Disable","no emails at all",.2);c.box(310,110,280,60,'teal',"Redirect","to a test mailbox",.3);
+  c.txt(300,214,"Change it when nothing is running",18,{w:700,fill:'var(--coral)',a:.55});
+  c.txt(300,246,"Tip: set the restriction in Production, then refresh",15,{fill:'var(--muted)',a:.75});
+ }},
+{t:"Fix 4: credentials and IDs",tr:"logins",s:"Fix four. Logins and IDs. Workday does not let Production credentials work in the sandbox. The guide says this for eSignature, so reconfigure after each refresh, and check your own integration logins too. And IDs: a Workday ID is the same in Sandbox as Production, but different in other tenants. Use Reference IDs, and your integration travels well.",
+ rem:[["Reconfigure credentials","coral"],["WID vs Reference ID","indigo"],["Reference ID travels","teal"]],
+ build:function(c){
+  c.icon(40,60,"🔑",34,.04);c.box(70,34,240,56,'coral',"Credentials","re-enter after refresh",.06);
+  c.txt(20,118,"Guide names eSignature. Check yours too.",14,{an:'start',fill:'var(--muted)',a:.3});
+  c.box(330,34,260,56,'gray',"WID","differs in other tenants",.45);
+  c.box(330,110,260,56,'teal',"Reference ID","same in every tenant",.6);
+  c.txt(300,224,"Use Reference IDs in integrations",18,{w:700,fill:'var(--accent)',a:.8});
+ }},
+{t:"Fix 5: last run and counters",tr:"state",s:"Fix five. A Core Connector compares this run with the last successful run, and the file name counter keeps counting. After a refresh, check those launch defaults before the first run. If you are unsure, run a full file once as a clean baseline, and look at the sequence number.",
+ rem:[["Last successful run","indigo"],["Full File baseline","amber"],["Sequence generator","gray"]],
+ build:function(c){
+  c.box(10,20,280,70,'indigo',"Last successful run","the launch default date",.05);
+  c.box(310,20,280,70,'gray',"File name counter","_001, _002, ...",.15);
+  c.txt(300,128,"Check both before the first run",18,{w:700,a:.4});
+  c.box(10,156,280,56,'amber',"Run Full File once","a clean baseline",.55);
+  c.txt(300,252,"Confirm the defaults in your own tenant",15,{fill:'var(--muted)',a:.8});
+ }},
+{t:"Before the refresh: save your work",tr:"save",s:"One more thing. A refresh overwrites the sandbox. So before it happens, save the work you built there. The guide suggests a configuration package in Configuration Change Tracker, extract it, and reload it into the refreshed tenant afterwards.",
+ rem:[["Configuration Change Tracker","indigo"],["Configuration Extract","teal"]],
+ build:function(c){
+  c.box(10,90,170,76,'indigo',"1 Save","package + extract",.06);c.box(215,90,170,76,'coral',"2 Refresh","sandbox overwritten",.3);c.box(420,90,170,76,'teal',"3 Reload","package back in",.54);
+  c.line(180,128,215,128,.2,.28);c.line(385,128,420,128,.44,.52);
+  c.txt(300,226,"Work done only in the sandbox is lost without this",16,{fill:'var(--coral)',w:700,a:.8});
+ }},
+{t:"After-refresh checklist",tr:"done",s:"So after every refresh, run the checklist. Endpoints. Scheduled runs. Notifications. Credentials. Reference IDs. Last run and counters. And before the refresh, save your work. Do these, and no real vendor ever gets a test file.",
+ rem:[["Safe sandbox","teal"]],
+ build:function(c){
+  ["1. Change endpoints","2. Restrict scheduled runs","3. Disable or redirect emails","4. Reconfigure credentials","5. Use Reference IDs","6. Check last run + counters"].forEach(function(t,i){c.box(10+(i%2)*300,16+Math.floor(i/2)*66,280,54,['coral','indigo','indigo','coral','teal','amber'][i],t,null,.05+i*.1)});
+  c.txt(300,244,"Before the refresh: save your work",17,{w:700,fill:'var(--accent)',a:.8});
+ }}
+];
+
 function words(s){return s.split(/\s+/).length}
 function sentences(s){return s.match(/[^.!?]+[.!?]+/g)||[s]}
-function dur(i){return Math.max(12,words(SC[i].s)/2.35+2)}
 
-function mount(host){
+function mount(host,key){
+  var SC=FILMS[key||'integration'];function dur(i){return Math.max(12,words(SC[i].s)/2.35+2)}
   var SW=640,N=SC.length;
   host.innerHTML='<div class="mv"><div class="mv-top"><span class="mv-ch" aria-live="polite"></span><span class="mv-ctl"><button type="button" data-c="pp">Pause</button><button type="button" data-c="ls" aria-pressed="false">Listen</button><button type="button" data-c="rs">Restart</button></span></div>'+
-   '<svg class="mv-svg" viewBox="0 0 600 372" role="img" aria-label="Animated film of a Workday integration from data to delivery"></svg>'+
+   '<svg class="mv-svg" viewBox="0 0 600 372" role="img" aria-label="Animated film"></svg>'+
    '<p class="mv-cap"></p><div class="mv-rem"><b>Remember</b><div class="mv-chips"></div></div><p class="note mv-hint">It plays by itself and loops. Sound is off. Press Listen to hear the voice.</p></div>';
   var svg=host.querySelector('svg'),cap=host.querySelector('.mv-cap'),chips=host.querySelector('.mv-chips'),chE=host.querySelector('.mv-ch'),ppB=host.querySelector('[data-c=pp]'),lsB=host.querySelector('[data-c=ls]'),rsB=host.querySelector('[data-c=rs]');
   var cam=S('g',{},svg),ctx=[];
@@ -2343,9 +2449,9 @@ function mount(host){
   document.addEventListener('visibilitychange',function(){if(document.hidden&&SS){tok++;SS.cancel();sdone=true}});
   window.addEventListener('hashchange',function(){if(SS){tok++;SS.cancel()}});
   start(0,true);ctx[0].upd(0);requestAnimationFrame(function(t){last=t;requestAnimationFrame(frame)});
-  window.Movie.api={jump:jump,at:function(i,uu){jump(i);paused=true;camX=camTo;cam.setAttribute('transform','translate('+camX+',0)');ctx[i].upd(uu);var cs=chips.children;for(var k=0;k<cs.length;k++)cs[k].style.opacity=1}};return {jump:jump};
+  window.Movie.api=window.Movie.api||{};window.Movie.api[key||'integration']={jump:jump,at:function(i,uu){jump(i);paused=true;camX=camTo;cam.setAttribute('transform','translate('+camX+',0)');ctx[i].upd(uu);var cs=chips.children;for(var k=0;k<cs.length;k++)cs[k].style.opacity=1}};return window.Movie.api[key||'integration'];
 }
-window.Movie={mount:mount,scenes:SC};
+window.Movie={mount:mount,films:FILMS};
 })();
 
 /* ---- assets/labs.js ---- */
@@ -2881,8 +2987,8 @@ function bindLibrary(root){
 /* ---------- movie ---------- */
 function renderMovie(){
   var root=$('#v-movie');
-  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">A short film of one whole integration: data, report, tool, launch, XML, transformation, file name, SFTP, monitoring. It plays by itself. Stickers show the words to remember.</p></div><div id="mvHost"></div>';
-  window.Movie.mount($('#mvHost',root));
+  root.innerHTML='<div><h2>The integration movie</h2><p class="muted">Short films that play by themselves. Stickers show the words to remember. Press Listen for the voice.</p></div><h3>1. One whole integration, data to delivery</h3><div id="mvHost"></div><h3 style="margin-top:22px">2. After a sandbox refresh: do not send test files to the real vendor</h3><div id="mvHost2"></div>';
+  window.Movie.mount($('#mvHost',root),'integration');window.Movie.mount($('#mvHost2',root),'refresh');
 }
 
 /* ---------- animations ---------- */
