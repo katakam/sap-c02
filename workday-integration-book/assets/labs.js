@@ -14,7 +14,9 @@ B.L({id:'l-dates',title:'Dates and time zones',desc:'See why 01/12/2026 is unsaf
 
 B.L({id:'l-division',title:'Division finder and test-data generator',desc:'Pick a scenario. See the dummy workers and events to create, the Workday steps, and the answer a correct report must give for any date.',tags:'division test data dummy future dated pending transfer level 1 2 3 as of query sql'});
 
-B.L({id:'l-xslt',title:'XSLT playground',desc:'Workday-style XML in, a stylesheet in the middle, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
+B.L({id:'l-xslt',title:'XSLT playground',desc:'15 examples plus 4 broken ones: flat and nested Workday-style XML in, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
+
+B.L({id:'l-xtree',title:'XML tree and XPath explorer',desc:'See objects inside objects. Click a line to get its XPath and what kind of thing it is.',tags:'xml tree xpath objects hierarchy related business object descriptor id wid reference nested repeating'});
 
 var BUILD={};
 
@@ -301,29 +303,236 @@ BUILD['l-division']=function(el){
 };
 
 
-/* ---------- XSLT playground ---------- */
+/* ---------- XSLT playground (simple + rich Workday-style XML) ---------- */
+var NSURI='urn:com.workday.report/Demo_Workers_Report';
+function xWid(n){var h='0123456789abcdef',s='',i;for(i=0;i<32;i++)s+=h.charAt((n*7+i*5+(i>>1)*n)%16);return s}
+function xRef(tag,desc,type,val,n,inner){return '<wd:'+tag+' wd:Descriptor="'+desc+'"><wd:ID wd:type="WID">'+xWid(n)+'</wd:ID><wd:ID wd:type="'+type+'">'+val+'</wd:ID>'+(inner||'')+'</wd:'+tag+'>'}
+function xPretty(x){var pad=0,out=[];x.replace(/>\s*</g,'>\n<').split('\n').forEach(function(l){if(/^<\/[^>]+>$/.test(l))pad--;out.push(new Array(Math.max(pad,0)+1).join('  ')+l);if(/^<[^\/!?][^>]*[^\/]>$/.test(l))pad++});return out.join('\n')}
+function xJob(primary,pos,posId,loc,locId,org,orgId,parent,parentId,pay,n){return '<wd:Worker_Job><wd:Primary_Job>'+primary+'</wd:Primary_Job>'+xRef('Position',pos,'Position_ID',posId,n)+xRef('Location',loc,'Location_ID',locId,n+1)+xRef('Supervisory_Organization',org,'Organization_Reference_ID',orgId,n+2,xRef('Superior_Organization',parent,'Organization_Reference_ID',parentId,n+3))+(pay===''?'<wd:Pay/>':'<wd:Pay>'+pay+'</wd:Pay>')+'</wd:Worker_Job>'}
+var XML_SIMPLE=xPretty('<wd:Report_Data xmlns:wd="'+NSURI+'">'+[['E9001','Priya Nair','2024-01-15','Data Team'],['E9002','Arun Menon','2023-06-01','Payroll Team'],['E9003','Meera Iyer','2025-03-10','Platform Team']].map(function(r){return '<wd:Report_Entry><wd:Employee_ID>'+r[0]+'</wd:Employee_ID><wd:Legal_Name>'+r[1]+'</wd:Legal_Name><wd:Hire_Date>'+r[2]+'</wd:Hire_Date><wd:Org>'+r[3]+'</wd:Org></wd:Report_Entry>'}).join('')+'</wd:Report_Data>');
+var XML_RICH=xPretty('<wd:Report_Data xmlns:wd="'+NSURI+'">'+
+ '<wd:Report_Entry><wd:Employee_ID>E9001</wd:Employee_ID><wd:Legal_Name>Priya Nair</wd:Legal_Name><wd:Hire_Date>2024-01-15-08:00</wd:Hire_Date>'+xRef('Gender','Female','Gender_Code','Female',11)+'<wd:Email>priya@example.com</wd:Email><wd:Email>priya.n@example.org</wd:Email>'+xJob(1,'Data Analyst (P-0012)','P-0012','Dallas','DALLAS','Data Team','DATA_TEAM','Technology','TECHNOLOGY','77500',20)+'</wd:Report_Entry>'+
+ '<wd:Report_Entry><wd:Employee_ID>E9002</wd:Employee_ID><wd:Legal_Name>Arun Menon</wd:Legal_Name><wd:Hire_Date>2023-06-01-08:00</wd:Hire_Date>'+xRef('Gender','Male','Gender_Code','Male',12)+'<wd:Email>arun@example.com</wd:Email>'+xJob(1,'Payroll Analyst (P-0044)','P-0044','Singapore','SINGAPORE','Payroll Team','PAYROLL_TEAM','Finance','FINANCE','64000',30)+xJob(0,'Data Mentor (P-0090)','P-0090','Dallas','DALLAS','Data Team','DATA_TEAM','Technology','TECHNOLOGY','8000',40)+'</wd:Report_Entry>'+
+ '<wd:Report_Entry><wd:Employee_ID>E9003</wd:Employee_ID><wd:Legal_Name>Iyer, Meera</wd:Legal_Name><wd:Hire_Date>2025-03-10-08:00</wd:Hire_Date>'+xJob(1,'Platform Engineer (P-0101)','P-0101','Singapore','SINGAPORE','Platform Team','PLATFORM_TEAM','Technology','TECHNOLOGY','',50)+'</wd:Report_Entry>'+
+ '</wd:Report_Data>');
+var XH='<xsl:stylesheet version="1.0"\n  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"\n  xmlns:wd="'+NSURI+'">\n';
+var XT='</xsl:stylesheet>';
+var XP=[
+ {g:'Basics',n:'1. XML to CSV',d:'s',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee ID,Name,Hire Date,Org&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Legal_Name"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Hire_Date"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Org"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['output method="text": the result is plain text, no tags.','template match: start at the root, Report_Data.','The first xsl:text writes the header line. &#10; means new line.','for-each: run the next lines once for every Report_Entry.','value-of picks one field. xsl:text writes the comma.','The last xsl:text on each pass ends the line.']},
+ {g:'Basics',n:'2. Pipe file, capital letters, date as DD-MM-YYYY',d:'s',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>
+      <xsl:value-of select="translate(wd:Legal_Name,'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')"/><xsl:text>|</xsl:text>
+      <xsl:value-of select="concat(substring(wd:Hire_Date,9,2),'-',substring(wd:Hire_Date,6,2),'-',substring(wd:Hire_Date,1,4))"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['The separator is | now, so only the xsl:text changes.','translate swaps each lower-case letter for its capital.','substring(text, start, length) cuts a piece of the date.','concat joins the pieces: day, dash, month, dash, year.','Workday also has ETV and XTT helpers for this kind of formatting.']},
+ {g:'Basics',n:'3. XML to another XML (rename + filter)',d:'s',x:XH.replace('version="1.0"','version="1.0" exclude-result-prefixes="wd"')+`  <xsl:output method="xml" indent="yes"/>
+  <xsl:template match="/wd:Report_Data">
+    <Workers>
+      <xsl:for-each select="wd:Report_Entry[wd:Org != 'Payroll Team']">
+        <Worker id="{wd:Employee_ID}">
+          <Name><xsl:value-of select="wd:Legal_Name"/></Name>
+          <Start><xsl:value-of select="wd:Hire_Date"/></Start>
+        </Worker>
+      </xsl:for-each>
+    </Workers>
+  </xsl:template>
+`+XT,e:['output method="xml": the result is XML.','Plain tags in the stylesheet (Workers, Worker, Name) are copied to the output as they are.','The square brackets [ ] are a filter: skip Payroll Team.','id="{...}" puts a value inside an attribute.','exclude-result-prefixes="wd" keeps the wd: label out of the new XML.']},
+ {g:'Basics',n:'4. Sort by hire date and number the rows',d:'s',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:sort select="wd:Hire_Date"/>
+      <xsl:value-of select="position()"/><xsl:text>. </xsl:text>
+      <xsl:value-of select="wd:Legal_Name"/><xsl:text> (</xsl:text>
+      <xsl:value-of select="wd:Hire_Date"/><xsl:text>)&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['xsl:sort goes first inside for-each. Oldest hire date first.','position() is the row number after sorting.','Break it: change the sort field to wd:Legal_Name.','Numbers sort as text unless you add data-type="number". Try it on Pay later.']},
+ {g:'Objects inside objects',n:'5. One row per job (loop inside a loop)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee,Position,Location,Org,Parent org&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:variable name="emp" select="wd:Employee_ID"/>
+      <xsl:for-each select="wd:Worker_Job">
+        <xsl:value-of select="$emp"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Position/@wd:Descriptor"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Location/@wd:Descriptor"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Supervisory_Organization/@wd:Descriptor"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Supervisory_Organization/wd:Superior_Organization/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Each worker has a repeating group, Worker_Job. Arun has two, so he gets two lines.','The outer loop is the worker. The inner loop is the job.','Inside the inner loop the current item is the job, so the worker ID must be saved first in a variable ($emp).','@wd:Descriptor is an attribute: the readable name of a related object.','Org > Superior_Organization is an object inside an object. Follow the path with slashes.']},
+ {g:'Objects inside objects',n:'6. Descriptor vs ID types (which one to send?)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee|Descriptor|Location_ID|WID&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:for-each select="wd:Worker_Job[wd:Primary_Job='1']/wd:Location">
+        <xsl:value-of select="../../wd:Employee_ID"/><xsl:text>|</xsl:text>
+        <xsl:value-of select="@wd:Descriptor"/><xsl:text>|</xsl:text>
+        <xsl:value-of select="wd:ID[@wd:type='Location_ID']"/><xsl:text>|</xsl:text>
+        <xsl:value-of select="wd:ID[@wd:type='WID']"/><xsl:text>&#10;</xsl:text>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['One related object, Location, carries three things: a readable Descriptor and several IDs.','The IDs are all elements named wd:ID. What tells them apart is the attribute wd:type.','wd:ID[@wd:type=\'Location_ID\'] means: the ID whose type is Location_ID.','Vendors usually want a stable ID like Location_ID. Descriptors can be renamed by an admin. The WID is different in some tenants.','../.. means go up two levels (job, then worker).']},
+ {g:'Objects inside objects',n:'7. Primary job only',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Worker_Job[wd:Primary_Job='1']/wd:Position/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['The filter [wd:Primary_Job=\'1\'] keeps only the primary job.','Without it, value-of shows only the first job it finds, which may not be the primary one.','The filter depends on how your report names the flag. Check your own report.']},
+ {g:'Objects inside objects',n:'8. Join many values (emails) with ;',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:for-each select="wd:Email">
+        <xsl:if test="position() &gt; 1"><xsl:text>;</xsl:text></xsl:if>
+        <xsl:value-of select="."/>
+      </xsl:for-each>
+      <xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['A field can repeat: Priya has two Email elements, Meera has none.','The inner for-each loops over the emails.','position() > 1 means: put a semicolon before every email except the first.','Meera has none, so her line ends right after the comma. Decide with the business what an empty value should look like.','Workday\'s Simple XML does a similar collapse with semicolons.']},
+ {g:'Decisions and lookups',n:'9. Map codes with choose / when / otherwise',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:choose>
+        <xsl:when test="wd:Gender/@wd:Descriptor='Female'">F</xsl:when>
+        <xsl:when test="wd:Gender/@wd:Descriptor='Male'">M</xsl:when>
+        <xsl:otherwise>U</xsl:otherwise>
+      </xsl:choose>
+      <xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['choose is an if / else-if / else.','Each when tests one value and writes the vendor code.','otherwise is the safety net. Meera has no Gender element at all, so she gets U.','Without otherwise, a missing or new value gives an empty column. This is how unmapped values slip into files.','Core Connectors have integration maps for this, so you may not need it in the XSLT.']},
+ {g:'Decisions and lookups',n:'10. Group and count (xsl:key)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:key name="byOrg" match="wd:Worker_Job" use="wd:Supervisory_Organization/@wd:Descriptor"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Org,Headcount&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry/wd:Worker_Job[generate-id() = generate-id(key('byOrg', wd:Supervisory_Organization/@wd:Descriptor)[1])]">
+      <xsl:sort select="wd:Supervisory_Organization/@wd:Descriptor"/>
+      <xsl:value-of select="wd:Supervisory_Organization/@wd:Descriptor"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="count(key('byOrg', wd:Supervisory_Organization/@wd:Descriptor))"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['xsl:key builds an index: jobs grouped by organization name.','The long select keeps only the first job of each organization, so each org appears once.','count(key(...)) counts all the jobs in that organization. Data Team has 2 jobs (Priya, and Arun\'s second job).','This pattern is called Muenchian grouping. You rarely write it, but you will see it in real stylesheets.']},
+ {g:'Decisions and lookups',n:'11. Trailer with count and total (spot the NaN)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>
+      <xsl:value-of select="wd:Worker_Job/wd:Pay"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+    <xsl:text>T|</xsl:text>
+    <xsl:value-of select="count(wd:Report_Entry)"/><xsl:text>|</xsl:text>
+    <xsl:value-of select="sum(wd:Report_Entry/wd:Worker_Job/wd:Pay)"/>
+  </xsl:template>
+`+XT,e:['A trailer (control total) lets the receiver check they got everything: how many rows, and the sum.','count() counts the workers.','sum() adds the numbers. But Meera\'s Pay is empty, so the total is NaN: not a number.','Fix: only add non-empty values: sum(wd:Report_Entry/wd:Worker_Job/wd:Pay[normalize-space(.) != \'\'])','Also note that Arun\'s first Pay is shown, but his total includes both jobs. Decide what the receiver expects.']},
+ {g:'Formatting',n:'12. Fixed-length file (pad, truncate, default)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:variable name="pad" select="'                              '"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="substring(concat(wd:Employee_ID, $pad), 1, 8)"/>
+      <xsl:value-of select="substring(concat(wd:Legal_Name, $pad), 1, 12)"/>
+      <xsl:choose>
+        <xsl:when test="normalize-space(wd:Worker_Job[1]/wd:Pay) != ''">
+          <xsl:value-of select="format-number(wd:Worker_Job[1]/wd:Pay, '0000000')"/>
+        </xsl:when>
+        <xsl:otherwise>0000000</xsl:otherwise>
+      </xsl:choose>
+      <xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Fixed length: every field has an exact width, with spaces or zeros as filler.','concat(value, spaces) then substring(…, 1, N): pads short values and cuts long ones. "Iyer, Meera" is 11 characters; a longer name would be cut to 12.','format-number(value, \'0000000\') pads a number with leading zeros.','The choose gives a default 0000000 when Pay is empty. Without it you get NaN.','Workday XTT does padding and truncation with attributes, which is easier. Understand the idea here.']},
+ {g:'Formatting',n:'13. Quote values that contain commas (named template)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template name="q">
+    <xsl:param name="v"/>
+    <xsl:choose>
+      <xsl:when test="contains($v, ',')"><xsl:text>"</xsl:text><xsl:value-of select="$v"/><xsl:text>"</xsl:text></xsl:when>
+      <xsl:otherwise><xsl:value-of select="$v"/></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:call-template name="q"><xsl:with-param name="v" select="wd:Legal_Name"/></xsl:call-template>
+      <xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Meera is stored as "Iyer, Meera". A comma inside a CSV value would split it into two columns.','A named template is a small reusable function. call-template runs it, with-param passes the value.','If the value contains a comma, wrap it in double quotes.','A value that contains a double quote also needs care (the quote is doubled). Real files have more edge cases like this.']},
+ {g:'Formatting',n:'14. Dates: remove the time zone part',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>
+      <xsl:value-of select="wd:Hire_Date"/><xsl:text>|</xsl:text>
+      <xsl:value-of select="substring(wd:Hire_Date, 1, 10)"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Workday XML dates can end with a time zone offset such as -08:00.','Column 2 is the raw value. Column 3 keeps only the first 10 characters: yyyy-mm-dd.','Simple XML removes the offset for you, as the course notes. Workday XML does not.','If a receiver rejects the date, check for this first.']},
+ {g:'Copy and change',n:'15. Copy everything, change one thing (identity)',d:'r',x:XH+`  <xsl:output method="xml" indent="yes"/>
+  <xsl:template match="@*|node()">
+    <xsl:copy><xsl:apply-templates select="@*|node()"/></xsl:copy>
+  </xsl:template>
+  <xsl:template match="wd:Pay"><wd:Pay>***</wd:Pay></xsl:template>
+`+XT,e:['The first template is the identity transform: copy every element, attribute and text as it is.','The second template is more specific, so it wins for wd:Pay and masks the value.','This is the safest way to change one thing in a big XML without rebuilding the whole structure.','apply-templates (instead of for-each) lets the most specific rule decide for each part.']},
+ {g:'Break it',n:'B1. Wrong namespace address (no error, wrong output)',d:'s',x:XH.replace('Demo_Workers_Report','Wrong_Report')+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee ID,Name&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Legal_Name"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['The wd: address here does not match the XML, so the rule never matches.','Result: the values run together as plain text with no commas, because no rule matched. No error is shown.','The prefix (wd) can be anything. The address after it must match exactly.','Fix: copy the namespace address from the XML.']},
+ {g:'Break it',n:'B2. Missed a level in the path (blank column)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Position/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Position is not directly under Report_Entry. It is inside Worker_Job.','Result: the second column is blank. No error.','Fix: wd:Worker_Job/wd:Position/@wd:Descriptor. Use the XML Tree lab to find the right path.']},
+ {g:'Break it',n:'B3. Attribute used like an element (blank)',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Worker_Job/wd:Location/wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Descriptor is an attribute, written @wd:Descriptor. Here it was written as an element.','Result: blank column, no error.','Elements use plain names. Attributes use @.']},
+ {g:'Break it',n:'B4. Many jobs, only the first appears',d:'r',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Worker_Job/wd:Position/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Arun has two jobs. value-of on a list of items shows only the first one.','Result: Arun appears with one position and the second job silently disappears.','Fix: loop over the jobs (example 5), or filter to the one you want (example 7).','This is one of the most common real-life defects, because test data usually has one job per person.']}
+];
 BUILD['l-xslt']=function(el){
-  var XML='<wd:Report_Data xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9001</wd:Employee_ID>\n    <wd:Legal_Name>Priya Nair</wd:Legal_Name>\n    <wd:Hire_Date>2024-01-15</wd:Hire_Date>\n    <wd:Org>Data Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9002</wd:Employee_ID>\n    <wd:Legal_Name>Arun Menon</wd:Legal_Name>\n    <wd:Hire_Date>2023-06-01</wd:Hire_Date>\n    <wd:Org>Payroll Team</wd:Org>\n  </wd:Report_Entry>\n  <wd:Report_Entry>\n    <wd:Employee_ID>E9003</wd:Employee_ID>\n    <wd:Legal_Name>Meera Iyer</wd:Legal_Name>\n    <wd:Hire_Date>2025-03-10</wd:Hire_Date>\n    <wd:Org>Platform Team</wd:Org>\n  </wd:Report_Entry>\n</wd:Report_Data>';
-  var H='<xsl:stylesheet version="1.0"\n  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"\n  xmlns:wd="urn:com.workday.report/Demo_Workers_Report">\n';
-  var P={
-   csv:{n:'1. XML to CSV',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name,Hire Date,Org&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Org"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
-    e:['output method="text": the result is plain text, no tags.','template match: start at the root, Report_Data.','The first xsl:text writes the header line. &#10; means new line.','for-each: run the next lines once for every Report_Entry.','value-of picks one field. xsl:text writes the comma.','The last xsl:text on each pass ends the line.']},
-   pipe:{n:'2. Pipe file, upper-case name, date as DD-MM-YYYY',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="translate(wd:Legal_Name,\'abcdefghijklmnopqrstuvwxyz\',\'ABCDEFGHIJKLMNOPQRSTUVWXYZ\')"/><xsl:text>|</xsl:text>\n      <xsl:value-of select="concat(substring(wd:Hire_Date,9,2),\'-\',substring(wd:Hire_Date,6,2),\'-\',substring(wd:Hire_Date,1,4))"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
-    e:['The separator is | now, so only the xsl:text changes.','translate swaps each lower-case letter for its capital.','substring(text, start, length) cuts a piece of the date.','concat joins the pieces: day, dash, month, dash, year.','Workday also has ETV and XTT helpers for this kind of formatting.']},
-   xml:{n:'3. XML to another XML (rename + filter)',x:H.replace('version="1.0"','version="1.0" exclude-result-prefixes="wd"')+'  <xsl:output method="xml" indent="yes"/>\n  <xsl:template match="/wd:Report_Data">\n    <Workers>\n      <xsl:for-each select="wd:Report_Entry[wd:Org != \'Payroll Team\']">\n        <Worker id="{wd:Employee_ID}">\n          <Name><xsl:value-of select="wd:Legal_Name"/></Name>\n          <Start><xsl:value-of select="wd:Hire_Date"/></Start>\n        </Worker>\n      </xsl:for-each>\n    </Workers>\n  </xsl:template>\n</xsl:stylesheet>',
-    e:['output method="xml": the result is XML.','Plain tags in the stylesheet (Workers, Worker, Name) are copied to the output as they are.','The square brackets [ ] are a filter: skip Payroll Team.','id="{...}" puts a value inside an attribute.','exclude-result-prefixes="wd" keeps the wd: label out of the new XML.']},
-   sort:{n:'4. Sort by hire date and number the rows',x:H+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:sort select="wd:Hire_Date"/>\n      <xsl:value-of select="position()"/><xsl:text>. </xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text> (</xsl:text>\n      <xsl:value-of select="wd:Hire_Date"/><xsl:text>)&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
-    e:['xsl:sort goes first inside for-each. Oldest hire date first.','position() is the row number after sorting.','Break it: change the sort field to wd:Legal_Name.']},
-   bad:{n:'5. Break it: wrong namespace (no output)',x:H.replace('Demo_Workers_Report','Wrong_Report')+'  <xsl:output method="text"/>\n  <xsl:template match="/wd:Report_Data">\n    <xsl:text>Employee ID,Name&#10;</xsl:text>\n    <xsl:for-each select="wd:Report_Entry">\n      <xsl:value-of select="wd:Employee_ID"/><xsl:text>,</xsl:text>\n      <xsl:value-of select="wd:Legal_Name"/><xsl:text>&#10;</xsl:text>\n    </xsl:for-each>\n  </xsl:template>\n</xsl:stylesheet>',
-    e:['The wd: address here does not match the XML, so the template never matches.','Result: the values run together as plain text with no commas, because no rule matched. No error is shown. This is a very common mistake.','Fix: copy the namespace address from the XML exactly.']}
-  };
-  el.innerHTML='<p class="muted">Dummy data only. This runs in your browser using plain XSLT 1.0. Workday ETV and XTT helpers are Workday-only, so they are not run here.</p>'+
-   '<div class="row"><label class="note">Example <select id="xsP"></select></label><button type="button" id="xsR">Run</button><button type="button" id="xsC">Copy output</button></div>'+
-   '<div class="row" style="align-items:stretch"><label class="note" style="flex:1 1 280px">1. XML in (Workday style)<textarea id="xsX" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label><label class="note" style="flex:1 1 280px">2. Stylesheet (the rules)<textarea id="xsS" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label></div>'+
+  el.innerHTML='<p class="muted">Dummy data only. Runs in your browser with plain XSLT 1.0. The XML has two sets: a simple flat one, and a Workday-style one with objects inside objects. Workday ETV and XTT are Workday-only, so they are not run here. Element names in the rich XML are illustrative: your report\'s XML aliases decide the real names.</p>'+
+   '<div class="row"><label class="note">Example <select id="xsP"></select></label><button type="button" id="xsR">Run</button><button type="button" id="xsC">Copy output</button><a href="#l-xtree" class="note">Open the XML tree</a></div>'+
+   '<div class="row" style="align-items:stretch"><label class="note" style="flex:1 1 280px">1. XML in<textarea id="xsX" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label><label class="note" style="flex:1 1 280px">2. Stylesheet (the rules)<textarea id="xsS" rows="14" spellcheck="false" style="width:100%;font:13px var(--f-mono)"></textarea></label></div>'+
    '<h4>3. Output</h4><pre id="xsO" class="note" style="white-space:pre-wrap;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:10px"></pre><p id="xsM" class="note"></p>'+
    '<h4>How this example works</h4><ol id="xsE" class="note"></ol>';
-  var sel=$('#xsP',el);sel.innerHTML=Object.keys(P).map(function(k){return '<option value="'+k+'">'+esc(P[k].n)+'</option>'}).join('');
-  function load(){var p=P[sel.value];$('#xsX',el).value=XML;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
+  var sel=$('#xsP',el),gs=[];XP.forEach(function(p,i){if(gs.indexOf(p.g)<0)gs.push(p.g)});
+  sel.innerHTML=gs.map(function(g){return '<optgroup label="'+esc(g)+'">'+XP.map(function(p,i){return p.g===g?'<option value="'+i+'">'+esc(p.n)+'</option>':''}).join('')+'</optgroup>'}).join('');
+  function load(){var p=XP[+sel.value];$('#xsX',el).value=p.d==='r'?XML_RICH:XML_SIMPLE;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
   function run(){
     var out=$('#xsO',el),msg=$('#xsM',el);msg.textContent='';
     try{
@@ -332,12 +541,32 @@ BUILD['l-xslt']=function(el){
       if(sd.getElementsByTagName('parsererror').length){out.textContent='';msg.textContent='The stylesheet is not well-formed XML: check closing tags and quotes.';return}
       var pr=new XSLTProcessor();pr.importStylesheet(sd);var fr=pr.transformToFragment(xd,document),txt=/method\s*=\s*["']text["']/.test($('#xsS',el).value);
       out.textContent=txt?fr.textContent:new XMLSerializer().serializeToString(fr);
-      if(!out.textContent.trim())msg.textContent='Empty output. Common causes: wrong namespace address, wrong match path, or a filter that removes every row.';
+      if(!out.textContent.trim())msg.textContent='Empty output. Common causes: wrong namespace address, wrong path, or a filter that removes every row.';
     }catch(e){out.textContent='';msg.textContent='Could not run: '+e.message}
   }
   sel.onchange=load;$('#xsR',el).onclick=run;
   $('#xsC',el).onclick=function(){try{navigator.clipboard.writeText($('#xsO',el).textContent)}catch(x){}this.textContent='Copied';var b=this;setTimeout(function(){b.textContent='Copy output'},1400)};
   load();
+};
+
+/* ---------- XML tree explorer ---------- */
+BUILD['l-xtree']=function(el){
+  el.innerHTML='<p class="muted">Click any line to see its XPath, its value, and what kind of thing it is. Dummy data. Element names are illustrative.</p><div class="row"><label class="note">Data <select id="xtD"><option value="r">Workday-style XML with objects inside objects</option><option value="s">Simple flat XML</option></select></label></div><div class="row" style="align-items:flex-start"><div id="xtT" style="flex:1 1 320px;max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;font:13px var(--f-mono)"></div><div id="xtI" class="note" style="flex:1 1 260px"><p>Click a line on the left.</p></div></div>';
+  var doc,tree=$('#xtT',el),info=$('#xtI',el);
+  function ln(n){return n.localName}
+  function pfx(n){return n.prefix?n.prefix+':':''}
+  function path(n){var p=[];while(n&&n.nodeType===1){var s=pfx(n)+ln(n),sib=[],c=n.parentNode?n.parentNode.children:[],i;for(i=0;i<c.length;i++)if(c[i].localName===n.localName&&c[i].namespaceURI===n.namespaceURI)sib.push(c[i]);
+      if(ln(n)==='ID'&&n.getAttributeNS(NSURI,'type'))s+="[@wd:type='"+n.getAttributeNS(NSURI,'type')+"']";else if(sib.length>1)s+='['+(sib.indexOf(n)+1)+']';p.unshift(s);n=n.parentNode}return '/'+p.join('/')}
+  function kind(n){var k=[],i,hasID=false,c=n.children;for(i=0;i<c.length;i++)if(ln(c[i])==='ID')hasID=true;
+    if(hasID)k.push('Related business object (has IDs and a Descriptor)');else if(ln(n)==='ID')k.push('An ID of the object above. The type attribute says which kind.');else if(c.length)k.push('Group (contains other elements)');else k.push('Simple value');
+    var sib=n.parentNode?Array.prototype.filter.call(n.parentNode.children,function(x){return x.localName===n.localName}):[n];if(sib.length>1&&ln(n)!=='ID')k.push('Repeats here: '+sib.length+' instances. Use a loop or a filter.');return k}
+  function draw(nd,box,depth){var c=nd.children,txt=c.length?'':nd.textContent,d=document.createElement('div');d.style.paddingLeft=(depth?14:0)+'px';var h=document.createElement('div');h.style.cursor='pointer';h.style.padding='1px 3px';h.style.borderRadius='4px';
+    var at='';Array.prototype.forEach.call(nd.attributes,function(a){if(a.name.indexOf('xmlns')!==0)at+=' '+a.name+'="'+a.value+'"'});
+    h.textContent=(c.length?'▾ ':'  ')+'<'+pfx(nd)+ln(nd)+at+'>'+(txt?txt:'');h.onclick=function(e){e.stopPropagation();Array.prototype.forEach.call(tree.querySelectorAll('[data-sel]'),function(x){x.removeAttribute('data-sel');x.style.background=''});h.setAttribute('data-sel',1);h.style.background='var(--accent-soft)';
+      info.innerHTML='<p><b>XPath</b></p><pre style="white-space:pre-wrap;word-break:break-all">'+esc(path(nd))+'</pre><p><b>Value</b></p><pre style="white-space:pre-wrap">'+esc(c.length?'(group)':nd.textContent||'(empty)')+'</pre><p><b>What is it?</b></p><ul>'+kind(nd).map(function(k){return '<li>'+esc(k)+'</li>'}).join('')+'</ul>'+(nd.getAttributeNS(NSURI,'Descriptor')?'<p><b>Descriptor</b>: '+esc(nd.getAttributeNS(NSURI,'Descriptor'))+' (read it with @wd:Descriptor)</p>':'')};
+    d.appendChild(h);box.appendChild(d);Array.prototype.forEach.call(c,function(x){draw(x,d,depth+1)})}
+  function load(){doc=new DOMParser().parseFromString($('#xtD',el).value==='r'?XML_RICH:XML_SIMPLE,'application/xml');tree.innerHTML='';draw(doc.documentElement,tree,0);info.innerHTML='<p>Click a line on the left.</p>'}
+  $('#xtD',el).onchange=load;load();
 };
 
 /* ---------- shell ---------- */

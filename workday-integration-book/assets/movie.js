@@ -323,6 +323,81 @@ FILMS.xslt=[
   c.txt(300,220,"Change a rule. Watch the output change.",16,{fill:'var(--muted)',a:.8});
  }}
 ];
+FILMS.xmlobj=[
+{t:"A worker is not a flat row",tr:"objects",s:"In Excel, a worker is one flat row. In Workday XML, a worker is more like a Russian doll. The worker holds a job. The job points to a position, a location and a supervisory organization. And that organization points to its own parent. Objects inside objects inside objects. That is the hierarchy your stylesheet must walk.",
+ rem:[["Objects inside objects","indigo"],["Related business object","teal"],["Walk the path","amber"]],
+ build:function(c){
+  c.box(210,6,180,40,'teal',"Worker",null,.04);c.box(210,66,180,40,'indigo',"Worker_Job",null,.14);c.line(300,46,300,66,.1,.14);
+  [["Position",10],["Location",210],["Supervisory Org",410]].forEach(function(b,i){c.box(b[1],136,180,40,'gray',b[0],null,.26+i*.08);c.line(300,106,b[1]+90,136,.22+i*.08,.28+i*.08)});
+  c.box(410,196,180,40,'amber',"Superior Org","the parent",.55);c.line(500,176,500,196,.5,.55);
+  c.txt(200,230,"Worker > Job > Org > Parent org",17,{w:700,fill:'var(--accent)',a:.7});
+  c.txt(300,290,"Like a Russian doll, or folders inside folders",15,{fill:'var(--muted)',a:.82});
+ }},
+{t:"Anatomy of a related object",tr:"descriptor + IDs",s:"Every related object looks the same. It has a Descriptor, which is the name a human reads. And it has IDs. The same object can carry several IDs, and a type label tells them apart. The W I D is Workday's own internal key. Location ID or Organization Reference ID are the ones you can recognise. Vendors usually want a stable ID, not the descriptor.",
+ rem:[["Descriptor = readable name","teal"],["ID + type label","indigo"],["WID = internal key","gray"],["Send a stable ID, not the name","coral"]],
+ build:function(c){
+  c.box(10,14,580,60,'teal',"Location",'Descriptor = "Dallas"',.04);
+  c.box(30,100,170,56,'indigo',"WID","long internal key",.2);c.box(215,100,170,56,'indigo',"Location_ID","DALLAS",.32);c.box(400,100,170,56,'gray',"Other type","another system",.44);
+  c.line(300,74,115,100,.15,.2);c.line(300,74,300,100,.25,.32);c.line(300,74,485,100,.35,.44);
+  c.txt(300,196,"Same object. Many labels.",20,{w:700,a:.6});
+  c.txt(300,232,"Pick by type: wd:ID[@wd:type='Location_ID']",16,{fill:'var(--indigo)',w:700,a:.75});
+  c.txt(300,268,"Descriptors can be renamed. IDs rarely change.",15,{fill:'var(--muted)',a:.85});
+ }},
+{t:"One worker, many jobs",tr:"1 to many",s:"Some fields hold one object. Others hold many. A worker can have two jobs, three emails, two phones. Each repeats inside the worker. If your stylesheet picks a field without a loop, it silently takes only the first one. The second job just vanishes. And test data usually has one job per person, so nobody notices until production.",
+ rem:[["1-to-1 vs 1-to-many","indigo"],["Repeats need a loop","teal"],["Only the first is shown otherwise","coral"],["Test with 2+ jobs","amber"]],
+ build:function(c){
+  c.box(10,60,140,60,'teal',"Worker","Arun",.04);
+  c.box(230,14,170,50,'indigo',"Job 1","primary job",.16);c.box(230,78,170,50,'indigo',"Job 2","Data Mentor",.28);c.box(230,142,170,50,'gray',"Email 1",null,.4);
+  c.line(150,90,230,40,.12,.18);c.line(150,90,230,103,.2,.3);c.line(150,90,230,167,.3,.42);
+  c.box(450,14,140,50,'teal',"CSV line 1",null,.55);c.box(450,78,140,50,'coral',"CSV line 2?","lost without a loop",.65);
+  c.line(400,40,450,40,.5,.55);c.line(400,103,450,103,.6,.65);
+  c.txt(300,250,"Loop over the repeating group, one line per item",16,{w:700,fill:'var(--accent)',a:.8});
+ }},
+{t:"Going up the org tree",tr:"hierarchy",s:"Organizations form a tree of their own. A team sits under a department, which sits under a division. In the XML, each level is nested inside the one below, or listed as a separate parent reference. Your stylesheet must walk up to level one, two, three. If a team is only one level deep, the higher levels are simply empty. Decide what the vendor should get then.",
+ rem:[["Org tree: level 1, 2, 3","indigo"],["Walk up with nested paths","teal"],["Missing level = empty","coral"]],
+ build:function(c){
+  c.box(210,10,180,44,'indigo',"Technology","level 1",.04);c.box(210,80,180,44,'indigo',"Data Team","level 2",.16);c.box(210,150,180,44,'amber',"Analytics Pod","level 3",.28);
+  c.line(300,54,300,80,.1,.16);c.line(300,124,300,150,.22,.28);
+  c.box(10,150,160,44,'teal',"Worker's org",null,.4);c.line(170,172,210,172,.34,.4);
+  c.box(430,80,160,44,'coral',"No parent?","level 1 is empty",.56);
+  c.txt(300,240,"Superior_Organization/Superior_Organization/...",15,{w:700,fill:'var(--indigo)',a:.7});
+  c.txt(300,276,"Each ../ or nested step goes one level up",15,{fill:'var(--muted)',a:.85});
+ }},
+{t:"Three flavours of Workday XML",tr:"formats",s:"The same report can come out in different flavours. Workday XML keeps everything: descriptors, IDs, nested objects. Simple XML is flatter. It keeps only the descriptors, drops the IDs, joins repeating values into one string with semicolons, and drops the time zone from dates. A stylesheet written for one flavour breaks on the other. And web service responses use yet another shape, with ID elements and a type attribute.",
+ rem:[["Workday XML = full","teal"],["Simple XML = flat","amber"],["Stylesheet matches ONE flavour","coral"]],
+ build:function(c){
+  [[10,'teal',"Workday XML",["descriptors + IDs","nested objects","repeats kept"],.05],[210,'amber',"Simple XML",["descriptors only","repeats joined with ;","no time zone"],.2],[410,'indigo',"Web service",["ID + type attribute","Worker_Data shape","ask for descriptors"],.35]].forEach(function(b){c.box(b[0],20,185,130,b[1],b[2],null,b[4]);b[3].forEach(function(t,i){c.txt(b[0]+92,80+i*24,t,13,{a:b[4]+.1})})});
+  c.txt(300,196,"Change the format = rewrite the paths",18,{w:700,fill:'var(--coral)',a:.6});
+  c.txt(300,236,"Always ask: which flavour is this stylesheet for?",15,{fill:'var(--muted)',a:.8});
+ }},
+{t:"How the stylesheet walks it",tr:"the toolkit",s:"Here is the toolkit. A loop inside a loop for repeating groups. A variable to remember the worker, because inside the inner loop you are standing in the job. A filter in square brackets to pick the primary job, or the ID of a given type. Choose and when for mapping codes. A key for grouping and counting. Count and sum for a trailer. And the identity copy, which copies everything and changes only one thing.",
+ rem:[["for-each inside for-each","teal"],["variable","indigo"],["[filter]","amber"],["choose / when","gray"],["key, count, sum","teal"],["identity copy","indigo"]],
+ build:function(c){
+  [["Nested loop","jobs per worker"],["Variable","remember the worker"],["[ filter ]","primary job, ID type"],["choose / when","map codes"],["key","group and count"],["count / sum","trailer totals"]].forEach(function(b,i){var x=10+(i%3)*198,y=14+Math.floor(i/3)*84;c.box(x,y,184,70,['teal','indigo','amber','gray','teal','indigo'][i],b[0],b[1],.04+i*.09)});
+  c.box(10,190,580,56,'amber',"Identity copy","copy everything, change one thing",.62);
+  c.txt(300,290,"All 15 are in the XSLT playground",16,{w:700,fill:'var(--accent)',a:.85});
+ }},
+{t:"Why an XSLT goes wrong, part 1",tr:"reasons 1-6",s:"Now the reasons it goes wrong, and most give no error at all. One. The namespace address does not match. Two. The path misses a level, for example the position sits inside the job. Three. An attribute is written like an element. Four. Only the first of many jobs shows. Five. The ID type is wrong, so the lookup finds nothing. Six. The report definition changed, so element names changed.",
+ rem:[["Namespace mismatch","coral"],["Missed a level","coral"],["@attribute vs element","coral"],["Many values, first only","coral"],["Wrong ID type","coral"],["Report alias changed","coral"]],
+ build:function(c){
+  ["1  Namespace address differs","2  Path misses a level","3  Attribute written as element","4  Many jobs: only the first shows","5  ID type does not match","6  Report alias renamed upstream"].forEach(function(t,i){c.box(40,12+i*46,520,38,'gray',t,null,.04+i*.1)});
+  c.txt(300,300,"No error. Just wrong or empty output.",16,{w:700,fill:'var(--coral)',a:.8});
+ }},
+{t:"Why an XSLT goes wrong, part 2",tr:"reasons 7-13",s:"Seven. The sample has data the production file does not, or the other way round. A missing optional object, like a person with no gender, leaves a blank, or a total that says N a N. Eight. The date still carries a time zone. Nine. A comma or quote inside a name breaks the CSV. Ten. Text is too long for a fixed width field and gets cut, or a number is not padded. Eleven. A filter drops every row. Twelve. Wrong flavour: Simple instead of Workday XML. Thirteen. Encoding, for example accents turning into question marks.",
+ rem:[["Missing optional object","coral"],["Time zone on date","coral"],["Comma or quote in value","coral"],["Truncate / pad","coral"],["Filter drops all","coral"],["Wrong XML flavour","coral"],["Encoding","coral"]],
+ build:function(c){
+  ["7  Optional object missing, blank or NaN","8  Date has a time zone suffix","9  Comma or quote breaks the CSV","10  Fixed width: cut or not padded","11  A filter removes every row","12  Wrong XML flavour (Simple vs Workday)","13  Encoding: accents become ?"].forEach(function(t,i){c.box(40,8+i*40,520,33,'gray',t,null,.04+i*.09)});
+  c.txt(300,300,"Test with messy data: 2 jobs, no email, a comma, an accent",15,{w:700,fill:'var(--accent)',a:.85});
+ }},
+{t:"Recap",tr:"done",s:"So remember. A worker is a tree of objects. Each related object has a descriptor and typed IDs. Repeats need loops. Know which flavour of XML you have. And test with messy data. Now open the XML tree explorer, click around, and then try the nested examples in the XSLT playground.",
+ rem:[["XML tree explorer in Labs","teal"],["Nested examples in the playground","indigo"]],
+ build:function(c){
+  c.box(10,40,170,80,'teal',"Tree of objects",null,.05);c.box(215,40,170,80,'indigo',"Descriptor + typed IDs",null,.2);c.box(420,40,170,80,'amber',"Loop the repeats",null,.35);
+  c.txt(300,184,"Labs: XML tree explorer, XSLT playground",20,{w:700,fill:'var(--accent)',a:.7});
+  c.txt(300,220,"Test with messy data, not the happy path.",16,{fill:'var(--muted)',a:.8});
+ }}
+];
+
 
 function words(s){return s.split(/\s+/).length}
 function sentences(s){return s.match(/[^.!?]+[.!?]+/g)||[s]}
