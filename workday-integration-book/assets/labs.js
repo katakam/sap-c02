@@ -14,7 +14,7 @@ B.L({id:'l-dates',title:'Dates and time zones',desc:'See why 01/12/2026 is unsaf
 
 B.L({id:'l-division',title:'Division finder and test-data generator',desc:'Pick a scenario. See the dummy workers and events to create, the Workday steps, and the answer a correct report must give for any date.',tags:'division test data dummy future dated pending transfer level 1 2 3 as of query sql'});
 
-B.L({id:'l-xslt',title:'XSLT playground',desc:'15 examples plus 4 broken ones: flat and nested Workday-style XML in, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
+B.L({id:'l-xslt',title:'XSLT playground',desc:'19 examples plus 6 broken ones: flat and nested Workday-style XML in, CSV or new XML out. Change a rule and run it.',tags:'xslt xml csv transform stylesheet for-each value-of template namespace convert pipe sort filter'});
 
 B.L({id:'l-xtree',title:'XML tree and XPath explorer',desc:'See objects inside objects. Click a line to get its XPath and what kind of thing it is.',tags:'xml tree xpath objects hierarchy related business object descriptor id wid reference nested repeating'});
 
@@ -315,6 +315,21 @@ var XML_RICH=xPretty('<wd:Report_Data xmlns:wd="'+NSURI+'">'+
  '<wd:Report_Entry><wd:Employee_ID>E9002</wd:Employee_ID><wd:Legal_Name>Arun Menon</wd:Legal_Name><wd:Hire_Date>2023-06-01-08:00</wd:Hire_Date>'+xRef('Gender','Male','Gender_Code','Male',12)+'<wd:Email>arun@example.com</wd:Email>'+xJob(1,'Payroll Analyst (P-0044)','P-0044','Singapore','SINGAPORE','Payroll Team','PAYROLL_TEAM','Finance','FINANCE','64000',30)+xJob(0,'Data Mentor (P-0090)','P-0090','Dallas','DALLAS','Data Team','DATA_TEAM','Technology','TECHNOLOGY','8000',40)+'</wd:Report_Entry>'+
  '<wd:Report_Entry><wd:Employee_ID>E9003</wd:Employee_ID><wd:Legal_Name>Iyer, Meera</wd:Legal_Name><wd:Hire_Date>2025-03-10-08:00</wd:Hire_Date>'+xJob(1,'Platform Engineer (P-0101)','P-0101','Singapore','SINGAPORE','Platform Team','PLATFORM_TEAM','Technology','TECHNOLOGY','',50)+'</wd:Report_Entry>'+
  '</wd:Report_Data>');
+
+function xOrg(chain,n){var c=chain[0];return xRef('Supervisory_Organization',c[0],'Organization_Reference_ID',c[1],n,chain.length>1?xOrgUp(chain.slice(1),n+1):'')}
+function xOrgUp(chain,n){var c=chain[0];return xRef('Superior_Organization',c[0],'Organization_Reference_ID',c[1],n,chain.length>1?xOrgUp(chain.slice(1),n+1):'')}
+function xStep(name,by,st){return '<wd:Step><wd:Step_Name>'+name+'</wd:Step_Name><wd:Completed_By>'+by+'</wd:Completed_By><wd:Step_Status>'+st+'</wd:Step_Status></wd:Step>'}
+function xBP(type,tid,reason,rid,status,date,init,initId,pos,posId,org,steps,n){return '<wd:Business_Process>'+xRef('Event_Type',type,'Business_Process_Type_ID',tid,n)+xRef('Reason',reason,'General_Event_Subcategory_ID',rid,n+1)+'<wd:Status>'+status+'</wd:Status><wd:Effective_Date>'+date+'</wd:Effective_Date>'+xRef('Initiator',init,'Employee_ID',initId,n+2)+'<wd:Proposed_Job>'+xRef('Position',pos,'Position_ID',posId,n+3)+xOrg(org,n+4)+'</wd:Proposed_Job>'+steps+'</wd:Business_Process>'}
+var XML_EVENT=xPretty('<wd:Report_Data xmlns:wd="'+NSURI+'">'+
+ '<wd:Report_Entry><wd:Employee_ID>E9001</wd:Employee_ID><wd:Legal_Name>Priya Nair</wd:Legal_Name>'+
+  xBP('Hire','HIRE','Hire > New Hire','HIRE_NEW','Successfully Completed','2024-01-15-08:00','Anita Rao','E7001','Data Analyst (P-0012)','P-0012',[['Data Team','DATA_TEAM'],['Technology','TECHNOLOGY']],xStep('Manager approval','Anita Rao','Approved')+xStep('HR partner review','Sam Lee','Approved'),60)+
+  xBP('Transfer','TRANSFER','Transfer > Lateral','TRANSFER_LATERAL','Successfully Completed','2025-07-01-08:00','Anita Rao','E7001','Senior Data Analyst (P-0013)','P-0013',[['Analytics Pod','ANALYTICS_POD'],['Data Team','DATA_TEAM'],['Technology','TECHNOLOGY']],xStep('Manager approval','Anita Rao','Approved'),70)+'</wd:Report_Entry>'+
+ '<wd:Report_Entry><wd:Employee_ID>E9002</wd:Employee_ID><wd:Legal_Name>Arun Menon</wd:Legal_Name>'+
+  xBP('Hire','HIRE','Hire > New Hire','HIRE_NEW','Successfully Completed','2023-06-01-08:00','Sam Lee','E7002','Payroll Analyst (P-0044)','P-0044',[['Payroll Team','PAYROLL_TEAM'],['Finance','FINANCE']],xStep('Manager approval','Sam Lee','Approved'),80)+
+  xBP('Transfer','TRANSFER','Transfer > Reorganization','TRANSFER_REORG','In Progress','2027-01-01-08:00','Anita Rao','E7001','Data Mentor (P-0090)','P-0090',[['Analytics Pod','ANALYTICS_POD'],['Data Team','DATA_TEAM'],['Technology','TECHNOLOGY']],xStep('Manager approval','Anita Rao','Approved')+xStep('Finance review','(waiting)','Pending'),90)+'</wd:Report_Entry>'+
+ '<wd:Report_Entry><wd:Employee_ID>E9003</wd:Employee_ID><wd:Legal_Name>Meera Iyer</wd:Legal_Name>'+
+  xBP('Hire','HIRE','Hire > New Hire','HIRE_NEW','Successfully Completed','2025-03-10-08:00','Sam Lee','E7002','Platform Engineer (P-0101)','P-0101',[['Platform Team','PLATFORM_TEAM'],['Technology','TECHNOLOGY']],xStep('Manager approval','Sam Lee','Approved'),100)+'</wd:Report_Entry>'+
+ '</wd:Report_Data>');
 var XH='<xsl:stylesheet version="1.0"\n  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"\n  xmlns:wd="'+NSURI+'">\n';
 var XT='</xsl:stylesheet>';
 var XP=[
@@ -490,6 +505,69 @@ var XP=[
   </xsl:template>
   <xsl:template match="wd:Pay"><wd:Pay>***</wd:Pay></xsl:template>
 `+XT,e:['The first template is the identity transform: copy every element, attribute and text as it is.','The second template is more specific, so it wins for wd:Pay and masks the value.','This is the safest way to change one thing in a big XML without rebuilding the whole structure.','apply-templates (instead of for-each) lets the most specific rule decide for each part.']},
+
+ {g:'Complex objects (a process inside a worker)',n:'16. One row per business process (child of the worker)',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee,Event,Reason,Status,Effective,Initiator ID&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:variable name="emp" select="wd:Employee_ID"/>
+      <xsl:for-each select="wd:Business_Process">
+        <xsl:value-of select="$emp"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Event_Type/@wd:Descriptor"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Reason/@wd:Descriptor"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Status"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="substring(wd:Effective_Date,1,10)"/><xsl:text>,</xsl:text>
+        <xsl:value-of select="wd:Initiator/wd:ID[@wd:type='Employee_ID']"/><xsl:text>&#10;</xsl:text>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['A worker holds business processes (events). Each event is a complex object with its own children: type, reason, status, date, initiator, proposed job, steps.','Event_Type and Reason are related objects: read the name with @wd:Descriptor.','Status and Effective_Date are plain values inside the event.','Initiator is a related object too (a worker). Its Employee_ID is picked by type.','One line per event, so Arun gets two lines and Priya two.']},
+ {g:'Complex objects (a process inside a worker)',n:'17. Three levels: worker > event > steps',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee,Event,Step,By,Result&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:variable name="emp" select="wd:Employee_ID"/>
+      <xsl:for-each select="wd:Business_Process">
+        <xsl:variable name="evt" select="wd:Event_Type/@wd:Descriptor"/>
+        <xsl:for-each select="wd:Step">
+          <xsl:value-of select="$emp"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="$evt"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="wd:Step_Name"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="wd:Completed_By"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="wd:Step_Status"/><xsl:text>&#10;</xsl:text>
+        </xsl:for-each>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Children can have children. Steps repeat inside an event, and events repeat inside a worker.','Three loops, one per level.','Inside the step loop you are standing in the step. Anything from the parents must be saved earlier in variables ($emp, $evt).','Rule of thumb: one loop for each repeating level you want on the line.']},
+ {g:'Complex objects (a process inside a worker)',n:'18. Latest completed event per worker',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry">
+      <xsl:variable name="emp" select="wd:Employee_ID"/>
+      <xsl:for-each select="wd:Business_Process[wd:Status='Successfully Completed']">
+        <xsl:sort select="wd:Effective_Date" order="descending"/>
+        <xsl:if test="position()=1">
+          <xsl:value-of select="$emp"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="wd:Event_Type/@wd:Descriptor"/><xsl:text>,</xsl:text>
+          <xsl:value-of select="wd:Proposed_Job/wd:Position/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['Filter: only completed events (the text must match exactly, including capitals).','Sort newest first, then keep position()=1: the latest one.','Priya has Hire and Transfer: only the Transfer shows. Arun\'s In Progress event is ignored, so his Hire shows.','Dates in yyyy-mm-dd sort correctly as text. Other date formats do not.']},
+ {g:'Complex objects (a process inside a worker)',n:'19. Pending future transfer: the proposed division and its parents',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee,Effective,Level 3,Level 2,Level 1&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry/wd:Business_Process[wd:Status='In Progress'][wd:Event_Type/@wd:Descriptor='Transfer']">
+      <xsl:variable name="o" select="wd:Proposed_Job/wd:Supervisory_Organization"/>
+      <xsl:value-of select="../wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="substring(wd:Effective_Date,1,10)"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="$o/@wd:Descriptor"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="$o/wd:Superior_Organization/@wd:Descriptor"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="$o/wd:Superior_Organization/wd:Superior_Organization/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['This is the proposed-division question from the book, in XSLT: find the pending transfer, then read the org and its parents.','Two filters in a row: status In Progress, and event type Transfer.','The variable $o points at the proposed org object. Each parent is a nested object inside the previous one.','Only Arun matches. His proposed team is level 3, with Data Team and Technology above it.','../wd:Employee_ID goes up one level from the event to the worker.']},
  {g:'Break it',n:'B1. Wrong namespace address (no error, wrong output)',d:'s',x:XH.replace('Demo_Workers_Report','Wrong_Report')+`  <xsl:output method="text"/>
   <xsl:template match="/wd:Report_Data">
     <xsl:text>Employee ID,Name&#10;</xsl:text>
@@ -522,7 +600,24 @@ var XP=[
       <xsl:value-of select="wd:Worker_Job/wd:Position/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
     </xsl:for-each>
   </xsl:template>
-`+XT,e:['Arun has two jobs. value-of on a list of items shows only the first one.','Result: Arun appears with one position and the second job silently disappears.','Fix: loop over the jobs (example 5), or filter to the one you want (example 7).','This is one of the most common real-life defects, because test data usually has one job per person.']}
+`+XT,e:['Arun has two jobs. value-of on a list of items shows only the first one.','Result: Arun appears with one position and the second job silently disappears.','Fix: loop over the jobs (example 5), or filter to the one you want (example 7).','This is one of the most common real-life defects, because test data usually has one job per person.']},
+ {g:'Break it',n:'B5. Status text differs by one letter (nothing matches)',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:text>Employee,Effective&#10;</xsl:text>
+    <xsl:for-each select="wd:Report_Entry/wd:Business_Process[wd:Status='In progress']">
+      <xsl:value-of select="../wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="substring(wd:Effective_Date,1,10)"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['The XML says In Progress. The stylesheet says In progress. Text comparison is case-sensitive.','Result: only the header. A filter that removes every row looks like a working but empty file.','Fix: copy the exact value from the XML.']},
+ {g:'Break it',n:'B6. Proposed org read from the wrong level (blank)',d:'e',x:XH+`  <xsl:output method="text"/>
+  <xsl:template match="/wd:Report_Data">
+    <xsl:for-each select="wd:Report_Entry/wd:Business_Process">
+      <xsl:value-of select="../wd:Employee_ID"/><xsl:text>,</xsl:text>
+      <xsl:value-of select="wd:Supervisory_Organization/@wd:Descriptor"/><xsl:text>&#10;</xsl:text>
+    </xsl:for-each>
+  </xsl:template>
+`+XT,e:['The org is not a direct child of the event. It sits inside Proposed_Job.','Result: blank column, no error.','Fix: wd:Proposed_Job/wd:Supervisory_Organization/@wd:Descriptor. Use the XML tree explorer to find the path.']}
 ];
 BUILD['l-xslt']=function(el){
   el.innerHTML='<p class="muted">Dummy data only. Runs in your browser with plain XSLT 1.0. The XML has two sets: a simple flat one, and a Workday-style one with objects inside objects. Workday ETV and XTT are Workday-only, so they are not run here. Element names in the rich XML are illustrative: your report\'s XML aliases decide the real names.</p>'+
@@ -532,7 +627,7 @@ BUILD['l-xslt']=function(el){
    '<h4>How this example works</h4><ol id="xsE" class="note"></ol>';
   var sel=$('#xsP',el),gs=[];XP.forEach(function(p,i){if(gs.indexOf(p.g)<0)gs.push(p.g)});
   sel.innerHTML=gs.map(function(g){return '<optgroup label="'+esc(g)+'">'+XP.map(function(p,i){return p.g===g?'<option value="'+i+'">'+esc(p.n)+'</option>':''}).join('')+'</optgroup>'}).join('');
-  function load(){var p=XP[+sel.value];$('#xsX',el).value=p.d==='r'?XML_RICH:XML_SIMPLE;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
+  function load(){var p=XP[+sel.value];$('#xsX',el).value=p.d==='r'?XML_RICH:p.d==='e'?XML_EVENT:XML_SIMPLE;$('#xsS',el).value=p.x;$('#xsE',el).innerHTML=p.e.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');run()}
   function run(){
     var out=$('#xsO',el),msg=$('#xsM',el);msg.textContent='';
     try{
@@ -551,7 +646,7 @@ BUILD['l-xslt']=function(el){
 
 /* ---------- XML tree explorer ---------- */
 BUILD['l-xtree']=function(el){
-  el.innerHTML='<p class="muted">Click any line to see its XPath, its value, and what kind of thing it is. Dummy data. Element names are illustrative.</p><div class="row"><label class="note">Data <select id="xtD"><option value="r">Workday-style XML with objects inside objects</option><option value="s">Simple flat XML</option></select></label></div><div class="row" style="align-items:flex-start"><div id="xtT" style="flex:1 1 320px;max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;font:13px var(--f-mono)"></div><div id="xtI" class="note" style="flex:1 1 260px"><p>Click a line on the left.</p></div></div>';
+  el.innerHTML='<p class="muted">Click any line to see its XPath, its value, and what kind of thing it is. Dummy data. Element names are illustrative.</p><div class="row"><label class="note">Data <select id="xtD"><option value="r">Workday-style XML with objects inside objects</option><option value="e">Worker with business processes inside (events, steps, proposed job)</option><option value="s">Simple flat XML</option></select></label></div><div class="row" style="align-items:flex-start"><div id="xtT" style="flex:1 1 320px;max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px;font:13px var(--f-mono)"></div><div id="xtI" class="note" style="flex:1 1 260px"><p>Click a line on the left.</p></div></div>';
   var doc,tree=$('#xtT',el),info=$('#xtI',el);
   function ln(n){return n.localName}
   function pfx(n){return n.prefix?n.prefix+':':''}
@@ -565,7 +660,7 @@ BUILD['l-xtree']=function(el){
     h.textContent=(c.length?'▾ ':'  ')+'<'+pfx(nd)+ln(nd)+at+'>'+(txt?txt:'');h.onclick=function(e){e.stopPropagation();Array.prototype.forEach.call(tree.querySelectorAll('[data-sel]'),function(x){x.removeAttribute('data-sel');x.style.background=''});h.setAttribute('data-sel',1);h.style.background='var(--accent-soft)';
       info.innerHTML='<p><b>XPath</b></p><pre style="white-space:pre-wrap;word-break:break-all">'+esc(path(nd))+'</pre><p><b>Value</b></p><pre style="white-space:pre-wrap">'+esc(c.length?'(group)':nd.textContent||'(empty)')+'</pre><p><b>What is it?</b></p><ul>'+kind(nd).map(function(k){return '<li>'+esc(k)+'</li>'}).join('')+'</ul>'+(nd.getAttributeNS(NSURI,'Descriptor')?'<p><b>Descriptor</b>: '+esc(nd.getAttributeNS(NSURI,'Descriptor'))+' (read it with @wd:Descriptor)</p>':'')};
     d.appendChild(h);box.appendChild(d);Array.prototype.forEach.call(c,function(x){draw(x,d,depth+1)})}
-  function load(){doc=new DOMParser().parseFromString($('#xtD',el).value==='r'?XML_RICH:XML_SIMPLE,'application/xml');tree.innerHTML='';draw(doc.documentElement,tree,0);info.innerHTML='<p>Click a line on the left.</p>'}
+  function load(){doc=new DOMParser().parseFromString(({r:XML_RICH,e:XML_EVENT,s:XML_SIMPLE})[$('#xtD',el).value],'application/xml');tree.innerHTML='';draw(doc.documentElement,tree,0);info.innerHTML='<p>Click a line on the left.</p>'}
   $('#xtD',el).onchange=load;load();
 };
 

@@ -353,6 +353,16 @@ FILMS.xmlobj=[
   c.line(400,40,450,40,.5,.55);c.line(400,103,450,103,.6,.65);
   c.txt(300,250,"Loop over the repeating group, one line per item",16,{w:700,fill:'var(--accent)',a:.8});
  }},
+{t:"A process inside a worker",tr:"complex object",s:"Now the really complex case. Inside the worker sits a business process, like a transfer. That process is an object with its own children. An event type, a reason, a status, a date, who started it. A proposed job, with a position and an organization, and that organization has parents. And a list of steps, each with an approver. Children of children of children. You go down one loop at a time, and save what you need from above in variables.",
+ rem:[["Process = object with children","indigo"],["Proposed job inside the event","teal"],["Steps repeat inside the event","amber"],["One loop per level","gray"]],
+ build:function(c){
+  c.box(10,8,150,40,'teal',"Worker",null,.04);c.box(10,66,150,40,'indigo',"Process","the event",.14);c.line(85,48,85,66,.1,.14);
+  [["Type + Reason",200,'gray'],["Status, Date, Who",200,'gray'],["Proposed_Job",200,'teal'],["Steps (repeat)",200,'amber']].forEach(function(b,i){c.box(b[1],8+i*50,170,40,b[2],b[0],null,.26+i*.1);c.line(160,86,b[1],28+i*50,.22+i*.1,.28+i*.1)});
+  c.box(410,108,180,40,'teal',"Position + Org",null,.6);c.box(410,158,180,40,'amber',"Parent orgs L2, L1",null,.7);c.line(370,128,410,128,.56,.6);c.line(500,148,500,158,.64,.7);
+  c.box(410,8,180,40,'gray',"Step 1: approve",null,.74);c.box(410,58,180,40,'gray',"Step 2: finance",null,.8);c.line(370,178,410,28,.7,.74);
+  c.txt(300,262,"Worker > Process > Proposed job > Org > Parent",16,{w:700,fill:'var(--accent)',a:.85});
+  c.txt(300,296,"Three loops, three variables, one line per step",15,{fill:'var(--muted)',a:.9});
+ }},
 {t:"Going up the org tree",tr:"hierarchy",s:"Organizations form a tree of their own. A team sits under a department, which sits under a division. In the XML, each level is nested inside the one below, or listed as a separate parent reference. Your stylesheet must walk up to level one, two, three. If a team is only one level deep, the higher levels are simply empty. Decide what the vendor should get then.",
  rem:[["Org tree: level 1, 2, 3","indigo"],["Walk up with nested paths","teal"],["Missing level = empty","coral"]],
  build:function(c){
